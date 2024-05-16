@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Timetracking_HSE_Bot.Activity">
+    <Position X="12.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAABACAAAAAQAAAAAAQAAAAAAAAAIAAAAAAAAAA=</HashCode>
+      <FileName>Activity.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Timetracking_HSE_Bot.DB">
+    <Position X="10.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAEACAACGAAAAAAAAoIAACAQAAAEAAAAgEBAA=</HashCode>
+      <FileName>DB.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Timetracking_HSE_Bot.TimeTracker">
+    <Position X="14.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAACAAAAAAAAAgAAAAAAAAAAAAIAAAAAAAAAg=</HashCode>
+      <FileName>TimeTracker.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Timetracking_HSE_Bot.User">
+    <Position X="16.25" Y="1.75" Width="1.5" />
+    <NestedTypes>
+      <Enum Name="Timetracking_HSE_Bot.User.State" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>User.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAABEAAAAAAABAAAAAAAAAABAAAAAAIAAAAAAAAAAA=</HashCode>
+      <FileName>User.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

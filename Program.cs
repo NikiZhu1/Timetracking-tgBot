@@ -9,7 +9,7 @@ namespace Timetracking_HSE_Bot
     internal class Program
     {
         static public TelegramBotClient botClient = new("");
-        const string token = "6761464907:AAHFMCFJJaRlEvt1obDsgYgqgliWw9mdyHg"; //
+        const string token = "6761464907:AAHFMCFJJaRlEvt1obDsgYgqgliWw9mdyHg";
 
         //Старт бота
         static async Task Main(string[] args)

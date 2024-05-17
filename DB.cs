@@ -272,9 +272,6 @@ namespace Timetracking_HSE_Bot
                             string name = reader["Name"].ToString();
                             bool isTracking = Convert.ToBoolean(reader["IsTracking"]);
                             activities.Add(new Activity(number, name, isTracking));
-                            Console.WriteLine(number);
-                            Console.WriteLine(name);
-                            Console.WriteLine(isTracking);
                         }
                         reader.Close();
                     }

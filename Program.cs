@@ -70,7 +70,7 @@ namespace Timetracking_HSE_Bot
                 DB.Registration(chatId, message.Chat.Username);
 
                 //Инициализация инлайн клавиатуры
-                InlineKeyboardMarkup activityKeyboard = BuildNewKeyboard(chatId, DB.GetActivityList(chatId));
+                InlineKeyboardMarkup activityKeyboard = BuildNewKeyboard(DB.GetActivityList(chatId));
 
                 //Вывод клавиатуры с сообщением
                 await botClient.SendTextMessageAsync(
@@ -139,7 +139,7 @@ namespace Timetracking_HSE_Bot
                     // Сбросить состояние пользователя
                     User.ResetState(chatId);
 
-                    InlineKeyboardMarkup activityKeyboard = BuildNewKeyboard(chatId, DB.GetActivityList(chatId));
+                    InlineKeyboardMarkup activityKeyboard = BuildNewKeyboard(DB.GetActivityList(chatId));
 
                     // Отправляем сообщение
                     await botClient.SendTextMessageAsync(
@@ -175,7 +175,7 @@ namespace Timetracking_HSE_Bot
                     // Сбросить состояние пользователя
                     User.ResetState(chatId);
 
-                    InlineKeyboardMarkup activityKeyboard = BuildNewKeyboard(chatId, DB.GetActivityList(chatId));
+                    InlineKeyboardMarkup activityKeyboard = BuildNewKeyboard(DB.GetActivityList(chatId));
 
                     await botClient.SendTextMessageAsync(
                       chatId: chatId,
@@ -186,30 +186,24 @@ namespace Timetracking_HSE_Bot
         }
 
         //Строит клавиатуру по списку активностей
-        public static InlineKeyboardMarkup BuildNewKeyboard(long chatId, List<Activity> activityList)
+        public static InlineKeyboardMarkup BuildNewKeyboard(List<Activity> activityList)
         {
             List<InlineKeyboardButton[]> rows = new()
             {
                 new[] {InlineKeyboardButton.WithCallbackData("Добавить активность", "add_activity")}
             };
 
-            for (int i = 0; i < activityList.Capacity; i++)
+            foreach (Activity activity in activityList)
             {
-                if (activityList[i] != null)
-                {
-                    // Проверяем статус отслеживания активности
-                    bool isTracking = activityList[i].IsTracking;
+                // Создаем кнопки для активности
+                var activityButton = activity.IsTracking
+                    ? InlineKeyboardButton.WithCallbackData($"⏱️ {activity.Name}", $"aboutAct{activity.Number}")
+                    : InlineKeyboardButton.WithCallbackData($"{activity.Name}", $"aboutAct{activity.Number}");
+                var statusButton = activity.IsTracking
+                    ? InlineKeyboardButton.WithCallbackData("⏹ СТОП", $"stop_{activity.Number}")
+                    : InlineKeyboardButton.WithCallbackData("❇️ СТАРТ", $"start_{activity.Number}");
 
-                    // Создаем кнопки для активности
-                    var activityButton = isTracking
-                        ? InlineKeyboardButton.WithCallbackData($"⏱️ {activityList[i].Name}", $"aboutAct{i + 1}")
-                        : InlineKeyboardButton.WithCallbackData($"{activityList[i].Name}", $"aboutAct{i + 1}");
-                    var statusButton = isTracking
-                        ? InlineKeyboardButton.WithCallbackData("⏹ СТОП", $"stop_{i + 1}")
-                        : InlineKeyboardButton.WithCallbackData("❇️ СТАРТ", $"start_{i + 1}");
-
-                    rows.Add(new[] { activityButton, statusButton });
-                }
+                rows.Add(new[] { activityButton, statusButton });
             }
 
             rows.Add(new[] { InlineKeyboardButton.WithCallbackData("Статистика активностей", "statistic") });
@@ -333,7 +327,7 @@ namespace Timetracking_HSE_Bot
 
                         DB.DeleteActivity(chatId, actNumber);
 
-                        InlineKeyboardMarkup activityKeyboard = BuildNewKeyboard(chatId, DB.GetActivityList(chatId));
+                        InlineKeyboardMarkup activityKeyboard = BuildNewKeyboard(DB.GetActivityList(chatId));
 
                         await botClient.SendTextMessageAsync(
                         chatId: chatId,
@@ -359,7 +353,7 @@ namespace Timetracking_HSE_Bot
                         await botClient.EditMessageReplyMarkupAsync(
                             chatId: chatId,
                             messageId: messageId,
-                            replyMarkup: BuildNewKeyboard(chatId, DB.GetActivityList(chatId))
+                            replyMarkup: BuildNewKeyboard(DB.GetActivityList(chatId))
                         );
 
                         await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "Тайм-трекер запущен");
@@ -383,7 +377,7 @@ namespace Timetracking_HSE_Bot
 
                         await botClient.SendTextMessageAsync(chatId,
                         text: "⏱ Вот все твои активности. Нажми на ту, которую хочешь изменить или узнать подробности.",
-                        replyMarkup: BuildNewKeyboard(chatId, DB.GetActivityList(chatId)));
+                        replyMarkup: BuildNewKeyboard(DB.GetActivityList(chatId)));
 
                         await botClient.SendTextMessageAsync(chatId,
                             $"🏁 {activityList[actNumber - 1].Name}: затрачено {hours} ч. {min} мин. {sec} сек");

@@ -431,6 +431,41 @@ namespace Timetracking_HSE_Bot
             return result;
         }
 
+        /// <summary>
+        /// Прочитать логическую переменную в БД
+        /// </summary>
+        /// <param name="findColumn">Искомый столбец</param>
+        /// <param name="chatId">id пользователя</param>
+        /// <returns>Переменная типа bool</returns>
+        public static bool Read(string findColumn, long chatId, string table = "ActivityMonitor")
+        {
+            bool result = false;
+            try
+            {
+                DBConection.Open();
+
+                using SQLiteCommand cmd = DBConection.CreateCommand();
+                {
+
+                    cmd.CommandText = $"SELECT {findColumn} FROM {table} WHERE ChatId = @ChatId";
+
+                    result = (bool)cmd.ExecuteScalar();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Ошибка: " + ex);
+            }
+            finally
+            {
+                DBConection?.Close();
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Установить статус для активности в таблице ActivityMonitor
         /// </summary>
         /// <param name="chatId">id пользователя</param>
         /// <param name="actNumber">номер активности</param>
@@ -443,7 +478,7 @@ namespace Timetracking_HSE_Bot
 
                 using (SQLiteCommand cmd = DBConection.CreateCommand())
                 {
-                    cmd.CommandText = $"UPDATE Activities SET IsTracking = @value WHERE ChatId = @chatId AND Number = @actNumber";
+                    cmd.CommandText = $"UPDATE ActivityMonitor SET act{actNumber} = @value WHERE ChatId = @chatId";
                     cmd.Parameters.AddWithValue("@value", isStarted);
                     cmd.Parameters.AddWithValue("@chatId", chatId);
                     cmd.Parameters.AddWithValue("@actNumber", actNumber);

@@ -253,19 +253,17 @@ namespace Timetracking_HSE_Bot
                         activityList = DB.GetActivityList(chatId, true);
 
                         string textWithStatistic = "";
-                        for (int i = 1; i <= activityList.Capacity; i++)
+                        foreach (Activity activity in activityList)
                         {
-                            if (activityList[i - 1] != null)
+                            double result = DB.GetStatistic(chatId, activity.Number);
+                            if (result != 0)
                             {
-                                double result = DB.GetStatistic(chatId, i);
-                                if (result != 0)
-                                {
-                                    int hours = (int)result / 3600;
-                                    int min = ((int)(result - hours * 3600)) / 60;
-                                    double sec = result - 3600 * hours - 60 * min;
-                                    textWithStatistic += $"{activityList[i - 1].Name}: {hours} ч. {min} мин. {sec} сек.\n";
-                                }
+                                int hours = (int)result / 3600;
+                                int min = ((int)(result - hours * 3600)) / 60;
+                                double sec = result - 3600 * hours - 60 * min;
+                                textWithStatistic += $"{activity.Name}: {hours} ч. {min} мин. {sec} сек.\n"; //убрать нули когда-нибудь
                             }
+
                         }
 
                         Console.WriteLine($"{chatId}: Получение статистики");
@@ -279,7 +277,8 @@ namespace Timetracking_HSE_Bot
                         {
                             await botClient.SendTextMessageAsync(
                                   chatId: chatId,
-                                  text: "У вас пока нет записей о затраченном времени\n🚀 Запускай таймер и можешь отследить свой прогресс!");
+                                  text: "У вас пока нет записей о затраченном времени\n" +
+                                  "🚀 Запускай таймер и можешь отследить свой прогресс!");
                         }
 
                         await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);

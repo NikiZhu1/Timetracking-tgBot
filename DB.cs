@@ -261,17 +261,20 @@ namespace Timetracking_HSE_Bot
                 using SQLiteCommand cmd = DBConection.CreateCommand();
                 {
                     // Запрос для получения активностей
-                    cmd.CommandText = $"SELECT Number, Name, IsTracking FROM Activities WHERE ChatId = @ChatId";
-                    cmd.Parameters.AddWithValue("@ChatId", chatId);
+                    cmd.CommandText = $"SELECT Number, Name, IsTracking FROM Activities WHERE ChatId = @chatId AND DateEnd IS NULL";
+                    cmd.Parameters.AddWithValue("@chatId", chatId);
 
                     using var reader = cmd.ExecuteReader();
                     {
                         while (reader.Read())
                         {
-                            int number = (int)reader["Number"];
+                            int number = Convert.ToInt32(reader["Number"]);
                             string name = reader["Name"].ToString();
                             bool isTracking = Convert.ToBoolean(reader["IsTracking"]);
                             activities.Add(new Activity(number, name, isTracking));
+                            Console.WriteLine(number);
+                            Console.WriteLine(name);
+                            Console.WriteLine(isTracking);
                         }
                         reader.Close();
                     }

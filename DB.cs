@@ -1,4 +1,5 @@
 ﻿using System.Data.SQLite;
+using System.Text.RegularExpressions;
 
 namespace Timetracking_HSE_Bot
 {
@@ -197,10 +198,10 @@ namespace Timetracking_HSE_Bot
         public static List<Activity> GetActivityList(long chatId, bool getFullList = false)
         {
             List<Activity> activities = new(10);
-            string command = $"SELECT Number, Name, IsTracking, DateStart, DateEnd FROM Activities WHERE ChatId = @chatId AND DateEnd IS NULL";
+            string command = $"SELECT Number, Name, IsTracking, DateStart, DateEnd FROM Activities WHERE ChatId = @chatId";
 
-            if (getFullList)
-                command = $"SELECT Number, Name, IsTracking, DateStart, DateEnd FROM Activities WHERE ChatId = @chatId";
+            if (!getFullList)
+                command += " AND DateEnd IS NULL";
 
             try
             {
@@ -253,21 +254,56 @@ namespace Timetracking_HSE_Bot
             return activities;
         }
 
+        // Класс для пользовательской функции REGEXP
+        public class RegexpSQLiteFunction : SQLiteFunction
+        {
+            public override object Invoke(object[] args)
+            {
+                string pattern = args[0].ToString();
+                string input = args[1].ToString();
+                return Regex.IsMatch(input, pattern);
+            }
+        }
+
         /// <summary>
         /// Получить затраченное время на активность из таблицы StartStopAct
         /// </summary>
         /// <param name="chatId">id пользователя</param>
         /// <param name="actNumber">Номер активности</param>
+        /// <param name="monthNumber">Номер месяца</param>
         /// <returns></returns>
-        public static double GetStatistic(long chatId, int actNumber)
+        public static int GetStatistic(long chatId, int actNumber, int monthNumber = 0)
         {
+            string command = $"SELECT SUM(TotalTime) FROM StartStopAct WHERE ChatId = @chatId AND Number = @act";
+
+            if (monthNumber != 0)
+            {
+                string month = monthNumber.ToString("00"); // Преобразует число в строку с ведущим нулем
+                string pattern = $@"^\d{{4}}-{month}-\d{{2}} \d{{2}}:\d{{2}}:\d{{2}}$";
+
+                command += $" AND StopTime REGEXP '{pattern}'";
+            }
+
             try
             {
                 DBConection.Open();
 
+                // Создание атрибута для функции REGEXP
+                var attribute = new SQLiteFunctionAttribute();
+                attribute.Name = "REGEXP";
+                attribute.Arguments = 2;
+                attribute.FuncType = FunctionType.Scalar;
+
+                // Создание экземпляра пользовательской функции
+                var function = new RegexpSQLiteFunction();
+
+                // Привязка функции к соединению
+                DBConection.BindFunction(attribute, function);
+
                 using SQLiteCommand cmd = DBConection.CreateCommand();
                 {
-                    cmd.CommandText = "SELECT SUM(TotalTime) FROM StartStopAct WHERE ChatId = @chatId AND Number = @act";
+
+                    cmd.CommandText = command;
 
                     cmd.Parameters.AddWithValue("@chatId", chatId);
                     cmd.Parameters.AddWithValue("@act", actNumber);
@@ -276,7 +312,7 @@ namespace Timetracking_HSE_Bot
 
                     if (sumTime != null && sumTime != DBNull.Value)
                     {
-                        return Convert.ToDouble(sumTime);
+                        return Convert.ToInt32(sumTime);
                     }
                     else
                     {

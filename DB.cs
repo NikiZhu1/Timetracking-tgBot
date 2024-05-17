@@ -119,28 +119,72 @@ namespace Timetracking_HSE_Bot
             }
         }
 
-        ///<summary>
-        ///Возвращает количество активностей пользователя
-        ///</summary>
-        public static int GetAllActivitiesCount(long chatId)
+        /////<summary>
+        /////Возвращает количество активностей пользователя
+        /////</summary>
+        //public static int GetAllActivitiesCount(long chatId)
+        //{
+        //    int result = 0;
+        //    try
+        //    {
+        //        DBConection.Open();
+        //        using (SQLiteCommand cmd = DBConection.CreateCommand())
+        //        {
+        //            cmd.CommandText = $"SELECT Number FROM Activities WHERE ChatId = @chatId ORDER BY Number DESC LIMIT 1";
+        //            cmd.Parameters.AddWithValue("@chatId", chatId);
+
+        //            using var reader = cmd.ExecuteReader();
+        //            {
+        //                if (reader.Read())
+        //                {
+        //                    result = Convert.ToInt32(reader["Number"]);
+        //                }
+        //                reader.Close();
+        //            }
+        //            cmd.ExecuteNonQuery();
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine("Ошибка: " + ex);
+        //    }
+        //    finally
+        //    {
+        //        DBConection?.Close();
+        //    }
+        //    return result;
+        //}
+
+        /// <summary>
+        /// список всех активностей пользователя - завершенных и актуальных
+        /// </summary>
+        /// <param name="chatId"></param>
+        /// <returns></returns>
+        public static List<Activity> GetAllActivities(long chatId)
         {
-            int result = 0;
+            List<Activity> allActivities = new(10);
+
             try
             {
                 DBConection.Open();
-                using (SQLiteCommand cmd = DBConection.CreateCommand())
+
+                using SQLiteCommand cmd = DBConection.CreateCommand();
                 {
-                    cmd.CommandText = $"SELECT Number FROM Activities WHERE ChatId = @chatId ORDER BY Number DESC LIMIT 1";
+                    // Запрос для получения активностей
+                    cmd.CommandText = $"SELECT Number, Name, IsTracking FROM Activities WHERE ChatId = @chatId";
                     cmd.Parameters.AddWithValue("@chatId", chatId);
 
                     using var reader = cmd.ExecuteReader();
                     {
-                        if (reader.Read())
+                        while (reader.Read())
                         {
-                            result = Convert.ToInt32(reader["Number"]);
+                            int number = Convert.ToInt32(reader["Number"]);
+                            string name = reader["Name"].ToString();
+                            bool isTracking = Convert.ToBoolean(reader["IsTracking"]);
+                            allActivities.Add(new Activity(number, name, isTracking));
                         }
+                        reader.Close();
                     }
-                    cmd.ExecuteNonQuery();
                 }
             }
             catch (Exception ex)
@@ -151,7 +195,8 @@ namespace Timetracking_HSE_Bot
             {
                 DBConection?.Close();
             }
-            return result;
+
+            return allActivities;
         }
 
         /// <summary>
@@ -161,7 +206,8 @@ namespace Timetracking_HSE_Bot
         /// <param name="newValue">Название добавляемой активности</param>
         public static void AddActivity(long chatId, string newValue)
         {
-            int actCount = GetAllActivitiesCount(chatId) + 1;
+            List<Activity> allActivities = DB.GetAllActivities(chatId);
+            int actCount = allActivities.Count+ 1;
 
             try
             {

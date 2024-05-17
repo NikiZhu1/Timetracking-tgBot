@@ -24,36 +24,19 @@
         /// <returns></returns>
         public static bool IsNotRepeatingName(string? activityName, long chatId, int? actNumber = null)
         {
-
+            //int actCount = DB.GetAllActivitiesCount(chatId);
+            List<Activity> allActivities = DB.GetAllActivities(chatId);
             bool result = true;
 
-            for (int i = 1; i < 10; i++)
+
+            foreach (Activity activity in allActivities)
             {
-                result = (DB.Read("Activities", activityName, chatId) != activityName);
-
-                //Если уже такая есть, break
-                if (!result)
+                if (activity.Name == activityName)
+                {
+                    result = false;
                     break;
-
-                //Если юзер изменяет активность на то же название, что и было - игнорируем
-                if (actNumber == i)
-                    continue;
+                }
             }
-
-            //bool result = true;
-
-            //for (int i = 1; i < 10; i++)
-            //{
-            //    result = (DB.Read("RegUsers", $"act{i}", chatId) != activityName);
-
-            //    //Если уже такая есть, break
-            //    if (!result)
-            //        break;
-
-            //    //Если юзер изменяет активность на то же название, что и было - игнорируем
-            //    if (actNumber == i)
-            //        continue;
-            //}
 
             return result;
         }

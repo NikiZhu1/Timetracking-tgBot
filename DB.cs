@@ -266,15 +266,12 @@ namespace Timetracking_HSE_Bot
 
                     using var reader = cmd.ExecuteReader();
                     {
-                        if (reader.Read())
+                        while (reader.Read())
                         {
-                            for (int i = 0; i < 10; i++)
-                            {
-                                int number = (int)reader["Number"];
-                                string name = reader["Name"].ToString();
-                                bool isTracking = Convert.ToBoolean(reader["IsTracking"]);
-                                activities.Add(new Activity(number, name, isTracking));
-                            }
+                            int number = (int)reader["Number"];
+                            string name = reader["Name"].ToString();
+                            bool isTracking = Convert.ToBoolean(reader["IsTracking"]);
+                            activities.Add(new Activity(number, name, isTracking));
                         }
                         reader.Close();
                     }

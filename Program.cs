@@ -8,6 +8,7 @@ namespace Timetracking_HSE_Bot
 {
     internal class Program
     {
+        public static int totalActivitiesCount = 10;
         static public TelegramBotClient botClient = new("");
         const string token = "6761464907:AAHFMCFJJaRlEvt1obDsgYgqgliWw9mdyHg";
 
@@ -239,16 +240,16 @@ namespace Timetracking_HSE_Bot
             {
                 case "add_activity":
                     {
-                        //if (activityList.Where(a => a != null).Count() == activityList.Capacity)
-                        //{
-                        //    Console.WriteLine($"{chatId}: Попытка добавления >10 активностей");
+                        if (activityList.Count() == totalActivitiesCount)
+                        {
+                            Console.WriteLine($"{chatId}: Попытка добавления >{totalActivitiesCount} активностей");
 
-                        //    await botClient.AnswerCallbackQueryAsync(callbackQuery.Id,
-                        //    "⚙️ Вы достигли максимального количества активностей (10).\n\n" +
-                        //    "Пожалуйста, удалите одну из существующих, чтобы добавить новую.",
-                        //    showAlert: true);
-                        //    break;
-                        //}
+                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id,
+                            $"⚙️ Вы достигли максимального количества активностей ({totalActivitiesCount}).\n\n" +
+                            "Пожалуйста, удалите одну из существующих, чтобы добавить новую.",
+                            showAlert: true);
+                            break;
+                        }
 
                         //Изменение состояния пользователя
                         User.SetState(chatId, User.State.WaitMessageForAddAct);

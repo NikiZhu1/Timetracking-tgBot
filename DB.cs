@@ -33,10 +33,6 @@ namespace Timetracking_HSE_Bot
                         regcmd.Parameters.AddWithValue("@Username", username);
                         regcmd.ExecuteNonQuery();
 
-                        // Добавляем пользователя в таблицу ActivityMonitor
-                        //regcmd.CommandText = "INSERT INTO ActivityMonitor (ChatId) VALUES (@chatId)";
-                        //regcmd.ExecuteNonQuery();
-
                         Console.WriteLine($"{chatId}: @{username} зарегестрирован");
                     }
                 }
@@ -123,6 +119,9 @@ namespace Timetracking_HSE_Bot
             }
         }
 
+        ///<summary>
+        ///Возвращает количество активностей пользователя
+        ///</summary>
         public static int GetAllActivitiesCount(long chatId)
         {
             int result = 0;
@@ -154,7 +153,6 @@ namespace Timetracking_HSE_Bot
             }
             return result;
         }
-
 
         /// <summary>
         /// Добавление активности в таблицу RegUsers
@@ -226,11 +224,9 @@ namespace Timetracking_HSE_Bot
             }
         }
 
-        /// <summary>
-        /// Получить лист активностей
-        /// </summary>
-        /// <param name="chatId">чат id пользователя</param>
-        /// <returns></returns>
+        ///<summary>
+        ///Получить лист активностей
+        ///</summary>
         public static List<Activity> GetActivityList(long chatId)
         {
             List<Activity> activities = new(10);
@@ -435,8 +431,6 @@ namespace Timetracking_HSE_Bot
             return result;
         }
 
-        /// <summary>
-        /// Установить статус для активности в таблице Activities
         /// </summary>
         /// <param name="chatId">id пользователя</param>
         /// <param name="actNumber">номер активности</param>

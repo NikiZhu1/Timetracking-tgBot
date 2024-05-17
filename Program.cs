@@ -360,7 +360,7 @@ namespace Timetracking_HSE_Bot
 
                         Activity? activity = activityList.FirstOrDefault(a => a.Number == actNumber);
 
-                        if (activityList[actNumber - 1].IsTracking)
+                        if (activity.IsTracking)
                         {
                             await Console.Out.WriteLineAsync($"{chatId}: Активность уже начата");
                             break;

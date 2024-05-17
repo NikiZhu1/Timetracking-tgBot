@@ -250,8 +250,10 @@ namespace Timetracking_HSE_Bot
                             int number = Convert.ToInt32(reader["Number"]);
                             string name = reader["Name"].ToString();
                             bool isTracking = Convert.ToBoolean(reader["IsTracking"]);
-                            DateTime dateStart = Convert.ToDateTime(reader["DateStart"]);
-                            DateTime dateEnd = Convert.ToDateTime(reader["DateEnd"]);
+                            DateTime dateStart = Convert.ToDateTime(reader["DateStart"].ToString());
+                            DateTime dateEnd = Convert.ToDateTime(reader["DateEnd"].ToString());
+       
+
                             activities.Add(new Activity(number, name, isTracking, dateStart, dateEnd));
                         }
                         reader.Close();

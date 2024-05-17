@@ -245,13 +245,22 @@ namespace Timetracking_HSE_Bot
 
                     using var reader = cmd.ExecuteReader();
                     {
+                        int number;
+                        string name;
+                        bool isTracking;
+                        DateTime? dateStart = null;
+                        DateTime? dateEnd = null;
+
                         while (reader.Read())
                         {
-                            int number = Convert.ToInt32(reader["Number"]);
-                            string name = reader["Name"].ToString();
-                            bool isTracking = Convert.ToBoolean(reader["IsTracking"]);
-                            DateTime dateStart = Convert.ToDateTime(reader["DateStart"]);
-                            DateTime dateEnd = Convert.ToDateTime(reader["DateEnd"]);
+                            number = Convert.ToInt32(reader["Number"]);
+                            name = reader["Name"].ToString();
+                            isTracking = Convert.ToBoolean(reader["IsTracking"]);
+                            if (reader["DateStart"] is not DBNull)
+                                dateStart = Convert.ToDateTime(reader["DateStart"]);
+                            if (reader["DateEnd"] is not DBNull)
+                                dateEnd = Convert.ToDateTime(reader["DateEnd"]);
+
                             activities.Add(new Activity(number, name, isTracking, dateStart, dateEnd));
                         }
                         reader.Close();

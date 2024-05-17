@@ -232,8 +232,12 @@ namespace Timetracking_HSE_Bot
         {
             int messageId = callbackQuery.Message.MessageId;
             long chatId = callbackQuery.Message.Chat.Id;
-            //List<string> activityList = DB.GetActivityList(chatId);
+ 
             List<Activity> activityList = DB.GetActivityList(chatId);
+
+            //int actNumber = int.Parse(Regex.Replace(callbackQuery.Data, @"\D", ""));
+
+            //Activity? activity = activityList.FirstOrDefault(a => a.Number == actNumber);
 
             switch (Regex.Replace(callbackQuery.Data, @"\d", ""))
             {
@@ -264,7 +268,7 @@ namespace Timetracking_HSE_Bot
                 case "statistic":
                     {
                         activityList = DB.GetActivityList(chatId, true);
-
+                     
                         string textWithStatistic = "";
                         foreach (Activity activity in activityList)
                         {
@@ -334,7 +338,6 @@ namespace Timetracking_HSE_Bot
                 case "rename":
                     {
                         int actNumber = int.Parse(Regex.Replace(callbackQuery.Data, @"\D", ""));
-
                         Activity? activity = activityList.FirstOrDefault(a => a.Number == actNumber);
 
                         //Изменение состояния пользователя
@@ -349,7 +352,6 @@ namespace Timetracking_HSE_Bot
                 case "delete":
                     {
                         int actNumber = int.Parse(Regex.Replace(callbackQuery.Data, @"\D", ""));
-
                         Activity? activity = activityList.FirstOrDefault(a => a.Number == actNumber);
 
                         if (activity.IsTracking)
@@ -378,7 +380,6 @@ namespace Timetracking_HSE_Bot
                 case "start_":
                     {
                         int actNumber = int.Parse(Regex.Replace(callbackQuery.Data, @"\D", ""));
-
                         Activity? activity = activityList.FirstOrDefault(a => a.Number == actNumber);
 
                         if (activity.IsTracking)
@@ -402,7 +403,6 @@ namespace Timetracking_HSE_Bot
                 case "stop_":
                     {
                         int actNumber = int.Parse(Regex.Replace(callbackQuery.Data, @"\D", ""));
-
                         Activity? activity = activityList.FirstOrDefault(a => a.Number == actNumber);
 
                         if (!activity.IsTracking)

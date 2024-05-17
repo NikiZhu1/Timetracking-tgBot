@@ -33,10 +33,6 @@ namespace Timetracking_HSE_Bot
                         regcmd.Parameters.AddWithValue("@Username", username);
                         regcmd.ExecuteNonQuery();
 
-                        // Добавляем пользователя в таблицу ActivityMonitor
-                        //regcmd.CommandText = "INSERT INTO ActivityMonitor (ChatId) VALUES (@chatId)";
-                        //regcmd.ExecuteNonQuery();
-
                         Console.WriteLine($"{chatId}: @{username} зарегестрирован");
                     }
                 }
@@ -123,6 +119,53 @@ namespace Timetracking_HSE_Bot
             }
         }
 
+        /// <summary>
+        /// Возврашает первый пустой столбец в таблице RegUsers
+        /// </summary>
+        /// <param name="chatId">id пользователя</param>
+        /// <returns></returns>
+        //public static int FindFirstNotNull(long chatId)
+        //{
+        //    try
+        //    {
+        //        DBConection.Open();
+
+        //        using SQLiteCommand cmd = DBConection.CreateCommand();
+        //        {
+        //            cmd.CommandText = $"SELECT * FROM RegUsers WHERE ChatId = @chatId";
+        //            cmd.Parameters.AddWithValue("@chatId", chatId);
+
+        //            using (var reader = cmd.ExecuteReader())
+        //            {
+        //                while (reader.Read())
+        //                {
+        //                    for (int i = 2; i <= 11; i++)
+        //                    {
+        //                        var value = reader.GetValue(i);
+        //                        if (value is System.DBNull)
+        //                        {
+        //                            return i;
+        //                        }
+        //                    }
+        //                }
+        //                reader.Close();
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine("Ошибка: " + ex);
+        //    }
+        //    finally
+        //    {
+        //        DBConection?.Close();
+        //    }
+        //    return 0;
+        //}
+
+        ///<summary>
+        ///Возвращает количество активностей пользователя
+        ///</summary>
         public static int GetAllActivitiesCount(long chatId)
         {
             int result = 0;
@@ -154,7 +197,6 @@ namespace Timetracking_HSE_Bot
             }
             return result;
         }
-
 
         /// <summary>
         /// Добавление активности в таблицу RegUsers
@@ -226,11 +268,9 @@ namespace Timetracking_HSE_Bot
             }
         }
 
-        /// <summary>
-        /// Получить лист активностей
-        /// </summary>
-        /// <param name="chatId">чат id пользователя</param>
-        /// <returns></returns>
+        ///<summary>
+        ///Получить лист активностей
+        ///</summary>
         public static List<Activity> GetActivityList(long chatId)
         {
             List<Activity> activities = new(10);
@@ -421,40 +461,6 @@ namespace Timetracking_HSE_Bot
                             result = DateTime.Parse(Convert.ToString(reader[findColumn]) ?? System.String.Empty);
                         }
                     }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Ошибка: " + ex);
-            }
-            finally
-            {
-                DBConection?.Close();
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// Прочитать логическую переменную в БД
-        /// </summary>
-        /// <param name="findColumn">Искомый столбец</param>
-        /// <param name="chatId">id пользователя</param>
-        /// <returns>Переменная типа bool</returns>
-        public static bool Read(string findColumn, long chatId, string table = "ActivityMonitor")
-        {
-            bool result = false;
-            try
-            {
-                DBConection.Open();
-
-                using SQLiteCommand cmd = DBConection.CreateCommand();
-                {
-
-                    cmd.CommandText = $"SELECT {findColumn} FROM {table} WHERE ChatId = @ChatId";
-                    cmd.Parameters.AddWithValue("@ChatId", chatId);
-
-                    result = (bool)cmd.ExecuteScalar();
                 }
             }
             catch (Exception ex)

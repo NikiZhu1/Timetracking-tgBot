@@ -242,33 +242,26 @@ namespace Timetracking_HSE_Bot
         }
 
         /// <summary>
-        /// Удаление активности из таблиц RegUsers и StartStopAct
+        /// Завершить активность в таблице Activities
         /// </summary>
         /// <param name="chatId">id пользователя</param>
         /// <param name="actNumber">Номер активности</param>
-        public static void DeleteActivity(long chatId, int actNumber)
+        public static void EndActivity(long chatId, int actNumber)
         {
             try
             {
+                DateTime dateEnd = DateTime.Now;
                 DBConection.Open();
 
-                using SQLiteCommand deleterecord = DBConection.CreateCommand();
+                using SQLiteCommand cmd = DBConection.CreateCommand();
                 {
-                    //Удаление из RegUsers
-                    deleterecord.CommandText = $"UPDATE RegUsers SET act{actNumber} = NULL WHERE ChatId = @chatId";
-                    deleterecord.Parameters.AddWithValue("@chatId", chatId);
-                    deleterecord.ExecuteNonQuery();
+                    //Завершение активности в Activities
+                    cmd.CommandText = $"UPDATE Activities SET DateEnd = @dateEnd WHERE ChatId = @chatId AND Number = @actNumber";
+                    cmd.Parameters.AddWithValue("@dateEnd", dateEnd.ToString("yyyy-MM-dd"));
+                    cmd.Parameters.AddWithValue("@actNumber", actNumber);
+                    cmd.ExecuteNonQuery();
 
-                    //Удаление из StartStopAct
-                    deleterecord.CommandText = $"DELETE FROM StartStopAct WHERE ChatId = @chatId AND Act = @act";
-                    deleterecord.Parameters.AddWithValue("@act", actNumber);
-                    deleterecord.ExecuteNonQuery();
-
-                    //Обнуление статуса активности в ActivityMonitor
-                    deleterecord.CommandText = $"UPDATE ActivityMonitor SET act{actNumber} = 0 WHERE ChatId = @chatId";
-                    deleterecord.ExecuteNonQuery();
-
-                    Console.WriteLine($"{chatId}: Активность #{actNumber} удалена");
+                    Console.WriteLine($"{chatId}: Активность #{actNumber} окончена");
                 }
             }
             catch (Exception ex)

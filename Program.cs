@@ -325,7 +325,7 @@ namespace Timetracking_HSE_Bot
                             showAlert: true);
                         }
 
-                        DB.DeleteActivity(chatId, actNumber);
+                        DB.EndActivity(chatId, actNumber);
 
                         InlineKeyboardMarkup activityKeyboard = BuildNewKeyboard(DB.GetActivityList(chatId));
 

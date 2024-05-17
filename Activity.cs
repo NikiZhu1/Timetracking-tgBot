@@ -20,11 +20,11 @@
             set { }
         }
 
-        public DateTime DateStart { get; set; }
+        public DateTime? DateStart { get; set; }
 
         public DateTime? DateEnd { get; set; }
 
-        public Activity(int number, string name, bool isTracking, DateTime dateStart, DateTime dateEnd)
+        public Activity(int number, string name, bool isTracking, DateTime? dateStart, DateTime? dateEnd)
         {
             Number = number;
             Name = name;

@@ -11,7 +11,7 @@ namespace Timetracking_HSE_Bot
         public static string fullPath = Path.GetFullPath($"{fileName}");
 
         /// <summary>
-        /// Занесение id и username пользователя в базу данных c активностями
+        /// Занесение id и username пользователя в бд
         /// </summary>
         /// <param name="chatId">id пользователя</param>
         /// <param name="username">Юзернэйм пользователя</param>
@@ -121,7 +121,7 @@ namespace Timetracking_HSE_Bot
         }
 
         /// <summary>
-        /// Добавление активности в таблицу RegUsers
+        /// Добавить активность
         /// </summary>
         /// <param name="chatId">id пользователя</param>
         /// <param name="newValue">Название добавляемой активности</param>
@@ -254,7 +254,9 @@ namespace Timetracking_HSE_Bot
             return activities;
         }
 
-        // Класс для пользовательской функции REGEXP
+        /// <summary>
+        /// Класс для пользовательской функции REGEXP
+        /// </summary>
         public class RegexpSQLiteFunction : SQLiteFunction
         {
             public override object Invoke(object[] args)
@@ -454,7 +456,7 @@ namespace Timetracking_HSE_Bot
         }
 
         /// <summary>
-        /// Установить статус для активности в таблице ActivityMonitor
+        /// Установить статус для активности
         /// </summary>
         /// <param name="chatId">id пользователя</param>
         /// <param name="actNumber">номер активности</param>

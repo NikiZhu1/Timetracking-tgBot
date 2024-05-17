@@ -195,13 +195,19 @@ namespace Timetracking_HSE_Bot
 
             foreach (Activity activity in activityList)
             {
-                // Создаем кнопки для активности
-                var activityButton = activity.IsTracking
-                    ? InlineKeyboardButton.WithCallbackData($"⏱️ {activity.Name}", $"aboutAct{activity.Number}")
-                    : InlineKeyboardButton.WithCallbackData($"{activity.Name}", $"aboutAct{activity.Number}");
-                var statusButton = activity.IsTracking
-                    ? InlineKeyboardButton.WithCallbackData("⏹ СТОП", $"stop_{activity.Number}")
-                    : InlineKeyboardButton.WithCallbackData("❇️ СТАРТ", $"start_{activity.Number}");
+                InlineKeyboardButton activityButton = new("");
+                InlineKeyboardButton statusButton = new("");
+
+                if (!activity.IsEnded)
+                {
+                    // Создаем кнопки для активности
+                    activityButton = activity.IsTracking
+                        ? InlineKeyboardButton.WithCallbackData($"⏱️ {activity.Name}", $"aboutAct{activity.Number}")
+                        : InlineKeyboardButton.WithCallbackData($"{activity.Name}", $"aboutAct{activity.Number}");
+                    statusButton = activity.IsTracking
+                        ? InlineKeyboardButton.WithCallbackData("⏹ СТОП", $"stop_{activity.Number}")
+                        : InlineKeyboardButton.WithCallbackData("❇️ СТАРТ", $"start_{activity.Number}");
+                }
 
                 rows.Add(new[] { activityButton, statusButton });
             }

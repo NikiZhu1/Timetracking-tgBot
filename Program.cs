@@ -223,16 +223,16 @@ namespace Timetracking_HSE_Bot
             {
                 case "add_activity":
                     {
-                        if (activityList.Where(a => a != null).Count() == activityList.Capacity)
-                        {
-                            Console.WriteLine($"{chatId}: Попытка добавления >10 активностей");
+                        //if (activityList.Where(a => a != null).Count() == activityList.Capacity)
+                        //{
+                        //    Console.WriteLine($"{chatId}: Попытка добавления >10 активностей");
 
-                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id,
-                            "⚙️ Вы достигли максимального количества активностей (10).\n\n" +
-                            "Пожалуйста, удалите одну из существующих, чтобы добавить новую.",
-                            showAlert: true);
-                            break;
-                        }
+                        //    await botClient.AnswerCallbackQueryAsync(callbackQuery.Id,
+                        //    "⚙️ Вы достигли максимального количества активностей (10).\n\n" +
+                        //    "Пожалуйста, удалите одну из существующих, чтобы добавить новую.",
+                        //    showAlert: true);
+                        //    break;
+                        //}
 
                         //Изменение состояния пользователя
                         User.SetState(chatId, User.State.WaitMessageForAddAct);

@@ -171,20 +171,26 @@ namespace Timetracking_HSE_Bot
 
 
 
-        public static void GetAllActivitiesCount(long chatId)
+        public static int GetAllActivitiesCount(long chatId)
         {
+            int result = 0;
             try
             {
                 DBConection.Open();
                 using (SQLiteCommand cmd = DBConection.CreateCommand())
                 {
                     cmd.CommandText = $"SELECT Number FROM Activities WHERE ChatId = @chatId ORDER BY Number DESC LIMIT 1";
-              
-                   
-                    cmd.ExecuteNonQuery();
-                }
+                    cmd.Parameters.AddWithValue("@chatId", chatId);
 
-                
+                    using var reader = cmd.ExecuteReader();
+                    {
+                        if (reader.Read())
+                        {
+                            result = Convert.ToInt32(reader["Number"]);
+                        }
+                    }
+                    cmd.ExecuteNonQuery();
+                }  
             }
             catch (Exception ex)
             {
@@ -194,6 +200,7 @@ namespace Timetracking_HSE_Bot
             {
                 DBConection?.Close();
             }
+            return result;
         }
 
 
@@ -204,13 +211,8 @@ namespace Timetracking_HSE_Bot
         /// <param name="newValue">Название добавляемой активности</param>
         public static void AddActivity(long chatId, string newValue)
         {
-            //int actCount = FindFirstNotNull(chatId) - 1;
+            int actCount = GetAllActivitiesCount(chatId) + 1;
 
-            //if (actCount < 0)
-            //{
-            //    Console.WriteLine($"{chatId}: Попытка добавления >10 активностей");
-            //    throw new Exception("Имеется уже максимум активностей");
-            //}
             try
             {
                 DBConection.Open();
@@ -218,20 +220,16 @@ namespace Timetracking_HSE_Bot
 
                 using (SQLiteCommand cmd = DBConection.CreateCommand())
                 {
-                    cmd.CommandText = "INSERT INTO Activities (ChatId, Number, Name, IsActive, DateStart) VALUES (@chatId, @number, @name, @isActive,  @dateStart)";
+                    cmd.CommandText = "INSERT INTO Activities (ChatId, Number, Name, IsTracking, DateStart) VALUES (@chatId, @number, @name, @isTracking,  @dateStart)";
                     cmd.Parameters.AddWithValue("@name", newValue);
                     cmd.Parameters.AddWithValue("@chatId", chatId);
-            //        cmd.Parameters.AddWithValue("@number", number);
-            //        cmd.Parameters.AddWithValue("@isActive", 0);
-            //        cmd.Parameters.AddWithValue("@dateStart", dateStart.Date);
-            //        cmd.ExecuteNonQuery();
-
-            //        regcmd.CommandText = "INSERT INTO RegUsers (ChatId, Username) VALUES (@chatId, @Username)";
-            //        regcmd.Parameters.AddWithValue("@Username", username);
-            //        regcmd.ExecuteNonQuery();
+                    cmd.Parameters.AddWithValue("@number", actCount);
+                    cmd.Parameters.AddWithValue("@isTracking", 0);
+                    cmd.Parameters.AddWithValue("@dateStart", dateStart.Date);
+                    cmd.ExecuteNonQuery();
                 }
 
-            //    Console.WriteLine($"{chatId}: Активность #{actCount} добавлена");
+                Console.WriteLine($"{chatId}: Активность #{actCount} - {newValue} - добавлена");
             }
             catch (Exception ex)
             {

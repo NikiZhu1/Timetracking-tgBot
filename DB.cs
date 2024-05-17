@@ -268,7 +268,7 @@ namespace Timetracking_HSE_Bot
                     {
                         if (reader.Read())
                         {
-                            for (int i = 1; i <= 10; i++)
+                            for (int i = 0; i < 10; i++)
                             {
                                 int number = (int)reader["Number"];
                                 string name = reader["Name"].ToString();

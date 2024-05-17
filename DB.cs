@@ -128,44 +128,44 @@ namespace Timetracking_HSE_Bot
         /// </summary>
         /// <param name="chatId">id пользователя</param>
         /// <returns></returns>
-        public static int FindFirstNotNull(long chatId)
-        {
-            try
-            {
-                DBConection.Open();
+        //public static int FindFirstNotNull(long chatId)
+        //{
+        //    try
+        //    {
+        //        DBConection.Open();
 
-                using SQLiteCommand cmd = DBConection.CreateCommand();
-                {
-                    cmd.CommandText = $"SELECT * FROM RegUsers WHERE ChatId = @chatId";
-                    cmd.Parameters.AddWithValue("@chatId", chatId);
+        //        using SQLiteCommand cmd = DBConection.CreateCommand();
+        //        {
+        //            cmd.CommandText = $"SELECT * FROM RegUsers WHERE ChatId = @chatId";
+        //            cmd.Parameters.AddWithValue("@chatId", chatId);
 
-                    using (var reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            for (int i = 2; i <= 11; i++)
-                            {
-                                var value = reader.GetValue(i);
-                                if (value is System.DBNull)
-                                {
-                                    return i;
-                                }
-                            }
-                        }
-                        reader.Close();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Ошибка: " + ex);
-            }
-            finally
-            {
-                DBConection?.Close();
-            }
-            return 0;
-        }
+        //            using (var reader = cmd.ExecuteReader())
+        //            {
+        //                while (reader.Read())
+        //                {
+        //                    for (int i = 2; i <= 11; i++)
+        //                    {
+        //                        var value = reader.GetValue(i);
+        //                        if (value is System.DBNull)
+        //                        {
+        //                            return i;
+        //                        }
+        //                    }
+        //                }
+        //                reader.Close();
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine("Ошибка: " + ex);
+        //    }
+        //    finally
+        //    {
+        //        DBConection?.Close();
+        //    }
+        //    return 0;
+        //}
 
         /// <summary>
         /// Добавление активности в таблицу RegUsers
@@ -174,26 +174,34 @@ namespace Timetracking_HSE_Bot
         /// <param name="newValue">Название добавляемой активности</param>
         public static void AddActivity(long chatId, string newValue)
         {
-            int actCount = FindFirstNotNull(chatId) - 1;
+            //int actCount = FindFirstNotNull(chatId) - 1;
 
-            if (actCount < 0)
-            {
-                Console.WriteLine($"{chatId}: Попытка добавления >10 активностей");
-                throw new Exception("Имеется уже максимум активностей");
-            }
+            //if (actCount < 0)
+            //{
+            //    Console.WriteLine($"{chatId}: Попытка добавления >10 активностей");
+            //    throw new Exception("Имеется уже максимум активностей");
+            //}
             try
             {
                 DBConection.Open();
+                DateTime dateStart = DateTime.Now;
 
-                using (SQLiteCommand cmd = DBConection.CreateCommand())
-                {
-                    cmd.CommandText = $"UPDATE RegUsers SET act{actCount} = @newValue WHERE ChatId = @chatId";
-                    cmd.Parameters.AddWithValue("@newValue", newValue);
-                    cmd.Parameters.AddWithValue("@chatId", chatId);
-                    cmd.ExecuteNonQuery();
-                }
+                //using (SQLiteCommand cmd = DBConection.CreateCommand())
+                //{
+                //    cmd.CommandText = "INSERT INTO Activities (ChatId, Number, Name, IsActive, DateStart) VALUES (@chatId, @number, @name, @isActive,  @dateStart)";
+                //    cmd.Parameters.AddWithValue("@name", newValue);
+                //    cmd.Parameters.AddWithValue("@chatId", chatId);
+                //    cmd.Parameters.AddWithValue("@number", number);
+                //    cmd.Parameters.AddWithValue("@isActive", 0);
+                //    cmd.Parameters.AddWithValue("@dateStart", dateStart.Date);
+                //    cmd.ExecuteNonQuery();
 
-                Console.WriteLine($"{chatId}: Активность #{actCount} добавлена");
+                //    regcmd.CommandText = "INSERT INTO RegUsers (ChatId, Username) VALUES (@chatId, @Username)";
+                //    regcmd.Parameters.AddWithValue("@Username", username);
+                //    regcmd.ExecuteNonQuery();
+                //}
+
+                //Console.WriteLine($"{chatId}: Активность #{actCount} добавлена");
             }
             catch (Exception ex)
             {

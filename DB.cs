@@ -230,9 +230,13 @@ namespace Timetracking_HSE_Bot
         ///<summary>
         ///Получить лист активностей
         ///</summary>
-        public static List<Activity> GetActivityList(long chatId)
+        public static List<Activity> GetActivityList(long chatId, bool getFullList = false)
         {
             List<Activity> activities = new(10);
+            string command = $"SELECT Number, Name, IsTracking, DateStart, DateEnd FROM Activities WHERE ChatId = @chatId AND DateEnd IS NULL";
+
+            if (getFullList)
+                command = $"SELECT Number, Name, IsTracking, DateStart, DateEnd FROM Activities WHERE ChatId = @chatId";
 
             try
             {
@@ -241,7 +245,7 @@ namespace Timetracking_HSE_Bot
                 using SQLiteCommand cmd = DBConection.CreateCommand();
                 {
                     // Запрос для получения активностей
-                    cmd.CommandText = $"SELECT Number, Name, IsTracking, DateStart, DateEnd FROM Activities WHERE ChatId = @chatId";
+                    cmd.CommandText = command;
                     cmd.Parameters.AddWithValue("@chatId", chatId);
 
                     using var reader = cmd.ExecuteReader();
@@ -255,10 +259,14 @@ namespace Timetracking_HSE_Bot
                         while (reader.Read())
                         {
                             number = Convert.ToInt32(reader["Number"]);
+
                             name = reader["Name"].ToString();
+
                             isTracking = Convert.ToBoolean(reader["IsTracking"]);
+
                             if (reader["DateStart"] is not DBNull)
                                 dateStart = Convert.ToDateTime(reader["DateStart"]);
+
                             if (reader["DateEnd"] is not DBNull)
                                 dateEnd = Convert.ToDateTime(reader["DateEnd"]);
 

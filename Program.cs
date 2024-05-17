@@ -250,6 +250,8 @@ namespace Timetracking_HSE_Bot
                     }
                 case "statistic":
                     {
+                        activityList = DB.GetActivityList(chatId, true);
+
                         string textWithStatistic = "";
                         for (int i = 1; i <= activityList.Capacity; i++)
                         {

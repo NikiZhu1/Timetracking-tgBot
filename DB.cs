@@ -156,50 +156,6 @@ namespace Timetracking_HSE_Bot
         //}
 
         /// <summary>
-        /// список всех активностей пользователя - завершенных и актуальных
-        /// </summary>
-        /// <param name="chatId"></param>
-        /// <returns></returns>
-        public static List<Activity> GetAllActivities(long chatId)
-        {
-            List<Activity> allActivities = new(10);
-
-            try
-            {
-                DBConection.Open();
-
-                using SQLiteCommand cmd = DBConection.CreateCommand();
-                {
-                    // Запрос для получения активностей
-                    cmd.CommandText = $"SELECT Number, Name, IsTracking FROM Activities WHERE ChatId = @chatId";
-                    cmd.Parameters.AddWithValue("@chatId", chatId);
-
-                    using var reader = cmd.ExecuteReader();
-                    {
-                        while (reader.Read())
-                        {
-                            int number = Convert.ToInt32(reader["Number"]);
-                            string name = reader["Name"].ToString();
-                            bool isTracking = Convert.ToBoolean(reader["IsTracking"]);
-                            allActivities.Add(new Activity(number, name, isTracking));
-                        }
-                        reader.Close();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Ошибка: " + ex);
-            }
-            finally
-            {
-                DBConection?.Close();
-            }
-
-            return allActivities;
-        }
-
-        /// <summary>
         /// Добавление активности в таблицу RegUsers
         /// </summary>
         /// <param name="chatId">id пользователя</param>
@@ -207,7 +163,7 @@ namespace Timetracking_HSE_Bot
         public static void AddActivity(long chatId, string newValue)
         {
             List<Activity> allActivities = DB.GetAllActivities(chatId);
-            int actCount = allActivities.Count+ 1;
+            int actCount = allActivities.Count + 1;
 
             try
             {

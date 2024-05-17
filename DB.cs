@@ -34,8 +34,8 @@ namespace Timetracking_HSE_Bot
                         regcmd.ExecuteNonQuery();
 
                         // Добавляем пользователя в таблицу ActivityMonitor
-                        regcmd.CommandText = "INSERT INTO ActivityMonitor (ChatId) VALUES (@chatId)";
-                        regcmd.ExecuteNonQuery();
+                        //regcmd.CommandText = "INSERT INTO ActivityMonitor (ChatId) VALUES (@chatId)";
+                        //regcmd.ExecuteNonQuery();
 
                         Console.WriteLine($"{chatId}: @{username} зарегестрирован");
                     }

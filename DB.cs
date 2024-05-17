@@ -375,16 +375,13 @@ namespace Timetracking_HSE_Bot
 
                 using SQLiteCommand cmd = DBConection.CreateCommand();
                 {
-                    cmd.CommandText = $"UPDATE StartStopAct SET StopTime = @stoptime, TotalTime = @totalTime " +
-                       $"WHERE ChatId = @chatId AND Number = @act AND StartTime = @startTime";
-
                     cmd.Parameters.AddWithValue("@chatId", chatId);
                     cmd.Parameters.AddWithValue("@startTime", startTime);
                     cmd.Parameters.AddWithValue("@act", actNumber);
                     cmd.Parameters.AddWithValue("@stoptime", stopTime);
 
-                    //cmd.CommandText = $"UPDATE StartStopAct SET StopTime = @stoptime, TotalTime = @totalTime " +
-                    //    $"WHERE ChatId = @chatId AND Number = @act AND StartTime = @startTime";
+                    cmd.CommandText = $"UPDATE StartStopAct SET StopTime = @stoptime, TotalTime = @totalTime " +
+                        $"WHERE ChatId = @chatId AND Number = @act";// AND StartTime = @startTime";
 
                     result = stopTime - startTime;
                     int totalTime = result.Seconds + result.Minutes * 60 + result.Hours * 3600;

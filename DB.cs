@@ -370,7 +370,7 @@ namespace Timetracking_HSE_Bot
 
                 using SQLiteCommand cmd = DBConection.CreateCommand();
                 {
-                    cmd.CommandText = "INSERT INTO StartStopAct (ChatId, Act, StartTime, TotalTime) VALUES (@chatId, @act, @startTime, @totalTime)";
+                    cmd.CommandText = "INSERT INTO StartStopAct (ChatId, Number, StartTime, TotalTime) VALUES (@chatId, @act, @startTime, @totalTime)";
 
                     cmd.Parameters.AddWithValue("@chatId", chatId);
                     cmd.Parameters.AddWithValue("@startTime", startTime);
@@ -408,13 +408,16 @@ namespace Timetracking_HSE_Bot
 
                 using SQLiteCommand cmd = DBConection.CreateCommand();
                 {
+                    cmd.CommandText = $"UPDATE StartStopAct SET StopTime = @stoptime, TotalTime = @totalTime " +
+                       $"WHERE ChatId = @chatId AND Number = @act AND StartTime = @startTime";
+
                     cmd.Parameters.AddWithValue("@chatId", chatId);
                     cmd.Parameters.AddWithValue("@startTime", startTime);
                     cmd.Parameters.AddWithValue("@act", actNumber);
                     cmd.Parameters.AddWithValue("@stoptime", stopTime);
 
-                    cmd.CommandText = $"UPDATE StartStopAct SET StopTime = @stoptime, TotalTime = @totalTime " +
-                        $"WHERE ChatId = @chatId AND Act = @act AND StartTime = @startTime";
+                    //cmd.CommandText = $"UPDATE StartStopAct SET StopTime = @stoptime, TotalTime = @totalTime " +
+                    //    $"WHERE ChatId = @chatId AND Number = @act AND StartTime = @startTime";
 
                     result = stopTime - startTime;
                     int totalTime = result.Seconds + result.Minutes * 60 + result.Hours * 3600;
@@ -452,7 +455,7 @@ namespace Timetracking_HSE_Bot
 
                 using SQLiteCommand cmd = DBConection.CreateCommand();
                 {
-                    cmd.CommandText = $"SELECT {findColumn} FROM {table} WHERE ChatId = @chatId AND Act = @act ORDER BY {findColumn} DESC LIMIT 1";
+                    cmd.CommandText = $"SELECT {findColumn} FROM {table} WHERE ChatId = @chatId AND Number = @act ORDER BY {findColumn} DESC LIMIT 1";
                     cmd.Parameters.AddWithValue("@chatId", chatId);
                     cmd.Parameters.AddWithValue("@act", actNumber);
 
@@ -477,38 +480,38 @@ namespace Timetracking_HSE_Bot
             return result;
         }
 
-        /// <summary>
-        /// Прочитать логическую переменную в БД
-        /// </summary>
-        /// <param name="findColumn">Искомый столбец</param>
-        /// <param name="chatId">id пользователя</param>
-        /// <returns>Переменная типа bool</returns>
-        public static bool Read(string findColumn, long chatId, string table = "ActivityMonitor")
-        {
-            bool result = false;
-            try
-            {
-                DBConection.Open();
+        ///// <summary>
+        ///// Прочитать логическую переменную в БД
+        ///// </summary>
+        ///// <param name="findColumn">Искомый столбец</param>
+        ///// <param name="chatId">id пользователя</param>
+        ///// <returns>Переменная типа bool</returns>
+        //public static bool Read(string findColumn, long chatId, string table = "ActivityMonitor")
+        //{
+        //    bool result = false;
+        //    try
+        //    {
+        //        DBConection.Open();
 
-                using SQLiteCommand cmd = DBConection.CreateCommand();
-                {
+        //        using SQLiteCommand cmd = DBConection.CreateCommand();
+        //        {
 
-                    cmd.CommandText = $"SELECT {findColumn} FROM {table} WHERE ChatId = @ChatId";
+        //            cmd.CommandText = $"SELECT {findColumn} FROM {table} WHERE ChatId = @ChatId";
 
-                    result = (bool)cmd.ExecuteScalar();
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Ошибка: " + ex);
-            }
-            finally
-            {
-                DBConection?.Close();
-            }
+        //            result = (bool)cmd.ExecuteScalar();
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine("Ошибка: " + ex);
+        //    }
+        //    finally
+        //    {
+        //        DBConection?.Close();
+        //    }
 
-            return result;
-        }
+        //    return result;
+        //}
 
         /// <summary>
         /// Установить статус для активности в таблице ActivityMonitor
@@ -524,7 +527,7 @@ namespace Timetracking_HSE_Bot
 
                 using (SQLiteCommand cmd = DBConection.CreateCommand())
                 {
-                    cmd.CommandText = $"UPDATE ActivityMonitor SET act{actNumber} = @value WHERE ChatId = @chatId";
+                    cmd.CommandText = $"UPDATE Activities SET IsTracking = @value WHERE ChatId = @chatId AND Number = @actNumber";
                     cmd.Parameters.AddWithValue("@value", isStarted);
                     cmd.Parameters.AddWithValue("@chatId", chatId);
                     cmd.Parameters.AddWithValue("@actNumber", actNumber);

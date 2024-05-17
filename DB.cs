@@ -119,50 +119,6 @@ namespace Timetracking_HSE_Bot
             }
         }
 
-        /// <summary>
-        /// Возврашает первый пустой столбец в таблице RegUsers
-        /// </summary>
-        /// <param name="chatId">id пользователя</param>
-        /// <returns></returns>
-        //public static int FindFirstNotNull(long chatId)
-        //{
-        //    try
-        //    {
-        //        DBConection.Open();
-
-        //        using SQLiteCommand cmd = DBConection.CreateCommand();
-        //        {
-        //            cmd.CommandText = $"SELECT * FROM RegUsers WHERE ChatId = @chatId";
-        //            cmd.Parameters.AddWithValue("@chatId", chatId);
-
-        //            using (var reader = cmd.ExecuteReader())
-        //            {
-        //                while (reader.Read())
-        //                {
-        //                    for (int i = 2; i <= 11; i++)
-        //                    {
-        //                        var value = reader.GetValue(i);
-        //                        if (value is System.DBNull)
-        //                        {
-        //                            return i;
-        //                        }
-        //                    }
-        //                }
-        //                reader.Close();
-        //            }
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine("Ошибка: " + ex);
-        //    }
-        //    finally
-        //    {
-        //        DBConection?.Close();
-        //    }
-        //    return 0;
-        //}
-
         ///<summary>
         ///Возвращает количество активностей пользователя
         ///</summary>

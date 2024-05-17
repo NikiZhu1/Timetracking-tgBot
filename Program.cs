@@ -358,7 +358,9 @@ namespace Timetracking_HSE_Bot
                     {
                         int actNumber = int.Parse(Regex.Replace(callbackQuery.Data, @"\D", ""));
 
-                        if (activityList[actNumber - 1].IsTracking)
+                        Activity? activity = activityList.FirstOrDefault(a => a.Number == actNumber);
+
+                        if (activity.IsTracking)
                         {
                             await Console.Out.WriteLineAsync($"{chatId}: Активность уже начата");
                             break;

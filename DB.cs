@@ -302,7 +302,7 @@ namespace Timetracking_HSE_Bot
 
                 using SQLiteCommand cmd = DBConection.CreateCommand();
                 {
-                    cmd.CommandText = "SELECT SUM(TotalTime) FROM StartStopAct WHERE ChatId = @chatId AND Act = @act";
+                    cmd.CommandText = "SELECT SUM(TotalTime) FROM StartStopAct WHERE ChatId = @chatId AND Number = @act";
 
                     cmd.Parameters.AddWithValue("@chatId", chatId);
                     cmd.Parameters.AddWithValue("@act", actNumber);

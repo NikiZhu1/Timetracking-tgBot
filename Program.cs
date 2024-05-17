@@ -290,6 +290,7 @@ namespace Timetracking_HSE_Bot
 
                         string status = activityList[actNumber - 1].IsTracking ? ": Отслеживается ⏱" : "";
 
+                       
 
                         var changeActKeyboard = new InlineKeyboardMarkup(
                         new List<InlineKeyboardButton[]>()

@@ -162,7 +162,7 @@ namespace Timetracking_HSE_Bot
         /// <param name="newValue">Название добавляемой активности</param>
         public static void AddActivity(long chatId, string newValue)
         {
-            List<Activity> allActivities = DB.GetAllActivities(chatId);
+            List<Activity> allActivities = DB.GetActivityList(chatId);
             int actCount = allActivities.Count + 1;
 
             try

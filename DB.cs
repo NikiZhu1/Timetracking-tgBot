@@ -248,6 +248,7 @@ namespace Timetracking_HSE_Bot
             {
                 DBConection?.Close();
             }
+            activities.Sort();
 
             return activities;
         }

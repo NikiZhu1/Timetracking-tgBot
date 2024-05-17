@@ -288,7 +288,14 @@ namespace Timetracking_HSE_Bot
                     {
                         int actNumber = int.Parse(Regex.Replace(callbackQuery.Data, @"\D", ""));
 
-                        string status = activityList[actNumber - 1].IsTracking ? ": Отслеживается ⏱" : "";
+                        string status = "";
+                        Activity? activity = activityList.FirstOrDefault(a => a.Number == actNumber);
+
+                        if (activity != null)
+                        {
+                            // Теперь, когда у вас есть активность, вы можете проверить, отслеживается ли она
+                            status = activity.IsTracking ? ": Отслеживается ⏱" : "";
+                        }
 
 
                         var changeActKeyboard = new InlineKeyboardMarkup(
@@ -301,7 +308,7 @@ namespace Timetracking_HSE_Bot
                         });
 
                         await botClient.SendTextMessageAsync(chatId,
-                            text: $"{activityList[actNumber - 1].Name}{status} \n\n" +
+                            text: $"{activity.Name}{status} \n\n" +
                             $"Ты можешь изменить название активности или удалить ее",
                             parseMode: ParseMode.Markdown,
                             replyMarkup: changeActKeyboard);
@@ -325,7 +332,9 @@ namespace Timetracking_HSE_Bot
                     {
                         int actNumber = int.Parse(Regex.Replace(callbackQuery.Data, @"\D", ""));
 
-                        if (activityList[actNumber - 1].IsTracking)
+                        Activity? activity = activityList.FirstOrDefault(a => a.Number == actNumber);
+
+                        if (activity.IsTracking)
                         {
                             await botClient.AnswerCallbackQueryAsync(callbackQuery.Id,
                             "⚙️ Вы удалили отслеживаемую активность.",

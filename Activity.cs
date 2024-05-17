@@ -1,6 +1,6 @@
 ﻿namespace Timetracking_HSE_Bot
 {
-    public class Activity
+    public class Activity : IComparable
     {
         public int Number { get; set; }
 
@@ -94,6 +94,18 @@
             }
 
             return totalTime;
+        }
+
+        public int CompareTo(object? obj)
+        {
+            if (obj == null)
+                return -1;
+            if (obj is not Activity)
+                return -1;
+
+            Activity activity = obj as Activity;
+
+            return Number.CompareTo(activity.Number);
         }
     }
 }

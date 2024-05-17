@@ -54,37 +54,37 @@ namespace Timetracking_HSE_Bot
         /// <param name="chatId">id пользователя</param>
         /// <param name="table">Название таблицы</param>
         /// <returns></returns>
-        public static string Read(string table, string findColumn, long chatId)
-        {
-            string result = "";
-            try
-            {
-                DBConection.Open();
+        //public static string Read(string table, string findColumn, long chatId)
+        //{
+        //    string result = "";
+        //    try
+        //    {
+        //        DBConection.Open();
 
-                using SQLiteCommand cmd = DBConection.CreateCommand();
-                {
-                    cmd.CommandText = $"SELECT {findColumn} FROM {table} WHERE ChatId = @chatId";
-                    cmd.Parameters.AddWithValue("@chatId", chatId.ToString());
+        //        using SQLiteCommand cmd = DBConection.CreateCommand();
+        //        {
+        //            cmd.CommandText = $"SELECT {findColumn} FROM {table} WHERE ChatId = @chatId";
+        //            cmd.Parameters.AddWithValue("@chatId", chatId.ToString());
 
-                    using SQLiteDataReader reader = cmd.ExecuteReader();
-                    {
-                        if (reader.Read())
-                        {
-                            result = reader[findColumn]?.ToString() ?? string.Empty;
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Ошибка: " + ex);
-            }
-            finally
-            {
-                DBConection?.Close();
-            }
-            return result;
-        }
+        //            using SQLiteDataReader reader = cmd.ExecuteReader();
+        //            {
+        //                if (reader.Read())
+        //                {
+        //                    result = reader[findColumn]?.ToString() ?? string.Empty;
+        //                }
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine("Ошибка: " + ex);
+        //    }
+        //    finally
+        //    {
+        //        DBConection?.Close();
+        //    }
+        //    return result;
+        //}
 
         /// <summary>
         /// Обновляем названия активностей в базе данных по id юзера
@@ -119,42 +119,6 @@ namespace Timetracking_HSE_Bot
             }
         }
 
-        /////<summary>
-        /////Возвращает количество активностей пользователя
-        /////</summary>
-        //public static int GetAllActivitiesCount(long chatId)
-        //{
-        //    int result = 0;
-        //    try
-        //    {
-        //        DBConection.Open();
-        //        using (SQLiteCommand cmd = DBConection.CreateCommand())
-        //        {
-        //            cmd.CommandText = $"SELECT Number FROM Activities WHERE ChatId = @chatId ORDER BY Number DESC LIMIT 1";
-        //            cmd.Parameters.AddWithValue("@chatId", chatId);
-
-        //            using var reader = cmd.ExecuteReader();
-        //            {
-        //                if (reader.Read())
-        //                {
-        //                    result = Convert.ToInt32(reader["Number"]);
-        //                }
-        //                reader.Close();
-        //            }
-        //            cmd.ExecuteNonQuery();
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine("Ошибка: " + ex);
-        //    }
-        //    finally
-        //    {
-        //        DBConection?.Close();
-        //    }
-        //    return result;
-        //}
-
         /// <summary>
         /// Добавление активности в таблицу RegUsers
         /// </summary>
@@ -162,7 +126,7 @@ namespace Timetracking_HSE_Bot
         /// <param name="newValue">Название добавляемой активности</param>
         public static void AddActivity(long chatId, string newValue)
         {
-            List<Activity> allActivities = DB.GetActivityList(chatId);
+            List<Activity> allActivities = DB.GetActivityList(chatId, true);
             int actCount = allActivities.Count + 1;
 
             try
@@ -451,39 +415,6 @@ namespace Timetracking_HSE_Bot
 
             return result;
         }
-
-        ///// <summary>
-        ///// Прочитать логическую переменную в БД
-        ///// </summary>
-        ///// <param name="findColumn">Искомый столбец</param>
-        ///// <param name="chatId">id пользователя</param>
-        ///// <returns>Переменная типа bool</returns>
-        //public static bool Read(string findColumn, long chatId, string table = "ActivityMonitor")
-        //{
-        //    bool result = false;
-        //    try
-        //    {
-        //        DBConection.Open();
-
-        //        using SQLiteCommand cmd = DBConection.CreateCommand();
-        //        {
-
-        //            cmd.CommandText = $"SELECT {findColumn} FROM {table} WHERE ChatId = @ChatId";
-
-        //            result = (bool)cmd.ExecuteScalar();
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine("Ошибка: " + ex);
-        //    }
-        //    finally
-        //    {
-        //        DBConection?.Close();
-        //    }
-
-        //    return result;
-        //}
 
         /// <summary>
         /// Установить статус для активности в таблице ActivityMonitor

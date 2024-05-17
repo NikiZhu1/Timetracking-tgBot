@@ -2,9 +2,18 @@
 {
     public class Activity
     {
+        public int Number { get; set; }
+
         public string Name { get; set; }
 
         public bool IsTracking { get; set; }
+
+        public Activity(int number, string name, bool isTracking)
+        {
+            Number = number;
+            Name = name;
+            IsTracking = isTracking;
+        }
 
         /// <summary>
         /// Есть ли уже у пользователя активность с названием <paramref name="activityName"/>

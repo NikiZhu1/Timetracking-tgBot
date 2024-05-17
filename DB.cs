@@ -259,42 +259,23 @@ namespace Timetracking_HSE_Bot
 
                 using SQLiteCommand cmd = DBConection.CreateCommand();
                 {
-                    // Запрос для получения названий активностей
-                    cmd.CommandText = $"SELECT act1, act2, act3, act4, act5, act6, act7, act8, act9, act10 FROM RegUsers WHERE ChatId = @ChatId";
+                    // Запрос для получения активностей
+                    cmd.CommandText = $"SELECT Number, Name, IsTracking FROM Activities WHERE ChatId = @ChatId";
                     cmd.Parameters.AddWithValue("@ChatId", chatId);
 
-                    using var reader2 = cmd.ExecuteReader();
+                    using var reader = cmd.ExecuteReader();
                     {
-                        if (reader2.Read())
+                        if (reader.Read())
                         {
                             for (int i = 1; i <= 10; i++)
                             {
-                                object activityName = reader2[$"act{i}"];
-                                activities.Add(new Activity { Name = activityName.ToString() });
+                                int number = (int)reader["Number"];
+                                string name = reader["Name"].ToString();
+                                bool isTracking = Convert.ToBoolean(reader["IsTracking"]);
+                                activities.Add(new Activity(number, name, isTracking));
                             }
                         }
-                        reader2.Close();
-                    }
-
-                    // Запрос для получения статусов активностей
-                    cmd.CommandText = "SELECT act1, act2, act3, act4, act5, act6, act7, act8, act9, act10 FROM ActivityMonitor WHERE ChatId = @ChatId";
-
-                    using var reader1 = cmd.ExecuteReader();
-                    {
-                        if (reader1.Read())
-                        {
-                            for (int i = 1; i <= 10; i++)
-                            {
-                                if (activities[i - 1].Name is not "")
-                                {
-                                    var isTracking = Convert.ToBoolean(reader1[$"act{i}"]);
-                                    activities[i - 1].IsTracking = isTracking;
-                                }
-                                else
-                                    activities[i - 1] = null;
-                            }
-                        }
-                        reader1.Close();
+                        reader.Close();
                     }
                 }
             }

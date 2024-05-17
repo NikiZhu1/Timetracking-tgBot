@@ -340,7 +340,7 @@ namespace Timetracking_HSE_Bot
                     cmd.CommandText = "INSERT INTO StartStopAct (ChatId, Number, StartTime, TotalTime) VALUES (@chatId, @act, @startTime, @totalTime)";
 
                     cmd.Parameters.AddWithValue("@chatId", chatId);
-                    cmd.Parameters.AddWithValue("@startTime", startTime);
+                    cmd.Parameters.AddWithValue("@startTime", startTime.ToString("yyyy-MM-dd HH:mm:ss"));
                     cmd.Parameters.AddWithValue("@act", actNumber);
                     cmd.Parameters.AddWithValue("@totalTime", 0);
 
@@ -378,10 +378,10 @@ namespace Timetracking_HSE_Bot
                     cmd.Parameters.AddWithValue("@chatId", chatId);
                     cmd.Parameters.AddWithValue("@startTime", startTime);
                     cmd.Parameters.AddWithValue("@act", actNumber);
-                    cmd.Parameters.AddWithValue("@stoptime", stopTime);
+                    cmd.Parameters.AddWithValue("@stoptime", stopTime.ToString("yyyy-MM-dd HH:mm:ss"));
 
                     cmd.CommandText = $"UPDATE StartStopAct SET StopTime = @stoptime, TotalTime = @totalTime " +
-                        $"WHERE ChatId = @chatId AND Number = @act";// AND StartTime = @startTime";
+                        $"WHERE ChatId = @chatId AND Number = @act AND StartTime = @startTime";
 
                     result = stopTime - startTime;
                     int totalTime = result.Seconds + result.Minutes * 60 + result.Hours * 3600;

@@ -1,4 +1,6 @@
 ﻿using System.Data.SQLite;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using Telegram.Bot.Types;
 
 namespace Timetracking_HSE_Bot
 {
@@ -167,6 +169,34 @@ namespace Timetracking_HSE_Bot
         //    return 0;
         //}
 
+
+
+        public static void GetAllActivitiesCount(long chatId)
+        {
+            try
+            {
+                DBConection.Open();
+                using (SQLiteCommand cmd = DBConection.CreateCommand())
+                {
+                    cmd.CommandText = $"SELECT Number FROM Activities WHERE ChatId = @chatId ORDER BY Number DESC LIMIT 1";
+              
+                   
+                    cmd.ExecuteNonQuery();
+                }
+
+                
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Ошибка: " + ex);
+            }
+            finally
+            {
+                DBConection?.Close();
+            }
+        }
+
+
         /// <summary>
         /// Добавление активности в таблицу RegUsers
         /// </summary>
@@ -186,22 +216,22 @@ namespace Timetracking_HSE_Bot
                 DBConection.Open();
                 DateTime dateStart = DateTime.Now;
 
-                //using (SQLiteCommand cmd = DBConection.CreateCommand())
-                //{
-                //    cmd.CommandText = "INSERT INTO Activities (ChatId, Number, Name, IsActive, DateStart) VALUES (@chatId, @number, @name, @isActive,  @dateStart)";
-                //    cmd.Parameters.AddWithValue("@name", newValue);
-                //    cmd.Parameters.AddWithValue("@chatId", chatId);
-                //    cmd.Parameters.AddWithValue("@number", number);
-                //    cmd.Parameters.AddWithValue("@isActive", 0);
-                //    cmd.Parameters.AddWithValue("@dateStart", dateStart.Date);
-                //    cmd.ExecuteNonQuery();
+                using (SQLiteCommand cmd = DBConection.CreateCommand())
+                {
+                    cmd.CommandText = "INSERT INTO Activities (ChatId, Number, Name, IsActive, DateStart) VALUES (@chatId, @number, @name, @isActive,  @dateStart)";
+                    cmd.Parameters.AddWithValue("@name", newValue);
+                    cmd.Parameters.AddWithValue("@chatId", chatId);
+            //        cmd.Parameters.AddWithValue("@number", number);
+            //        cmd.Parameters.AddWithValue("@isActive", 0);
+            //        cmd.Parameters.AddWithValue("@dateStart", dateStart.Date);
+            //        cmd.ExecuteNonQuery();
 
-                //    regcmd.CommandText = "INSERT INTO RegUsers (ChatId, Username) VALUES (@chatId, @Username)";
-                //    regcmd.Parameters.AddWithValue("@Username", username);
-                //    regcmd.ExecuteNonQuery();
-                //}
+            //        regcmd.CommandText = "INSERT INTO RegUsers (ChatId, Username) VALUES (@chatId, @Username)";
+            //        regcmd.Parameters.AddWithValue("@Username", username);
+            //        regcmd.ExecuteNonQuery();
+                }
 
-                //Console.WriteLine($"{chatId}: Активность #{actCount} добавлена");
+            //    Console.WriteLine($"{chatId}: Активность #{actCount} добавлена");
             }
             catch (Exception ex)
             {
@@ -445,7 +475,7 @@ namespace Timetracking_HSE_Bot
                     {
                         if (reader.Read())
                         {
-                            result = DateTime.Parse(Convert.ToString(reader[findColumn]) ?? String.Empty);
+                            result = DateTime.Parse(Convert.ToString(reader[findColumn]) ?? System.String.Empty);
                         }
                     }
                 }

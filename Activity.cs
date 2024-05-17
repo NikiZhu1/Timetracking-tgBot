@@ -8,11 +8,29 @@
 
         public bool IsTracking { get; set; }
 
-        public Activity(int number, string name, bool isTracking)
+        public bool IsEnded
+        {
+            get
+            {
+                if (DateEnd is null)
+                    return false;
+                else
+                    return true;
+            }
+            set { }
+        }
+
+        public DateTime DateStart { get; set; }
+
+        public DateTime? DateEnd { get; set; }
+
+        public Activity(int number, string name, bool isTracking, DateTime dateStart, DateTime dateEnd)
         {
             Number = number;
             Name = name;
             IsTracking = isTracking;
+            DateStart = dateStart;
+            DateEnd = dateEnd;
         }
 
         /// <summary>

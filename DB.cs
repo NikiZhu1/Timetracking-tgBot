@@ -216,7 +216,7 @@ namespace Timetracking_HSE_Bot
 
                 using (SQLiteCommand cmd = DBConection.CreateCommand())
                 {
-                    cmd.CommandText = "INSERT INTO Activities (ChatId, Number, Name, IsTracking, DateStart) VALUES (@chatId, @number, @name, @isTracking,  @dateStart)";
+                    cmd.CommandText = "INSERT INTO Activities (ChatId, Number, Name, IsTracking, DateStart) VALUES (@chatId, @number, @name, @isTracking, @dateStart)";
                     cmd.Parameters.AddWithValue("@name", newValue);
                     cmd.Parameters.AddWithValue("@chatId", chatId);
                     cmd.Parameters.AddWithValue("@number", actCount);
@@ -284,7 +284,7 @@ namespace Timetracking_HSE_Bot
                 using SQLiteCommand cmd = DBConection.CreateCommand();
                 {
                     // Запрос для получения активностей
-                    cmd.CommandText = $"SELECT Number, Name, IsTracking FROM Activities WHERE ChatId = @chatId AND DateEnd IS NULL";
+                    cmd.CommandText = $"SELECT Number, Name, IsTracking, DateStart, DateEnd FROM Activities WHERE ChatId = @chatId";
                     cmd.Parameters.AddWithValue("@chatId", chatId);
 
                     using var reader = cmd.ExecuteReader();
@@ -294,7 +294,9 @@ namespace Timetracking_HSE_Bot
                             int number = Convert.ToInt32(reader["Number"]);
                             string name = reader["Name"].ToString();
                             bool isTracking = Convert.ToBoolean(reader["IsTracking"]);
-                            activities.Add(new Activity(number, name, isTracking));
+                            DateTime dateStart = Convert.ToDateTime(reader["DateStart"]);
+                            DateTime dateEnd = Convert.ToDateTime(reader["DateEnd"]);
+                            activities.Add(new Activity(number, name, isTracking, dateStart, dateEnd));
                         }
                         reader.Close();
                     }

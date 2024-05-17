@@ -297,8 +297,6 @@ namespace Timetracking_HSE_Bot
                             status = activity.IsTracking ? ": Отслеживается ⏱" : "";
                         }
 
-                       
-
                         var changeActKeyboard = new InlineKeyboardMarkup(
                         new List<InlineKeyboardButton[]>()
                         {
@@ -320,11 +318,11 @@ namespace Timetracking_HSE_Bot
                 case "rename":
                     {
                         int actNumber = int.Parse(Regex.Replace(callbackQuery.Data, @"\D", ""));
-
+                        Activity? activity = activityList.FirstOrDefault(a => a.Number == actNumber);
                         //Изменение состояния пользователя
                         User.SetState(chatId, User.State.WaitMessageForChangeAct, actNumber);
                         await botClient.SendTextMessageAsync(chatId,
-                        text: $"Введите новое название для активности \"{activityList[actNumber - 1].Name}\"");
+                        text: $"Введите новое название для активности \"{activity.Name}\"");
 
                         await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
                         break;
@@ -382,7 +380,9 @@ namespace Timetracking_HSE_Bot
                     {
                         int actNumber = int.Parse(Regex.Replace(callbackQuery.Data, @"\D", ""));
 
-                        if (!activityList[actNumber - 1].IsTracking)
+                        Activity? activity = activityList.FirstOrDefault(a => a.Number == actNumber);
+
+                        if (!activity.IsTracking)
                         {
                             await Console.Out.WriteLineAsync($"{chatId}: Активность уже остановленна");
                             break;
@@ -399,7 +399,7 @@ namespace Timetracking_HSE_Bot
                         replyMarkup: BuildNewKeyboard(DB.GetActivityList(chatId)));
 
                         await botClient.SendTextMessageAsync(chatId,
-                            $"🏁 {activityList[actNumber - 1].Name}: затрачено {hours} ч. {min} мин. {sec} сек");
+                            $"🏁 {activity.Name}: затрачено {hours} ч. {min} мин. {sec} сек");
 
                         await botClient.DeleteMessageAsync(chatId, messageId);
 

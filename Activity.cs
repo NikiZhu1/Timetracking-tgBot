@@ -43,7 +43,7 @@
         public static bool IsNotRepeatingName(string? activityName, long chatId, int? actNumber = null)
         {
             //int actCount = DB.GetAllActivitiesCount(chatId);
-            List<Activity> allActivities = DB.GetAllActivities(chatId);
+            List<Activity> allActivities = DB.GetActivityList(chatId);
             bool result = true;
 
 

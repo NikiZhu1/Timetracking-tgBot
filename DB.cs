@@ -1,6 +1,4 @@
 ﻿using System.Data.SQLite;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using Telegram.Bot.Types;
 
 namespace Timetracking_HSE_Bot
 {
@@ -144,7 +142,7 @@ namespace Timetracking_HSE_Bot
                         }
                     }
                     cmd.ExecuteNonQuery();
-                }  
+                }
             }
             catch (Exception ex)
             {
@@ -179,11 +177,11 @@ namespace Timetracking_HSE_Bot
                     cmd.Parameters.AddWithValue("@chatId", chatId);
                     cmd.Parameters.AddWithValue("@number", actCount);
                     cmd.Parameters.AddWithValue("@isTracking", 0);
-                    cmd.Parameters.AddWithValue("@dateStart", dateStart.Date);
+                    cmd.Parameters.AddWithValue("@dateStart", dateStart.ToString("yyyy-MM-dd"));
                     cmd.ExecuteNonQuery();
                 }
 
-                Console.WriteLine($"{chatId}: Активность #{actCount} - {newValue} - добавлена");
+                Console.WriteLine($"{chatId}: Активность #{actCount} - {newValue} добавлена");
             }
             catch (Exception ex)
             {
@@ -204,8 +202,8 @@ namespace Timetracking_HSE_Bot
         {
             try
             {
-                DateTime dateEnd = DateTime.Now;
                 DBConection.Open();
+                DateTime dateEnd = DateTime.Now;
 
                 using SQLiteCommand cmd = DBConection.CreateCommand();
                 {

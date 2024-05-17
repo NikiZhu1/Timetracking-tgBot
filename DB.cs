@@ -104,9 +104,10 @@ namespace Timetracking_HSE_Bot
 
                 using (SQLiteCommand cmd = DBConection.CreateCommand())
                 {
-                    cmd.CommandText = $"UPDATE RegUsers SET act{numberAct} = @newValue WHERE ChatId = @chatId";
+                    cmd.CommandText = $"UPDATE Activities SET Name = @newValue WHERE ChatId = @chatId AND Number = @numberAct";
                     cmd.Parameters.AddWithValue("@newValue", newName);
                     cmd.Parameters.AddWithValue("@chatId", chatId);
+                    cmd.Parameters.AddWithValue("@numberAct", numberAct);
                     cmd.ExecuteNonQuery();
                 }
 

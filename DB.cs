@@ -1,5 +1,6 @@
 ﻿using System.Data.SQLite;
 using System.Text.RegularExpressions;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Timetracking_HSE_Bot
 {
@@ -41,6 +42,7 @@ namespace Timetracking_HSE_Bot
             catch (Exception ex)
             {
                 Console.WriteLine("Ошибка: " + ex);
+                throw;
             }
             finally
             {
@@ -113,6 +115,7 @@ namespace Timetracking_HSE_Bot
             catch (Exception ex)
             {
                 Console.WriteLine("Ошибка: " + ex);
+                throw;
             }
             finally
             {
@@ -151,6 +154,7 @@ namespace Timetracking_HSE_Bot
             catch (Exception ex)
             {
                 Console.WriteLine("Ошибка: " + ex);
+                throw;
             }
             finally
             {
@@ -185,6 +189,7 @@ namespace Timetracking_HSE_Bot
             catch (Exception ex)
             {
                 Console.WriteLine("Ошибка: " + ex);
+                throw;
             }
             finally
             {
@@ -244,6 +249,7 @@ namespace Timetracking_HSE_Bot
             catch (Exception ex)
             {
                 Console.WriteLine("Ошибка: " + ex);
+                throw;
             }
             finally
             {
@@ -325,6 +331,7 @@ namespace Timetracking_HSE_Bot
             catch (Exception ex)
             {
                 Console.WriteLine("Ошибка: " + ex);
+                throw;
             }
             finally
             {
@@ -363,6 +370,7 @@ namespace Timetracking_HSE_Bot
             catch (Exception ex)
             {
                 Console.WriteLine("Ошибка: " + ex);
+                throw;
             }
             finally
             {
@@ -390,9 +398,10 @@ namespace Timetracking_HSE_Bot
                     cmd.Parameters.AddWithValue("@chatId", chatId);
                     cmd.Parameters.AddWithValue("@act", actNumber);
                     cmd.Parameters.AddWithValue("@stoptime", stopTime.ToString("yyyy-MM-dd HH:mm:ss"));
+                    cmd.Parameters.AddWithValue("@starttime", startTime);
 
                     cmd.CommandText = $"UPDATE StartStopAct SET StopTime = @stoptime, TotalTime = @totalTime " +
-                        $"WHERE ChatId = @chatId AND Number = @act";
+                        $"WHERE ChatId = @chatId AND Number = @act AND StartTime = @starttime";
 
                     result = stopTime - startTime;
                     int totalTime = result.Seconds + result.Minutes * 60 + result.Hours * 3600;
@@ -406,6 +415,7 @@ namespace Timetracking_HSE_Bot
             catch (Exception ex)
             {
                 Console.WriteLine("Ошибка: " + ex);
+                throw;
             }
             finally
             {
@@ -446,6 +456,7 @@ namespace Timetracking_HSE_Bot
             catch (Exception ex)
             {
                 Console.WriteLine("Ошибка: " + ex);
+                throw;
             }
             finally
             {
@@ -479,6 +490,7 @@ namespace Timetracking_HSE_Bot
             catch (Exception ex)
             {
                 Console.WriteLine("Ошибка: " + ex);
+                throw;
             }
             finally
             {

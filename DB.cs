@@ -1,9 +1,19 @@
 ﻿using System.Data.SQLite;
 using System.Text.RegularExpressions;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Timetracking_HSE_Bot
 {
+    // Класс для пользовательской функции REGEXP
+    public class RegexpSQLiteFunction : SQLiteFunction
+    {
+        public override object Invoke(object[] args)
+        {
+            string pattern = args[0].ToString();
+            string input = args[1].ToString();
+            return Regex.IsMatch(input, pattern);
+        }
+    }
+
     public class DB
     {
         private static readonly string fileName = "DB.db";
@@ -261,19 +271,6 @@ namespace Timetracking_HSE_Bot
         }
 
         /// <summary>
-        /// Класс для пользовательской функции REGEXP
-        /// </summary>
-        public class RegexpSQLiteFunction : SQLiteFunction
-        {
-            public override object Invoke(object[] args)
-            {
-                string pattern = args[0].ToString();
-                string input = args[1].ToString();
-                return Regex.IsMatch(input, pattern);
-            }
-        }
-
-        /// <summary>
         /// Получить затраченное время на активность из таблицы StartStopAct
         /// </summary>
         /// <param name="chatId">id пользователя</param>
@@ -296,21 +293,25 @@ namespace Timetracking_HSE_Bot
             {
                 DBConection.Open();
 
-                // Создание атрибута для функции REGEXP
-                var attribute = new SQLiteFunctionAttribute();
-                attribute.Name = "REGEXP";
-                attribute.Arguments = 2;
-                attribute.FuncType = FunctionType.Scalar;
+                if (monthNumber != 0)
+                {
+                    // Создание атрибута для функции REGEXP
+                    var attribute = new SQLiteFunctionAttribute
+                    {
+                        Name = "REGEXP",
+                        Arguments = 2,
+                        FuncType = FunctionType.Scalar
+                    };
 
-                // Создание экземпляра пользовательской функции
-                var function = new RegexpSQLiteFunction();
+                    // Создание экземпляра пользовательской функции
+                    var function = new RegexpSQLiteFunction();
 
-                // Привязка функции к соединению
-                DBConection.BindFunction(attribute, function);
+                    // Привязка функции к соединению
+                    DBConection.BindFunction(attribute, function);
+                }
 
                 using SQLiteCommand cmd = DBConection.CreateCommand();
                 {
-
                     cmd.CommandText = command;
 
                     cmd.Parameters.AddWithValue("@chatId", chatId);
@@ -404,7 +405,7 @@ namespace Timetracking_HSE_Bot
                         $"WHERE ChatId = @chatId AND Number = @act AND StartTime = @starttime";
 
                     result = stopTime - startTime;
-                    int totalTime = result.Seconds + result.Minutes * 60 + result.Hours * 3600;
+                    int totalTime = (int)result.TotalSeconds;
                     cmd.Parameters.AddWithValue("@totalTime", totalTime);
                     cmd.ExecuteNonQuery();
 

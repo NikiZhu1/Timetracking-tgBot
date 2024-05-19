@@ -83,11 +83,11 @@ namespace Timetracking_HSE_Bot
                 }
                 catch (Exception ex)
                 {
-                    await botClient.SendTextMessageAsync(chatId, $"‼ Возникла ошибка с подключением к базе данных: {ex.Message}.\n" + 
+                    await botClient.SendTextMessageAsync(chatId, $"‼ Возникла ошибка с подключением к базе данных: {ex.Message}.\n" +
                         $"Пожалуйста, свяжитесь с нами через техническую поддержку для устанения ошибки");
                 }
 
-               
+
             }
 
             if (message.Text != null && message.Text == "/help")
@@ -147,7 +147,7 @@ namespace Timetracking_HSE_Bot
                     // Пользователь ввел текст, обновляем название активности
                     try
                     {
-                         DB.UpdateActivityName((int)userInfo.actNumber, message.Text, chatId);
+                        DB.UpdateActivityName((int)userInfo.actNumber, message.Text, chatId);
 
                         //Удаление прошлой клавиатуры
                         int messageId = User.GetMessageIdForDelete(chatId);
@@ -296,18 +296,24 @@ namespace Timetracking_HSE_Bot
                             string textWithStatistic = "";
                             foreach (Activity activity in activityList)
                             {
-                                double result = DB.GetStatistic(chatId, activity.Number);
-                                if (result != 0)
-                                {
-                                    int hours = (int)result / 3600;
-                                    int min = ((int)(result - hours * 3600)) / 60;
-                                    double sec = result - 3600 * hours - 60 * min;
-                                    if (hours == 0 && min != 0)
-                                        textWithStatistic += $"{activity.Name}: {min} мин. {sec} сек.\n";
-                                    else if (hours == 0 && min == 0)
-                                        textWithStatistic += $"{activity.Name}: {sec} сек.\n";
-                                    else textWithStatistic += $"{activity.Name}: {hours} ч. {min} мин. {sec} сек.\n";
+                                int seconds = DB.GetStatistic(chatId, activity.Number);
 
+                                if (seconds != 0)
+                                {
+                                    TimeSpan result = TimeSpan.FromSeconds(seconds);
+                                    int hour = result.Hours;
+                                    int min = result.Minutes;
+                                    int sec = result.Seconds;
+
+                                    //Только секунды
+                                    if (min == 0)
+                                        textWithStatistic += $"{activity.Name}: {sec} сек.\n";
+
+                                    //Только минуты с секундами
+                                    else if (hour == 0 && min != 0)
+                                        textWithStatistic += $"{activity.Name}: {min} мин. {sec} сек.\n";
+
+                                    else textWithStatistic += $"{activity.Name}: {hour} ч. {min} мин. {sec} сек.\n";
                                 }
                             }
 
@@ -413,9 +419,12 @@ namespace Timetracking_HSE_Bot
 
                             await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "🗑 Активность удалена");
                         }
-                        catch (Exception ex) { await botClient.SendTextMessageAsync(chatId, $"‼ Возникла ошибка с подключением к базе данных: {ex.Message}.\n" 
-                            + $"Пожалуйста, свяжитесь с нами через техническую поддержку для устанения ошибки"); }
-               
+                        catch (Exception ex)
+                        {
+                            await botClient.SendTextMessageAsync(chatId, $"‼ Возникла ошибка с подключением к базе данных: {ex.Message}.\n"
+                            + $"Пожалуйста, свяжитесь с нами через техническую поддержку для устанения ошибки");
+                        }
+
                         break;
                     }
                 case "start_":

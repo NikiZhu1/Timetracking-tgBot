@@ -1,4 +1,6 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Diagnostics;
+using System.Net.NetworkInformation;
+using System.Text.RegularExpressions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -84,7 +86,7 @@ namespace Timetracking_HSE_Bot
                 catch (Exception ex)
                 {
                     await botClient.SendTextMessageAsync(chatId, $"‼ Возникла ошибка с подключением к базе данных: {ex.Message}.\n" +
-                        $"Пожалуйста, свяжитесь с нами через техническую поддержку для устанения ошибки");
+                        $"Пожалуйста, свяжитесь с нами через техническую поддержку для устранения ошибки");
                 }
 
 
@@ -168,7 +170,7 @@ namespace Timetracking_HSE_Bot
                     catch (Exception ex)
                     {
                         await botClient.SendTextMessageAsync(chatId, $"‼ Возникла ошибка с подключением к базе данных: {ex.Message}.\n" +
-                        $"Пожалуйста, свяжитесь с нами через техническую поддержку для устанения ошибки");
+                        $"Пожалуйста, свяжитесь с нами через техническую поддержку для устранения ошибки");
                     }
                 }
             }
@@ -216,9 +218,60 @@ namespace Timetracking_HSE_Bot
                     catch (Exception ex)
                     {
                         await botClient.SendTextMessageAsync(chatId, $"‼ Возникла ошибка с подключением к базе данных: {ex.Message}.\n" +
-                        $"Пожалуйста, свяжитесь с нами через техническую поддержку для устанения ошибки");
+                        $"Пожалуйста, свяжитесь с нами через техническую поддержку для устранения ошибки");
                     }
                 }
+            }
+        }
+
+        static async void ShowStatistic(long chatId, int month, DateTime today)
+        {
+            try
+            {
+                List<Activity>  activityList = DB.GetActivityList(chatId, true);
+                string textWithStatistic = "";
+                foreach (Activity activity in activityList)
+                {
+                    int seconds = DB.GetStatistic(chatId, activity.Number, month, today);
+
+                    if (seconds != 0)
+                    {
+                        TimeSpan result = TimeSpan.FromSeconds(seconds);
+                        int hour = result.Hours;
+                        int min = result.Minutes;
+                        int sec = result.Seconds;
+
+                        //Только секунды
+                        if (min == 0)
+                            textWithStatistic += $"{activity.Name}: {sec} сек.\n";
+
+                        //Только минуты с секундами
+                        else if (hour == 0 && min != 0)
+                            textWithStatistic += $"{activity.Name}: {min} мин. {sec} сек.\n";
+
+                        else textWithStatistic += $"{activity.Name}: {hour} ч. {min} мин. {sec} сек.\n";
+                    }
+                }
+
+                Console.WriteLine($"{chatId}: Получение статистики");
+                if (textWithStatistic != "")
+                {
+                    await botClient.SendTextMessageAsync(
+                          chatId: chatId,
+                          text: textWithStatistic);
+                }
+                else
+                {
+                    await botClient.SendTextMessageAsync(
+                          chatId: chatId,
+                          text: "У вас пока нет записей о затраченном времени\n" +
+                          "🚀 Запускай таймер и можешь отследить свой прогресс!");
+                }
+            }
+            catch (Exception ex)
+            {
+                await botClient.SendTextMessageAsync(chatId, $"‼ Возникла ошибка с подключением к базе данных: {ex.Message}.\n" +
+                     $"Пожалуйста, свяжитесь с нами через техническую поддержку для устранения ошибки");
             }
         }
 
@@ -287,60 +340,152 @@ namespace Timetracking_HSE_Bot
                         await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
                         break;
                     }
+
+                
                 case "statistic":
                     {
-                        try
+                        //try
+                        //{
+                        //    activityList = DB.GetActivityList(chatId, true);
+                        //    DateTime today = DateTime.Now.Date;
+                        //    string textWithStatistic = "";
+                        //    foreach (Activity activity in activityList)
+                        //    {                        
+                        //        //int seconds = DB.GetStatistic(chatId, activity.Number);
+                        //        int seconds = DB.GetStatisticсссс(chatId, activity.Number, 0, today);
+
+                        //        if (seconds != 0)
+                        //        {
+                        //            TimeSpan result = TimeSpan.FromSeconds(seconds);
+                        //            int hour = result.Hours;
+                        //            int min = result.Minutes;
+                        //            int sec = result.Seconds;
+
+                        //            //Только секунды
+                        //            if (min == 0)
+                        //                textWithStatistic += $"{activity.Name}: {sec} сек.\n";
+
+                        //            //Только минуты с секундами
+                        //            else if (hour == 0 && min != 0)
+                        //                textWithStatistic += $"{activity.Name}: {min} мин. {sec} сек.\n";
+
+                        //            else textWithStatistic += $"{activity.Name}: {hour} ч. {min} мин. {sec} сек.\n";
+                        //        }
+                        //    }
+
+                        //    Console.WriteLine($"{chatId}: Получение статистики");
+                        //    if (textWithStatistic != "")
+                        //    {
+                        //        await botClient.SendTextMessageAsync(
+                        //              chatId: chatId,
+                        //              text: textWithStatistic);
+                        //    }
+                        //    else
+                        //    {
+                        //        await botClient.SendTextMessageAsync(
+                        //              chatId: chatId,
+                        //              text: "У вас пока нет записей о затраченном времени\n" +
+                        //              "🚀 Запускай таймер и можешь отследить свой прогресс!");
+                        //    }
+
+                        //    await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+                        //}
+                        //catch (Exception ex)
+                        //{
+                        //    await botClient.SendTextMessageAsync(chatId, $"‼ Возникла ошибка с подключением к базе данных: {ex.Message}.\n" +
+                        //         $"Пожалуйста, свяжитесь с нами через техническую поддержку для устранения ошибки");
+                        //}
+
+
+                        var statisticKeyboard = new InlineKeyboardMarkup(
+                        new List<InlineKeyboardButton[]>()
                         {
-                            activityList = DB.GetActivityList(chatId, true);
-
-                            string textWithStatistic = "";
-                            foreach (Activity activity in activityList)
+                            new InlineKeyboardButton[]
                             {
-                                int seconds = DB.GetStatistic(chatId, activity.Number);
-
-                                if (seconds != 0)
-                                {
-                                    TimeSpan result = TimeSpan.FromSeconds(seconds);
-                                    int hour = result.Hours;
-                                    int min = result.Minutes;
-                                    int sec = result.Seconds;
-
-                                    //Только секунды
-                                    if (min == 0)
-                                        textWithStatistic += $"{activity.Name}: {sec} сек.\n";
-
-                                    //Только минуты с секундами
-                                    else if (hour == 0 && min != 0)
-                                        textWithStatistic += $"{activity.Name}: {min} мин. {sec} сек.\n";
-
-                                    else textWithStatistic += $"{activity.Name}: {hour} ч. {min} мин. {sec} сек.\n";
-                                }
-                            }
-
-                            Console.WriteLine($"{chatId}: Получение статистики");
-                            if (textWithStatistic != "")
+                                 InlineKeyboardButton.WithCallbackData("За весь период", $"allTimeStatistic"),
+                            },
+                            new InlineKeyboardButton[]
                             {
-                                await botClient.SendTextMessageAsync(
-                                      chatId: chatId,
-                                      text: textWithStatistic);
-                            }
-                            else
+                                 InlineKeyboardButton.WithCallbackData("За определенный месяц", $"staticticByMonth"),
+                            },
+                            new InlineKeyboardButton[]
                             {
-                                await botClient.SendTextMessageAsync(
-                                      chatId: chatId,
-                                      text: "У вас пока нет записей о затраченном времени\n" +
-                                      "🚀 Запускай таймер и можешь отследить свой прогресс!");
-                            }
+                                 InlineKeyboardButton.WithCallbackData("За последние 7 дней", $"staticsticByWeek"),
+                            },
+                            new InlineKeyboardButton[]
+                            {
+                                 InlineKeyboardButton.WithCallbackData("За этот день", $"staticsticThisDay"),
+                            },
+                        });
 
-                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
-                        }
-                        catch (Exception ex)
-                        {
-                            await botClient.SendTextMessageAsync(chatId, $"‼ Возникла ошибка с подключением к базе данных: {ex.Message}.\n" +
-                                 $"Пожалуйста, свяжитесь с нами через техническую поддержку для устанения ошибки");
-                        }
+                        await botClient.SendTextMessageAsync(chatId,
+                            text: "Выберете, в каком формате Вы хотите получить статистику",
+                            parseMode: ParseMode.Markdown,
+                            replyMarkup: statisticKeyboard);
+
+                        await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
                         break;
                     }
+
+                case "allTimeStatistic":
+                    {
+                        ShowStatistic(chatId, 0, default);
+                        break;
+                    }
+
+                case "staticsticThisDay":
+                    {
+                        DateTime today = DateTime.Now.Date;
+                        ShowStatistic(chatId, 0, today);
+                        break;
+                    }
+
+                case "staticticByMonth":
+                    {
+                        var monthKeyboard = new InlineKeyboardMarkup(
+                       new List<InlineKeyboardButton[]>()
+                       {
+                            new InlineKeyboardButton[]
+                            {
+                                 InlineKeyboardButton.WithCallbackData("Январь", $"month_01"), InlineKeyboardButton.WithCallbackData("Февраль", $"month_02"),
+                            },
+                            new InlineKeyboardButton[]
+                            {
+                                 InlineKeyboardButton.WithCallbackData("Март", $"month_03"), InlineKeyboardButton.WithCallbackData("Апрель", $"month_04"),
+                            },
+                            new InlineKeyboardButton[]
+                            {
+                                 InlineKeyboardButton.WithCallbackData("Май", $"month_05"), InlineKeyboardButton.WithCallbackData("Июнь ", $"month_06"),
+                            },
+                            new InlineKeyboardButton[]
+                            {
+                                 InlineKeyboardButton.WithCallbackData("Июль", $"month_07"), InlineKeyboardButton.WithCallbackData("Август", $"month_08"),
+                            },
+                            new InlineKeyboardButton[]
+                            {
+                                 InlineKeyboardButton.WithCallbackData("Сентябрь", $"month_09"), InlineKeyboardButton.WithCallbackData("Октябрь", $"month_10"),
+                            },
+                            new InlineKeyboardButton[]
+                            {
+                                 InlineKeyboardButton.WithCallbackData("Ноябрь", $"month_11"), InlineKeyboardButton.WithCallbackData("Декабрь", $"month_12"),
+                            },
+                       });
+
+                        await botClient.SendTextMessageAsync(chatId,
+                            text: "Выберете месяц, за который Вы хотите получить статистику активностей",
+                            parseMode: ParseMode.Markdown,
+                            replyMarkup: monthKeyboard);
+                        await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+                        break;
+                    }
+
+                case "month_":
+                    {
+                        int monthNumber = int.Parse(Regex.Replace(callbackQuery.Data, @"\D", ""));
+                        ShowStatistic(chatId, monthNumber, default);
+                        break;
+                    }
+
                 case "aboutAct":
                     {
                         int actNumber = int.Parse(Regex.Replace(callbackQuery.Data, @"\D", ""));
@@ -362,7 +507,7 @@ namespace Timetracking_HSE_Bot
                         {
                             new InlineKeyboardButton[]
                             {
-                            InlineKeyboardButton.WithCallbackData("✏️ Изменить", $"rename{actNumber}"), InlineKeyboardButton.WithCallbackData("🗑 Удалить", $"delete{actNumber}"),
+                                 InlineKeyboardButton.WithCallbackData("✏️ Изменить", $"rename{actNumber}"), InlineKeyboardButton.WithCallbackData("🗑 Удалить", $"delete{actNumber}"),
                             },
                         });
 
@@ -422,7 +567,7 @@ namespace Timetracking_HSE_Bot
                         catch (Exception ex)
                         {
                             await botClient.SendTextMessageAsync(chatId, $"‼ Возникла ошибка с подключением к базе данных: {ex.Message}.\n"
-                            + $"Пожалуйста, свяжитесь с нами через техническую поддержку для устанения ошибки");
+                            + $"Пожалуйста, свяжитесь с нами через техническую поддержку для устранения ошибки");
                         }
 
                         break;

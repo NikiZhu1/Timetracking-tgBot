@@ -277,7 +277,72 @@ namespace Timetracking_HSE_Bot
         /// <param name="actNumber">Номер активности</param>
         /// <param name="monthNumber">Номер месяца</param>
         /// <returns></returns>
-        public static int GetStatistic(long chatId, int actNumber, int monthNumber = 0)
+        //public static int GetStatistic(long chatId, int actNumber, int monthNumber = 0)
+        //{
+        //    string command = $"SELECT SUM(TotalTime) FROM StartStopAct WHERE ChatId = @chatId AND Number = @act";
+
+        //    if (monthNumber != 0)
+        //    {
+        //        string month = monthNumber.ToString("00"); // Преобразует число в строку с ведущим нулем
+        //        string pattern = $@"^\d{{4}}-{month}-\d{{2}} \d{{2}}:\d{{2}}:\d{{2}}$";
+
+        //        command += $" AND StopTime REGEXP '{pattern}'";
+        //    }
+
+        //    try
+        //    {
+        //        DBConection.Open();
+
+        //        if (monthNumber != 0)
+        //        {
+        //            // Создание атрибута для функции REGEXP
+        //            var attribute = new SQLiteFunctionAttribute
+        //            {
+        //                Name = "REGEXP",
+        //                Arguments = 2,
+        //                FuncType = FunctionType.Scalar
+        //            };
+
+        //            // Создание экземпляра пользовательской функции
+        //            var function = new RegexpSQLiteFunction();
+
+        //            // Привязка функции к соединению
+        //            DBConection.BindFunction(attribute, function);
+        //        }
+
+        //        using SQLiteCommand cmd = DBConection.CreateCommand();
+        //        {
+        //            cmd.CommandText = command;
+
+        //            cmd.Parameters.AddWithValue("@chatId", chatId);
+        //            cmd.Parameters.AddWithValue("@act", actNumber);
+
+        //            object sumTime = cmd.ExecuteScalar();
+
+        //            if (sumTime != null && sumTime != DBNull.Value)
+        //            {
+        //                return Convert.ToInt32(sumTime);
+        //            }
+        //            else
+        //            {
+        //                return 0;
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine("Ошибка: " + ex);
+        //        throw;
+        //    }
+        //    finally
+        //    {
+        //        DBConection?.Close();
+        //    }
+        //}
+
+
+        // Получить затраченное время на активность из таблицы StartStopAct
+        public static int GetStatistic(long chatId, int actNumber, int monthNumber = 0, DateTime today = default)
         {
             string command = $"SELECT SUM(TotalTime) FROM StartStopAct WHERE ChatId = @chatId AND Number = @act";
 
@@ -288,27 +353,32 @@ namespace Timetracking_HSE_Bot
 
                 command += $" AND StopTime REGEXP '{pattern}'";
             }
+            if (today == DateTime.Now.Date)
+            {
+                string todayYear = today.Year.ToString();
+                string todayMonth = today.Month.ToString("00");
+                string todayDay = today.Day.ToString("00");
+                string pattern = $@"^{todayYear}-{todayMonth}-{todayDay} \d{{2}}:\d{{2}}:\d{{2}}$";
+                command += $" AND StopTime REGEXP '{pattern}'";
+            }
 
             try
             {
                 DBConection.Open();
-
-                if (monthNumber != 0)
+                if (today != null || monthNumber != 0)
                 {
-                    // Создание атрибута для функции REGEXP
                     var attribute = new SQLiteFunctionAttribute
                     {
                         Name = "REGEXP",
                         Arguments = 2,
                         FuncType = FunctionType.Scalar
                     };
-
                     // Создание экземпляра пользовательской функции
                     var function = new RegexpSQLiteFunction();
-
                     // Привязка функции к соединению
                     DBConection.BindFunction(attribute, function);
                 }
+               
 
                 using SQLiteCommand cmd = DBConection.CreateCommand();
                 {
@@ -338,9 +408,8 @@ namespace Timetracking_HSE_Bot
             {
                 DBConection?.Close();
             }
-
-            return 0;
         }
+
 
         /// <summary>
         /// Записать время начала активности в БД

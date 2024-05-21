@@ -232,6 +232,8 @@ namespace Timetracking_HSE_Bot
                                 break;
                         }
                     }
+                    else
+                        seconds += DB.GetStatistic(chatId, activity.Number);
 
                     if (seconds != 0)
                     {

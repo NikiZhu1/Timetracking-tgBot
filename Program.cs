@@ -226,31 +226,30 @@ namespace Timetracking_HSE_Bot
                     {
                         seconds += DB.GetStatistic(chatId, activity.Number, month, today.AddDays(i));
 
-                        if (seconds != 0)
-                        {
-                            TimeSpan result = TimeSpan.FromSeconds(seconds);
-                            int hour = result.Hours;
-                            int min = result.Minutes;
-                            int sec = result.Seconds;
-
-                            //Только секунды
-                            if (min == 0)
-                                textWithStatistic += $"{activity.Name}: {sec} сек.\n";
-
-                            //Только минуты с секундами
-                            else if (hour == 0 && min != 0)
-                                textWithStatistic += $"{activity.Name}: {min} мин. {sec} сек.\n";
-
-                            else textWithStatistic += $"{activity.Name}: {hour} ч. {min} мин. {sec} сек.\n";
-
-                            //Обнуляем итоговое время
-                            seconds = 0;
-                        }
-
                         if (onlyTodayStatistic)
                             break;
                     }
 
+                    if (seconds != 0)
+                    {
+                        TimeSpan result = TimeSpan.FromSeconds(seconds);
+                        int hour = result.Hours;
+                        int min = result.Minutes;
+                        int sec = result.Seconds;
+
+                        //Только секунды
+                        if (min == 0)
+                            textWithStatistic += $"{activity.Name}: {sec} сек.\n";
+
+                        //Только минуты с секундами
+                        else if (hour == 0 && min != 0)
+                            textWithStatistic += $"{activity.Name}: {min} мин. {sec} сек.\n";
+
+                        else textWithStatistic += $"{activity.Name}: {hour} ч. {min} мин. {sec} сек.\n";
+
+                        //Обнуляем итоговое время
+                        seconds = 0;
+                    }
                 }
 
                 Console.WriteLine($"{chatId}: Получение статистики");

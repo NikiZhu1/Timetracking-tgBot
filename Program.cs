@@ -307,6 +307,41 @@ namespace Timetracking_HSE_Bot
             return new InlineKeyboardMarkup(rows);
         }
 
+        //Строит клавиатуру для вывода месяцев
+        public static InlineKeyboardMarkup BuildMonthKeyboard(long chatId)
+        {
+            var monthKeyboard = new InlineKeyboardMarkup(
+                       new List<InlineKeyboardButton[]>()
+                       {
+                            new InlineKeyboardButton[]
+                            {
+                                 InlineKeyboardButton.WithCallbackData("Январь", $"month_01"), InlineKeyboardButton.WithCallbackData("Февраль", $"month_02"),
+                            },
+                            new InlineKeyboardButton[]
+                            {
+                                 InlineKeyboardButton.WithCallbackData("Март", $"month_03"), InlineKeyboardButton.WithCallbackData("Апрель", $"month_04"),
+                            },
+                            new InlineKeyboardButton[]
+                            {
+                                 InlineKeyboardButton.WithCallbackData("Май", $"month_05"), InlineKeyboardButton.WithCallbackData("Июнь ", $"month_06"),
+                            },
+                            new InlineKeyboardButton[]
+                            {
+                                 InlineKeyboardButton.WithCallbackData("Июль", $"month_07"), InlineKeyboardButton.WithCallbackData("Август", $"month_08"),
+                            },
+                            new InlineKeyboardButton[]
+                            {
+                                 InlineKeyboardButton.WithCallbackData("Сентябрь", $"month_09"), InlineKeyboardButton.WithCallbackData("Октябрь", $"month_10"),
+                            },
+                            new InlineKeyboardButton[]
+                            {
+                                 InlineKeyboardButton.WithCallbackData("Ноябрь", $"month_11"), InlineKeyboardButton.WithCallbackData("Декабрь", $"month_12"),
+                            },
+                       });
+
+            return monthKeyboard;
+        }
+
         //Обработка: КАЛЛБЭКИ ОТ ИНЛАЙН-КНОПОК
         static async Task CallbackQueryAsync(ITelegramBotClient botClient, CallbackQuery callbackQuery)
         {
@@ -340,7 +375,6 @@ namespace Timetracking_HSE_Bot
                         await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
                         break;
                     }
-
                 
                 case "statistic":
                     {
@@ -402,19 +436,19 @@ namespace Timetracking_HSE_Bot
                         {
                             new InlineKeyboardButton[]
                             {
-                                 InlineKeyboardButton.WithCallbackData("За весь период", $"allTimeStatistic"),
+                                 InlineKeyboardButton.WithCallbackData("За весь период", $"statistic_1"),
                             },
                             new InlineKeyboardButton[]
                             {
-                                 InlineKeyboardButton.WithCallbackData("За определенный месяц", $"staticticByMonth"),
+                                 InlineKeyboardButton.WithCallbackData("За определенный месяц", $"statistic_2"),
                             },
                             new InlineKeyboardButton[]
                             {
-                                 InlineKeyboardButton.WithCallbackData("За последние 7 дней", $"staticsticByWeek"),
+                                 InlineKeyboardButton.WithCallbackData("За последние 7 дней", $"statistic_3"),
                             },
                             new InlineKeyboardButton[]
                             {
-                                 InlineKeyboardButton.WithCallbackData("За этот день", $"staticsticThisDay"),
+                                 InlineKeyboardButton.WithCallbackData("За этот день", $"statistic_4"),
                             },
                         });
 
@@ -427,58 +461,26 @@ namespace Timetracking_HSE_Bot
                         break;
                     }
 
-                case "allTimeStatistic":
+                case "statistic_":
                     {
-                        ShowStatistic(chatId, 0, default);
+                        int statisticType = int.Parse(Regex.Replace(callbackQuery.Data, @"\D", ""));
+                        if (statisticType == 1)
+                            ShowStatistic(chatId, 0, default);
+                        else if (statisticType == 2)
+                        {
+                            InlineKeyboardMarkup monthKeyboard = BuildMonthKeyboard(chatId);
+                           await botClient.SendTextMessageAsync(chatId,
+                           text: "Выберете месяц, за который Вы хотите получить статистику активностей",
+                           parseMode: ParseMode.Markdown,
+                           replyMarkup: monthKeyboard);
+                        }
+                        else if (statisticType == 4)
+                        {
+                            DateTime today = DateTime.Now.Date;
+                            ShowStatistic(chatId, 0, today);
+                        }
                         break;
                     }
-
-                case "staticsticThisDay":
-                    {
-                        DateTime today = DateTime.Now.Date;
-                        ShowStatistic(chatId, 0, today);
-                        break;
-                    }
-
-                case "staticticByMonth":
-                    {
-                        var monthKeyboard = new InlineKeyboardMarkup(
-                       new List<InlineKeyboardButton[]>()
-                       {
-                            new InlineKeyboardButton[]
-                            {
-                                 InlineKeyboardButton.WithCallbackData("Январь", $"month_01"), InlineKeyboardButton.WithCallbackData("Февраль", $"month_02"),
-                            },
-                            new InlineKeyboardButton[]
-                            {
-                                 InlineKeyboardButton.WithCallbackData("Март", $"month_03"), InlineKeyboardButton.WithCallbackData("Апрель", $"month_04"),
-                            },
-                            new InlineKeyboardButton[]
-                            {
-                                 InlineKeyboardButton.WithCallbackData("Май", $"month_05"), InlineKeyboardButton.WithCallbackData("Июнь ", $"month_06"),
-                            },
-                            new InlineKeyboardButton[]
-                            {
-                                 InlineKeyboardButton.WithCallbackData("Июль", $"month_07"), InlineKeyboardButton.WithCallbackData("Август", $"month_08"),
-                            },
-                            new InlineKeyboardButton[]
-                            {
-                                 InlineKeyboardButton.WithCallbackData("Сентябрь", $"month_09"), InlineKeyboardButton.WithCallbackData("Октябрь", $"month_10"),
-                            },
-                            new InlineKeyboardButton[]
-                            {
-                                 InlineKeyboardButton.WithCallbackData("Ноябрь", $"month_11"), InlineKeyboardButton.WithCallbackData("Декабрь", $"month_12"),
-                            },
-                       });
-
-                        await botClient.SendTextMessageAsync(chatId,
-                            text: "Выберете месяц, за который Вы хотите получить статистику активностей",
-                            parseMode: ParseMode.Markdown,
-                            replyMarkup: monthKeyboard);
-                        await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
-                        break;
-                    }
-
                 case "month_":
                     {
                         int monthNumber = int.Parse(Regex.Replace(callbackQuery.Data, @"\D", ""));

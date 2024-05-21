@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-using System.Net.NetworkInformation;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -228,7 +226,7 @@ namespace Timetracking_HSE_Bot
         {
             try
             {
-                List<Activity>  activityList = DB.GetActivityList(chatId, true);
+                List<Activity> activityList = DB.GetActivityList(chatId, true);
                 string textWithStatistic = "";
                 foreach (Activity activity in activityList)
                 {
@@ -375,9 +373,11 @@ namespace Timetracking_HSE_Bot
                         await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
                         break;
                     }
-                
+
+
                 case "statistic":
                     {
+                        #region
                         //try
                         //{
                         //    activityList = DB.GetActivityList(chatId, true);
@@ -429,7 +429,7 @@ namespace Timetracking_HSE_Bot
                         //    await botClient.SendTextMessageAsync(chatId, $"‼ Возникла ошибка с подключением к базе данных: {ex.Message}.\n" +
                         //         $"Пожалуйста, свяжитесь с нами через техническую поддержку для устранения ошибки");
                         //}
-
+                        #endregion
 
                         var statisticKeyboard = new InlineKeyboardMarkup(
                         new List<InlineKeyboardButton[]>()
@@ -485,6 +485,8 @@ namespace Timetracking_HSE_Bot
                     {
                         int monthNumber = int.Parse(Regex.Replace(callbackQuery.Data, @"\D", ""));
                         ShowStatistic(chatId, monthNumber, default);
+
+                        await botClient.DeleteMessageAsync(chatId, messageId);
                         break;
                     }
 

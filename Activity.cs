@@ -1,6 +1,6 @@
 ﻿namespace Timetracking_HSE_Bot
 {
-    public class Activity : IComparable
+    public class Activity : IComparable<Activity>
     {
         public int Number { get; set; }
 
@@ -23,6 +23,21 @@
         public DateTime? DateStart { get; set; }
 
         public DateTime? DateEnd { get; set; }
+
+        public int TotalTime
+        {
+            get
+            {
+                if (DateEnd != null && DateStart != null)
+                {
+                    TimeSpan result = (TimeSpan)(DateEnd - DateStart);
+                    int totalSeconds = (int)result.TotalSeconds;
+                    return totalSeconds;
+                }
+                else
+                    return 0;
+            }
+        }
 
         public Activity(int number, string name, bool isTracking, DateTime? dateStart, DateTime? dateEnd)
         {
@@ -96,16 +111,9 @@
             return totalTime;
         }
 
-        public int CompareTo(object? obj)
+        public int CompareTo(Activity? other)
         {
-            if (obj == null)
-                return -1;
-            if (obj is not Activity)
-                return -1;
-
-            Activity activity = obj as Activity;
-
-            return Number.CompareTo(activity.Number);
+            return this.TotalTime.CompareTo(other.TotalTime);
         }
     }
 }

@@ -406,6 +406,8 @@ namespace Timetracking_HSE_Bot
                             DateTime today = DateTime.Now.Date;
                             ShowStatistic(chatId, 0, today, true);
                         }
+
+                        await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "✅ Статистика получена");
                         break;
                     }
                 case "month_":

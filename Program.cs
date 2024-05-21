@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-using System.Net.NetworkInformation;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -215,7 +213,7 @@ namespace Timetracking_HSE_Bot
             }
         }
 
-        static async void ShowWeekStatistic(long chatId, int month, DateTime today)
+        static async void ShowStatistic(long chatId, int month, DateTime today, bool onlyTodayStatistic = false)
         {
             try
             {
@@ -227,7 +225,7 @@ namespace Timetracking_HSE_Bot
                     for (int i = 0; i >= -7; i--)
                     {
                         seconds += DB.GetStatistic(chatId, activity.Number, month, today.AddDays(i));
-                        
+
                         if (seconds != 0)
                         {
                             TimeSpan result = TimeSpan.FromSeconds(seconds);
@@ -244,60 +242,15 @@ namespace Timetracking_HSE_Bot
                                 textWithStatistic += $"{activity.Name}: {min} мин. {sec} сек.\n";
 
                             else textWithStatistic += $"{activity.Name}: {hour} ч. {min} мин. {sec} сек.\n";
+
+                            //Обнуляем итоговое время
+                            seconds = 0;
                         }
+
+                        if (onlyTodayStatistic)
+                            break;
                     }
-                }
 
-                Console.WriteLine($"{chatId}: Получение статистики");
-                if (textWithStatistic != "")
-                {
-                    await botClient.SendTextMessageAsync(
-                          chatId: chatId,
-                          text: textWithStatistic);
-                }
-                else
-                {
-                    await botClient.SendTextMessageAsync(
-                          chatId: chatId,
-                          text: "У вас пока нет записей о затраченном времени\n" +
-                          "🚀 Запускай таймер и можешь отследить свой прогресс!");
-                }
-            }
-            catch (Exception ex)
-            {
-                await botClient.SendTextMessageAsync(chatId, $"‼ Возникла ошибка с подключением к базе данных: {ex.Message}.\n" +
-                     $"Пожалуйста, свяжитесь с нами через техническую поддержку для устранения ошибки");
-            }
-        }
-
-
-        static async void ShowStatistic(long chatId, int month, DateTime today)
-        {
-            try
-            {
-                List<Activity> activityList = DB.GetActivityList(chatId, true);
-                string textWithStatistic = "";
-                foreach (Activity activity in activityList)
-                {
-                    int seconds = DB.GetStatistic(chatId, activity.Number, month, today);
-
-                    if (seconds != 0)
-                    {
-                        TimeSpan result = TimeSpan.FromSeconds(seconds);
-                        int hour = result.Hours;
-                        int min = result.Minutes;
-                        int sec = result.Seconds;
-
-                        //Только секунды
-                        if (min == 0)
-                            textWithStatistic += $"{activity.Name}: {sec} сек.\n";
-
-                        //Только минуты с секундами
-                        else if (hour == 0 && min != 0)
-                            textWithStatistic += $"{activity.Name}: {min} мин. {sec} сек.\n";
-
-                        else textWithStatistic += $"{activity.Name}: {hour} ч. {min} мин. {sec} сек.\n";
-                    }
                 }
 
                 Console.WriteLine($"{chatId}: Получение статистики");
@@ -413,8 +366,6 @@ namespace Timetracking_HSE_Bot
                         //}
                         #endregion
 
-
-
                         await botClient.SendTextMessageAsync(chatId,
                             text: "Выберете, в каком формате Вы хотите получить статистику",
                             parseMode: ParseMode.Markdown,
@@ -428,25 +379,32 @@ namespace Timetracking_HSE_Bot
                     {
                         int statisticType = int.Parse(Regex.Replace(callbackQuery.Data, @"\D", ""));
 
+                        //За весь период
                         if (statisticType == 1)
                             ShowStatistic(chatId, 0, default);
+
+                        //За месяц
                         else if (statisticType == 2)
                         {
                             InlineKeyboardMarkup monthKeyboard = InlineKeyboard.Months();
-                           await botClient.SendTextMessageAsync(chatId,
-                           text: "Выберете месяц, за который Вы хотите получить статистику активностей",
-                           parseMode: ParseMode.Markdown,
-                           replyMarkup: monthKeyboard);
+                            await botClient.SendTextMessageAsync(chatId,
+                            text: "Выберете месяц, за который Вы хотите получить статистику активностей",
+                            parseMode: ParseMode.Markdown,
+                            replyMarkup: monthKeyboard);
                         }
+
+                        //За неделю
                         else if (statisticType == 3)
                         {
                             DateTime today = DateTime.Now.Date;
-                            ShowWeekStatistic(chatId, 0, today);
+                            ShowStatistic(chatId, 0, today);
                         }
+
+                        //За день
                         else if (statisticType == 4)
                         {
                             DateTime today = DateTime.Now.Date;
-                            ShowStatistic(chatId, 0, today);
+                            ShowStatistic(chatId, 0, today, true);
                         }
                         break;
                     }

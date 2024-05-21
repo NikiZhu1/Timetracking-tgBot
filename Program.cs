@@ -222,35 +222,40 @@ namespace Timetracking_HSE_Bot
                 int seconds = 0;
                 foreach (Activity activity in activityList)
                 {
-                    for (int i = 0; i >= -7; i--)
+                    if (today != default)
                     {
-                        seconds += DB.GetStatistic(chatId, activity.Number, month, today.AddDays(i));
-
-                        if (seconds != 0)
+                        for (int i = 0; i >= -7; i--)
                         {
-                            TimeSpan result = TimeSpan.FromSeconds(seconds);
-                            int hour = result.Hours;
-                            int min = result.Minutes;
-                            int sec = result.Seconds;
-
-                            //Только секунды
-                            if (min == 0)
-                                textWithStatistic += $"{activity.Name}: {sec} сек.\n";
-
-                            //Только минуты с секундами
-                            else if (hour == 0 && min != 0)
-                                textWithStatistic += $"{activity.Name}: {min} мин. {sec} сек.\n";
-
-                            else textWithStatistic += $"{activity.Name}: {hour} ч. {min} мин. {sec} сек.\n";
-
-                            //Обнуляем итоговое время
-                            seconds = 0;
+                            seconds += DB.GetStatistic(chatId, activity.Number, month, today.AddDays(i));
+                            if (onlyTodayStatistic)
+                                break;
                         }
+                    }
+                    else seconds = DB.GetStatistic(chatId, activity.Number);
 
-                        if (onlyTodayStatistic)
-                            break;
+
+                    if (seconds != 0)
+                    {
+                        TimeSpan result = TimeSpan.FromSeconds(seconds);
+                        int hour = result.Hours;
+                        int min = result.Minutes;
+                        int sec = result.Seconds;
+
+                        //Только секунды
+                        if (min == 0)
+                            textWithStatistic += $"{activity.Name}: {sec} сек.\n";
+
+                        //Только минуты с секундами
+                        else if (hour == 0 && min != 0)
+                            textWithStatistic += $"{activity.Name}: {min} мин. {sec} сек.\n";
+
+                        else textWithStatistic += $"{activity.Name}: {hour} ч. {min} мин. {sec} сек.\n";
+
+                        //Обнуляем итоговое время
+                        seconds = 0;
                     }
 
+                    
                 }
 
                 Console.WriteLine($"{chatId}: Получение статистики");

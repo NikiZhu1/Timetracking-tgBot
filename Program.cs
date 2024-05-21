@@ -391,7 +391,8 @@ namespace Timetracking_HSE_Bot
                         else if (statisticType == 2)
                         {
                             InlineKeyboardMarkup monthKeyboard = InlineKeyboard.Months();
-                            await botClient.SendTextMessageAsync(chatId,
+
+                            await botClient.EditMessageTextAsync(chatId, messageId,
                             text: "Выберете месяц, за который Вы хотите получить статистику активностей",
                             parseMode: ParseMode.Markdown,
                             replyMarkup: monthKeyboard);
@@ -418,6 +419,8 @@ namespace Timetracking_HSE_Bot
                     {
                         int monthNumber = int.Parse(Regex.Replace(callbackQuery.Data, @"\D", ""));
                         ShowStatistic(chatId, monthNumber, default);
+
+                        await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "✅ Статистика получена");
                         break;
                     }
 

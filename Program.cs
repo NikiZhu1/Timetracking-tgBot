@@ -222,17 +222,9 @@ namespace Timetracking_HSE_Bot
                 int seconds = 0;
                 foreach (Activity activity in activityList)
                 {
-                    if (today != default)
+                    for (int i = 0; i >= -7; i--)
                     {
-                        for (int i = 0; i >= -7; i--)
-                        {
-                            seconds += DB.GetStatistic(chatId, activity.Number, month, today.AddDays(i));
-                            if (onlyTodayStatistic)
-                                break;
-                        }
-                    }
-                    else seconds = DB.GetStatistic(chatId, activity.Number);
-
+                        seconds += DB.GetStatistic(chatId, activity.Number, month, today.AddDays(i));
 
                     if (seconds != 0)
                     {
@@ -411,6 +403,8 @@ namespace Timetracking_HSE_Bot
                             DateTime today = DateTime.Now.Date;
                             ShowStatistic(chatId, 0, today, true);
                         }
+
+                        await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "✅ Статистика получена");
                         break;
                     }
                 case "month_":

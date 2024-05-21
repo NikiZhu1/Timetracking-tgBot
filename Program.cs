@@ -215,7 +215,7 @@ namespace Timetracking_HSE_Bot
             }
         }
 
-        static async void ShowWeekStatistic(long chatId, int month, DateTime today, bool onlyTodayStatistic)
+        static async void ShowWeekStatistic(long chatId, int month, DateTime today)
         {
             try
             {
@@ -227,8 +227,7 @@ namespace Timetracking_HSE_Bot
                     for (int i = 0; i >= -7; i--)
                     {
                         seconds += DB.GetStatistic(chatId, activity.Number, month, today.AddDays(i));
-                        if (onlyTodayStatistic)
-                            break;
+                        
                         if (seconds != 0)
                         {
                             TimeSpan result = TimeSpan.FromSeconds(seconds);
@@ -247,7 +246,6 @@ namespace Timetracking_HSE_Bot
                             else textWithStatistic += $"{activity.Name}: {hour} ч. {min} мин. {sec} сек.\n";
                         }
                     }
-                    
                 }
 
                 Console.WriteLine($"{chatId}: Получение статистики");
@@ -322,73 +320,6 @@ namespace Timetracking_HSE_Bot
                 await botClient.SendTextMessageAsync(chatId, $"‼ Возникла ошибка с подключением к базе данных: {ex.Message}.\n" +
                      $"Пожалуйста, свяжитесь с нами через техническую поддержку для устранения ошибки");
             }
-        }
-
-        //Строит клавиатуру по списку активностей
-        public static InlineKeyboardMarkup BuildNewKeyboard(List<Activity> activityList)
-        {
-            List<InlineKeyboardButton[]> rows = new()
-            {
-                new[] {InlineKeyboardButton.WithCallbackData("Добавить активность", "add_activity")}
-            };
-
-            foreach (Activity activity in activityList)
-            {
-                InlineKeyboardButton activityButton = new("");
-                InlineKeyboardButton statusButton = new("");
-
-                if (!activity.IsEnded)
-                {
-                    // Создаем кнопки для активности
-                    activityButton = activity.IsTracking
-                        ? InlineKeyboardButton.WithCallbackData($"⏱️ {activity.Name}", $"aboutAct{activity.Number}")
-                        : InlineKeyboardButton.WithCallbackData($"{activity.Name}", $"aboutAct{activity.Number}");
-                    statusButton = activity.IsTracking
-                        ? InlineKeyboardButton.WithCallbackData("⏹ СТОП", $"stop_{activity.Number}")
-                        : InlineKeyboardButton.WithCallbackData("❇️ СТАРТ", $"start_{activity.Number}");
-                }
-
-                rows.Add(new[] { activityButton, statusButton });
-            }
-
-            rows.Add(new[] { InlineKeyboardButton.WithCallbackData("Статистика активностей", "statistic") });
-
-            return new InlineKeyboardMarkup(rows);
-        }
-
-        //Строит клавиатуру для вывода месяцев
-        public static InlineKeyboardMarkup BuildMonthKeyboard(long chatId)
-        {
-            var monthKeyboard = new InlineKeyboardMarkup(
-                       new List<InlineKeyboardButton[]>()
-                       {
-                            new InlineKeyboardButton[]
-                            {
-                                 InlineKeyboardButton.WithCallbackData("Январь", $"month_01"), InlineKeyboardButton.WithCallbackData("Февраль", $"month_02"),
-                            },
-                            new InlineKeyboardButton[]
-                            {
-                                 InlineKeyboardButton.WithCallbackData("Март", $"month_03"), InlineKeyboardButton.WithCallbackData("Апрель", $"month_04"),
-                            },
-                            new InlineKeyboardButton[]
-                            {
-                                 InlineKeyboardButton.WithCallbackData("Май", $"month_05"), InlineKeyboardButton.WithCallbackData("Июнь ", $"month_06"),
-                            },
-                            new InlineKeyboardButton[]
-                            {
-                                 InlineKeyboardButton.WithCallbackData("Июль", $"month_07"), InlineKeyboardButton.WithCallbackData("Август", $"month_08"),
-                            },
-                            new InlineKeyboardButton[]
-                            {
-                                 InlineKeyboardButton.WithCallbackData("Сентябрь", $"month_09"), InlineKeyboardButton.WithCallbackData("Октябрь", $"month_10"),
-                            },
-                            new InlineKeyboardButton[]
-                            {
-                                 InlineKeyboardButton.WithCallbackData("Ноябрь", $"month_11"), InlineKeyboardButton.WithCallbackData("Декабрь", $"month_12"),
-                            },
-                       });
-
-            return monthKeyboard;
         }
 
         //Обработка: КАЛЛБЭКИ ОТ ИНЛАЙН-КНОПОК
@@ -501,7 +432,7 @@ namespace Timetracking_HSE_Bot
                             ShowStatistic(chatId, 0, default);
                         else if (statisticType == 2)
                         {
-                            InlineKeyboardMarkup monthKeyboard = BuildMonthKeyboard(chatId);
+                            InlineKeyboardMarkup monthKeyboard = InlineKeyboard.Months();
                            await botClient.SendTextMessageAsync(chatId,
                            text: "Выберете месяц, за который Вы хотите получить статистику активностей",
                            parseMode: ParseMode.Markdown,
@@ -510,12 +441,12 @@ namespace Timetracking_HSE_Bot
                         else if (statisticType == 3)
                         {
                             DateTime today = DateTime.Now.Date;
-                            ShowWeekStatistic(chatId, 0, today, false);
+                            ShowWeekStatistic(chatId, 0, today);
                         }
                         else if (statisticType == 4)
                         {
                             DateTime today = DateTime.Now.Date;
-                            ShowWeekStatistic(chatId, 0, today, true);
+                            ShowStatistic(chatId, 0, today);
                         }
                         break;
                     }

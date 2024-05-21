@@ -222,7 +222,7 @@ namespace Timetracking_HSE_Bot
                 int seconds = 0;
                 foreach (Activity activity in activityList)
                 {
-                    if (today == default)
+                    if (today != default)
                     {
                         for (int i = 0; i >= -7; i--)
                         {

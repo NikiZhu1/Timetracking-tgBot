@@ -215,18 +215,20 @@ namespace Timetracking_HSE_Bot
             }
         }
 
-        static async void ShowWeekStatistic(long chatId, int month, DateTime today)
+        static async void ShowWeekStatistic(long chatId, int month, DateTime today, bool onlyTodayStatistic)
         {
             try
             {
                 List<Activity> activityList = DB.GetActivityList(chatId, true);
                 string textWithStatistic = "";
+                int seconds = 0;
                 foreach (Activity activity in activityList)
                 {
                     for (int i = 0; i >= -7; i--)
                     {
-                        int seconds = DB.GetStatistic(chatId, activity.Number, month, today.AddDays(i));
-
+                        seconds += DB.GetStatistic(chatId, activity.Number, month, today.AddDays(i));
+                        if (onlyTodayStatistic)
+                            break;
                         if (seconds != 0)
                         {
                             TimeSpan result = TimeSpan.FromSeconds(seconds);
@@ -245,6 +247,7 @@ namespace Timetracking_HSE_Bot
                             else textWithStatistic += $"{activity.Name}: {hour} ч. {min} мин. {sec} сек.\n";
                         }
                     }
+                    
                 }
 
                 Console.WriteLine($"{chatId}: Получение статистики");
@@ -504,10 +507,15 @@ namespace Timetracking_HSE_Bot
                            parseMode: ParseMode.Markdown,
                            replyMarkup: monthKeyboard);
                         }
+                        else if (statisticType == 3)
+                        {
+                            DateTime today = DateTime.Now.Date;
+                            ShowWeekStatistic(chatId, 0, today, false);
+                        }
                         else if (statisticType == 4)
                         {
                             DateTime today = DateTime.Now.Date;
-                            ShowStatistic(chatId, 0, today);
+                            ShowWeekStatistic(chatId, 0, today, true);
                         }
                         break;
                     }

@@ -353,7 +353,8 @@ namespace Timetracking_HSE_Bot
 
                 command += $" AND StopTime REGEXP '{pattern}'";
             }
-            if (today == DateTime.Now.Date)
+
+            if (today != default)
             {
                 string todayYear = today.Year.ToString();
                 string todayMonth = today.Month.ToString("00");

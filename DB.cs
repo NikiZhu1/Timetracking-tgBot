@@ -378,7 +378,6 @@ namespace Timetracking_HSE_Bot
                     // Привязка функции к соединению
                     DBConection.BindFunction(attribute, function);
                 }
-               
 
                 using SQLiteCommand cmd = DBConection.CreateCommand();
                 {

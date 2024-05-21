@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Net.NetworkInformation;
 using System.Text.RegularExpressions;
 using Telegram.Bot;
@@ -224,6 +225,61 @@ namespace Timetracking_HSE_Bot
             }
         }
 
+        static async void ShowWeekStatistic(long chatId, int month, DateTime today)
+        {
+            try
+            {
+                List<Activity> activityList = DB.GetActivityList(chatId, true);
+                string textWithStatistic = "";
+                foreach (Activity activity in activityList)
+                {
+                    for (int i = 0; i >= -7; i--)
+                    {
+                        int seconds = DB.GetStatistic(chatId, activity.Number, month, today.AddDays(i));
+
+                        if (seconds != 0)
+                        {
+                            TimeSpan result = TimeSpan.FromSeconds(seconds);
+                            int hour = result.Hours;
+                            int min = result.Minutes;
+                            int sec = result.Seconds;
+
+                            //Только секунды
+                            if (min == 0)
+                                textWithStatistic += $"{activity.Name}: {sec} сек.\n";
+
+                            //Только минуты с секундами
+                            else if (hour == 0 && min != 0)
+                                textWithStatistic += $"{activity.Name}: {min} мин. {sec} сек.\n";
+
+                            else textWithStatistic += $"{activity.Name}: {hour} ч. {min} мин. {sec} сек.\n";
+                        }
+                    }
+                }
+
+                Console.WriteLine($"{chatId}: Получение статистики");
+                if (textWithStatistic != "")
+                {
+                    await botClient.SendTextMessageAsync(
+                          chatId: chatId,
+                          text: textWithStatistic);
+                }
+                else
+                {
+                    await botClient.SendTextMessageAsync(
+                          chatId: chatId,
+                          text: "У вас пока нет записей о затраченном времени\n" +
+                          "🚀 Запускай таймер и можешь отследить свой прогресс!");
+                }
+            }
+            catch (Exception ex)
+            {
+                await botClient.SendTextMessageAsync(chatId, $"‼ Возникла ошибка с подключением к базе данных: {ex.Message}.\n" +
+                     $"Пожалуйста, свяжитесь с нами через техническую поддержку для устранения ошибки");
+            }
+        }
+
+
         static async void ShowStatistic(long chatId, int month, DateTime today)
         {
             try
@@ -308,34 +364,34 @@ namespace Timetracking_HSE_Bot
         }
 
         //Строит клавиатуру для вывода месяцев
-        public static InlineKeyboardMarkup BuildMonthKeyboard(long chatId)
+        public static InlineKeyboardMarkup BuildMonthKeyboard()
         {
             var monthKeyboard = new InlineKeyboardMarkup(
                        new List<InlineKeyboardButton[]>()
                        {
                             new InlineKeyboardButton[]
                             {
-                                 InlineKeyboardButton.WithCallbackData("Январь", $"month_01"), InlineKeyboardButton.WithCallbackData("Февраль", $"month_02"),
+                                 InlineKeyboardButton.WithCallbackData("❄️Январь", $"month_01"), InlineKeyboardButton.WithCallbackData("❄️Февраль", $"month_02"),
                             },
                             new InlineKeyboardButton[]
                             {
-                                 InlineKeyboardButton.WithCallbackData("Март", $"month_03"), InlineKeyboardButton.WithCallbackData("Апрель", $"month_04"),
+                                 InlineKeyboardButton.WithCallbackData("🍀Март", $"month_03"), InlineKeyboardButton.WithCallbackData("🍀Апрель", $"month_04"),
                             },
                             new InlineKeyboardButton[]
                             {
-                                 InlineKeyboardButton.WithCallbackData("Май", $"month_05"), InlineKeyboardButton.WithCallbackData("Июнь ", $"month_06"),
+                                 InlineKeyboardButton.WithCallbackData("🍀Май", $"month_05"), InlineKeyboardButton.WithCallbackData("☀️Июнь ", $"month_06"),
                             },
                             new InlineKeyboardButton[]
                             {
-                                 InlineKeyboardButton.WithCallbackData("Июль", $"month_07"), InlineKeyboardButton.WithCallbackData("Август", $"month_08"),
+                                 InlineKeyboardButton.WithCallbackData("☀️Июль", $"month_07"), InlineKeyboardButton.WithCallbackData("☀️Август", $"month_08"),
                             },
                             new InlineKeyboardButton[]
                             {
-                                 InlineKeyboardButton.WithCallbackData("Сентябрь", $"month_09"), InlineKeyboardButton.WithCallbackData("Октябрь", $"month_10"),
+                                 InlineKeyboardButton.WithCallbackData("🍁Сентябрь", $"month_09"), InlineKeyboardButton.WithCallbackData("🍁Октябрь", $"month_10"),
                             },
                             new InlineKeyboardButton[]
                             {
-                                 InlineKeyboardButton.WithCallbackData("Ноябрь", $"month_11"), InlineKeyboardButton.WithCallbackData("Декабрь", $"month_12"),
+                                 InlineKeyboardButton.WithCallbackData("🍁Ноябрь", $"month_11"), InlineKeyboardButton.WithCallbackData("❄️Декабрь", $"month_12"),
                             },
                        });
 
@@ -468,11 +524,16 @@ namespace Timetracking_HSE_Bot
                             ShowStatistic(chatId, 0, default);
                         else if (statisticType == 2)
                         {
-                            InlineKeyboardMarkup monthKeyboard = BuildMonthKeyboard(chatId);
+                            InlineKeyboardMarkup monthKeyboard = BuildMonthKeyboard();
                            await botClient.SendTextMessageAsync(chatId,
                            text: "Выберете месяц, за который Вы хотите получить статистику активностей",
                            parseMode: ParseMode.Markdown,
                            replyMarkup: monthKeyboard);
+                        }
+                        else if (statisticType == 3)
+                        {
+                            DateTime today = DateTime.Now.Date;
+                            ShowWeekStatistic(chatId, 0, today);
                         }
                         else if (statisticType == 4)
                         {

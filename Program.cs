@@ -225,6 +225,7 @@ namespace Timetracking_HSE_Bot
                     for (int i = 0; i >= -7; i--)
                     {
                         seconds += DB.GetStatistic(chatId, activity.Number, month, today.AddDays(i));
+                    }
 
                     if (seconds != 0)
                     {

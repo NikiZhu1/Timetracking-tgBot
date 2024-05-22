@@ -44,27 +44,27 @@ namespace Timetracking_HSE_Bot
             {
                 new InlineKeyboardButton[]
                 {
-                        InlineKeyboardButton.WithCallbackData("Январь", $"month_01"), InlineKeyboardButton.WithCallbackData("Февраль", $"month_02"),
+                        InlineKeyboardButton.WithCallbackData("❄️Январь", $"month_01"), InlineKeyboardButton.WithCallbackData("❄️Февраль", $"month_02"),
                 },
                 new InlineKeyboardButton[]
                 {
-                        InlineKeyboardButton.WithCallbackData("Март", $"month_03"), InlineKeyboardButton.WithCallbackData("Апрель", $"month_04"),
+                        InlineKeyboardButton.WithCallbackData("🍀Март", $"month_03"), InlineKeyboardButton.WithCallbackData("🍀Апрель", $"month_04"),
                 },
                 new InlineKeyboardButton[]
                 {
-                        InlineKeyboardButton.WithCallbackData("Май", $"month_05"), InlineKeyboardButton.WithCallbackData("Июнь ", $"month_06"),
+                        InlineKeyboardButton.WithCallbackData("🍀Май", $"month_05"), InlineKeyboardButton.WithCallbackData("☀️Июнь ", $"month_06"),
                 },
                 new InlineKeyboardButton[]
                 {
-                        InlineKeyboardButton.WithCallbackData("Июль", $"month_07"), InlineKeyboardButton.WithCallbackData("Август", $"month_08"),
+                        InlineKeyboardButton.WithCallbackData("☀️Июль", $"month_07"), InlineKeyboardButton.WithCallbackData("☀️Август", $"month_08"),
                 },
                 new InlineKeyboardButton[]
                 {
-                        InlineKeyboardButton.WithCallbackData("Сентябрь", $"month_09"), InlineKeyboardButton.WithCallbackData("Октябрь", $"month_10"),
+                        InlineKeyboardButton.WithCallbackData("🍁Сентябрь", $"month_09"), InlineKeyboardButton.WithCallbackData("🍁Октябрь", $"month_10"),
                 },
                 new InlineKeyboardButton[]
                 {
-                        InlineKeyboardButton.WithCallbackData("Ноябрь", $"month_11"), InlineKeyboardButton.WithCallbackData("Декабрь", $"month_12"),
+                        InlineKeyboardButton.WithCallbackData("🍁Ноябрь", $"month_11"), InlineKeyboardButton.WithCallbackData("❄️Декабрь", $"month_12"),
                 },
             });
 

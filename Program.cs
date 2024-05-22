@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.Text.RegularExpressions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -83,7 +84,7 @@ namespace Timetracking_HSE_Bot
                 }
                 catch (Exception ex)
                 {
-                    await botClient.SendTextMessageAsync(chatId, $"‼ Возникла ошибка с подключением к базе данных: {ex.Message}.\n" +
+                    await botClient.SendTextMessageAsync(chatId, $"‼ Возникла ошибка с подключением данных: {ex.Message}.\n" +
                         $"Пожалуйста, свяжитесь с нами через техническую поддержку для устранения ошибки");
                 }
             }
@@ -158,7 +159,7 @@ namespace Timetracking_HSE_Bot
                     }
                     catch (Exception ex)
                     {
-                        await botClient.SendTextMessageAsync(chatId, $"‼ Возникла ошибка с подключением к базе данных: {ex.Message}.\n" +
+                        await botClient.SendTextMessageAsync(chatId, $"‼ Возникла ошибка с подключением данных: {ex.Message}.\n" +
                         $"Пожалуйста, свяжитесь с нами через техническую поддержку для устранения ошибки");
                     }
                 }
@@ -206,7 +207,7 @@ namespace Timetracking_HSE_Bot
                     }
                     catch (Exception ex)
                     {
-                        await botClient.SendTextMessageAsync(chatId, $"‼ Возникла ошибка с подключением к базе данных: {ex.Message}.\n" +
+                        await botClient.SendTextMessageAsync(chatId, $"‼ Возникла ошибка с подключением данных: {ex.Message}.\n" +
                         $"Пожалуйста, свяжитесь с нами через техническую поддержку для устранения ошибки");
                     }
                 }
@@ -222,12 +223,11 @@ namespace Timetracking_HSE_Bot
                 int seconds = 0;
                 foreach (Activity activity in activityList) 
                 {
-                    if (today == default)
+                    if (today != default) //значение today установлено - статистика за месяц или за весь период
                     {
                         for (int i = 0; i >= -7; i--)
                         {
                             seconds += DB.GetStatistic(chatId, activity.Number, month, today.AddDays(i));
-
                             if (onlyTodayStatistic)
                                 break;
                         }
@@ -235,9 +235,15 @@ namespace Timetracking_HSE_Bot
                     else //значение today не установлено - статистика за месяц или за весь период
                     {
                         if (month != 0) //значение месяца установлено - статистика за месяц
+                        {
                             seconds += DB.GetStatistic(chatId, activity.Number, month);
+                        }
+                            
                         else //значение месяца не установлено - статистика за весь период
+                        {
                             seconds += DB.GetStatistic(chatId, activity.Number);
+                        }
+                          
                     }
                         
                     if (seconds != 0)
@@ -259,9 +265,7 @@ namespace Timetracking_HSE_Bot
 
                         //Обнуляем итоговое время
                         seconds = 0;
-                    }
-
-                    
+                    }    
                 }
 
                 Console.WriteLine($"{chatId}: Получение статистики");
@@ -281,7 +285,7 @@ namespace Timetracking_HSE_Bot
             }
             catch (Exception ex)
             {
-                await botClient.SendTextMessageAsync(chatId, $"‼ Возникла ошибка с подключением к базе данных: {ex.Message}.\n" +
+                await botClient.SendTextMessageAsync(chatId, $"‼ Возникла ошибка с подключением данных: {ex.Message}.\n" +
                      $"Пожалуйста, свяжитесь с нами через техническую поддержку для устранения ошибки");
             }
         }
@@ -323,60 +327,6 @@ namespace Timetracking_HSE_Bot
 
                 case "statistic":
                     {
-                        #region
-                        //try
-                        //{
-                        //    activityList = DB.GetActivityList(chatId, true);
-                        //    DateTime today = DateTime.Now.Date;
-                        //    string textWithStatistic = "";
-                        //    foreach (Activity activity in activityList)
-                        //    {                        
-                        //        //int seconds = DB.GetStatistic(chatId, activity.Number);
-                        //        int seconds = DB.GetStatisticсссс(chatId, activity.Number, 0, today);
-
-                        //        if (seconds != 0)
-                        //        {
-                        //            TimeSpan result = TimeSpan.FromSeconds(seconds);
-                        //            int hour = result.Hours;
-                        //            int min = result.Minutes;
-                        //            int sec = result.Seconds;
-
-                        //            //Только секунды
-                        //            if (min == 0)
-                        //                textWithStatistic += $"{activity.Name}: {sec} сек.\n";
-
-                        //            //Только минуты с секундами
-                        //            else if (hour == 0 && min != 0)
-                        //                textWithStatistic += $"{activity.Name}: {min} мин. {sec} сек.\n";
-
-                        //            else textWithStatistic += $"{activity.Name}: {hour} ч. {min} мин. {sec} сек.\n";
-                        //        }
-                        //    }
-
-                        //    Console.WriteLine($"{chatId}: Получение статистики");
-                        //    if (textWithStatistic != "")
-                        //    {
-                        //        await botClient.SendTextMessageAsync(
-                        //              chatId: chatId,
-                        //              text: textWithStatistic);
-                        //    }
-                        //    else
-                        //    {
-                        //        await botClient.SendTextMessageAsync(
-                        //              chatId: chatId,
-                        //              text: "У вас пока нет записей о затраченном времени\n" +
-                        //              "🚀 Запускай таймер и можешь отследить свой прогресс!");
-                        //    }
-
-                        //    await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
-                        //}
-                        //catch (Exception ex)
-                        //{
-                        //    await botClient.SendTextMessageAsync(chatId, $"‼ Возникла ошибка с подключением к базе данных: {ex.Message}.\n" +
-                        //         $"Пожалуйста, свяжитесь с нами через техническую поддержку для устранения ошибки");
-                        //}
-                        #endregion
-
                         await botClient.SendTextMessageAsync(chatId,
                             text: "Выберете, в каком формате Вы хотите получить статистику",
                             parseMode: ParseMode.Markdown,
@@ -392,8 +342,11 @@ namespace Timetracking_HSE_Bot
 
                         //За весь период
                         if (statisticType == 1)
+                        {
+                            await botClient.SendTextMessageAsync(chatId, $"Статистика за весь период использования трекера");
                             ShowStatistic(chatId, 0, default);
-
+                        }
+                            
                         //За месяц
                         else if (statisticType == 2)
                         {
@@ -408,6 +361,7 @@ namespace Timetracking_HSE_Bot
                         //За неделю
                         else if (statisticType == 3)
                         {
+                            await botClient.SendTextMessageAsync(chatId, $"Статистика за последнюю неделю");
                             DateTime today = DateTime.Now.Date;
                             ShowStatistic(chatId, 0, today);
                         }
@@ -415,6 +369,7 @@ namespace Timetracking_HSE_Bot
                         //За день
                         else if (statisticType == 4)
                         {
+                            await botClient.SendTextMessageAsync(chatId, $"Статистика за текущий день");
                             DateTime today = DateTime.Now.Date;
                             ShowStatistic(chatId, 0, today, true);
                         }
@@ -502,7 +457,7 @@ namespace Timetracking_HSE_Bot
                         }
                         catch (Exception ex)
                         {
-                            await botClient.SendTextMessageAsync(chatId, $"‼ Возникла ошибка с подключением к базе данных: {ex.Message}.\n"
+                            await botClient.SendTextMessageAsync(chatId, $"‼ Возникла ошибка с подключением данных: {ex.Message}.\n"
                             + $"Пожалуйста, свяжитесь с нами через техническую поддержку для устранения ошибки");
                         }
 

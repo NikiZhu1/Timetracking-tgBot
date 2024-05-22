@@ -222,10 +222,18 @@ namespace Timetracking_HSE_Bot
                 int seconds = 0;
                 foreach (Activity activity in activityList)
                 {
-                    for (int i = 0; i >= -7; i--)
+                    if (today == default)
                     {
-                        seconds += DB.GetStatistic(chatId, activity.Number, month, today.AddDays(i));
+                        for (int i = 0; i >= -7; i--)
+                        {
+                            seconds += DB.GetStatistic(chatId, activity.Number, month, today.AddDays(i));
+
+                            if (onlyTodayStatistic)
+                                break;
+                        }
                     }
+                    else
+                        seconds += DB.GetStatistic(chatId, activity.Number);
 
                     if (seconds != 0)
                     {

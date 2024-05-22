@@ -223,13 +223,14 @@ namespace Timetracking_HSE_Bot
                 int seconds = 0;
                 foreach (Activity activity in activityList) 
                 {
-                    if (today != default) //значение today установлено - статистика за месяц или за весь период
+                    if (today != default) //значение today установлено - статистика за неделю или за день
                     {
                         for (int i = 0; i >= -7; i--)
                         {
                             seconds += DB.GetStatistic(chatId, activity.Number, month, today.AddDays(i));
                             if (onlyTodayStatistic)
                                 break;
+
                         }
                     }
                     else //значение today не установлено - статистика за месяц или за весь период
@@ -343,7 +344,7 @@ namespace Timetracking_HSE_Bot
                         //За весь период
                         if (statisticType == 1)
                         {
-                            await botClient.SendTextMessageAsync(chatId, $"Статистика за весь период использования трекера");
+                            await botClient.SendTextMessageAsync(chatId, $"Статистика за весь период");
                             ShowStatistic(chatId, 0, default);
                         }
                             

@@ -220,21 +220,26 @@ namespace Timetracking_HSE_Bot
                 List<Activity> activityList = DB.GetActivityList(chatId, true);
                 string textWithStatistic = "";
                 int seconds = 0;
-                foreach (Activity activity in activityList)
+                foreach (Activity activity in activityList) 
                 {
-                    if (today == default)
+                    if (today != default) //значение today установлено - статистика за неделю или день
                     {
                         for (int i = 0; i >= -7; i--)
-                        {
+                        {   
                             seconds += DB.GetStatistic(chatId, activity.Number, month, today.AddDays(i));
 
                             if (onlyTodayStatistic)
                                 break;
                         }
                     }
-                    else
-                        seconds += DB.GetStatistic(chatId, activity.Number);
-
+                    else //значение today не установлено - статистика за месяц или за весь период
+                    {
+                        if (month != 0) //значение месяца установлено - статистика за месяц
+                            seconds += DB.GetStatistic(chatId, activity.Number, month);
+                        else //значение месяца не установлено - статистика за весь период
+                            seconds += DB.GetStatistic(chatId, activity.Number);
+                    }
+                        
                     if (seconds != 0)
                     {
                         TimeSpan result = TimeSpan.FromSeconds(seconds);

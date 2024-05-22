@@ -222,10 +222,10 @@ namespace Timetracking_HSE_Bot
                 int seconds = 0;
                 foreach (Activity activity in activityList) 
                 {
-                    if (today != default) //значение today установлено - статистика за неделю или день
+                    if (today == default)
                     {
                         for (int i = 0; i >= -7; i--)
-                        {   
+                        {
                             seconds += DB.GetStatistic(chatId, activity.Number, month, today.AddDays(i));
 
                             if (onlyTodayStatistic)
@@ -398,7 +398,8 @@ namespace Timetracking_HSE_Bot
                         else if (statisticType == 2)
                         {
                             InlineKeyboardMarkup monthKeyboard = InlineKeyboard.Months();
-                            await botClient.SendTextMessageAsync(chatId,
+
+                            await botClient.EditMessageTextAsync(chatId, messageId,
                             text: "Выберете месяц, за который Вы хотите получить статистику активностей",
                             parseMode: ParseMode.Markdown,
                             replyMarkup: monthKeyboard);
@@ -425,6 +426,8 @@ namespace Timetracking_HSE_Bot
                     {
                         int monthNumber = int.Parse(Regex.Replace(callbackQuery.Data, @"\D", ""));
                         ShowStatistic(chatId, monthNumber, default);
+
+                        await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "✅ Статистика получена");
                         break;
                     }
 

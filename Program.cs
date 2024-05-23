@@ -142,8 +142,10 @@ namespace Timetracking_HSE_Bot
                         DB.UpdateActivityName((int)userInfo.actNumber, message.Text, chatId);
 
                         //Удаление прошлой клавиатуры
-                        int messageId = User.GetMessageIdForDelete(chatId);
-                        User.RemoveMessageId(chatId);
+                        //int messageId = User.GetMessageIdForDelete(chatId);
+                        //User.RemoveMessageId(chatId);
+                        int messageId = InlineKeyboard.GetMessageIdForDelete(chatId);
+                        InlineKeyboard.RemoveMessageId(chatId);
                         await botClient.DeleteMessageAsync(chatId, messageId);
 
                         // Сбросить состояние пользователя
@@ -191,8 +193,8 @@ namespace Timetracking_HSE_Bot
                         DB.AddActivity(chatId, message.Text);
 
                         //Удаление прошлой клавиатуры
-                        int messageId = User.GetMessageIdForDelete(chatId);
-                        User.RemoveMessageId(chatId);
+                        int messageId = InlineKeyboard.GetMessageIdForDelete(chatId);
+                        InlineKeyboard.RemoveMessageId(chatId);
                         await botClient.DeleteMessageAsync(chatId, messageId);
 
                         // Сбросить состояние пользователя
@@ -319,7 +321,8 @@ namespace Timetracking_HSE_Bot
                         text: $"✏ Введите название для новой активности");
 
                         //Получение message.id для последующего удаления
-                        User.SetMessageIdForDelete(chatId, messageId);
+                        //User.SetMessageIdForDelete(chatId, messageId);
+                        InlineKeyboard.SetMessageIdForDelete(chatId, messageId);
 
                         await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
                         break;
@@ -401,7 +404,8 @@ namespace Timetracking_HSE_Bot
                         }
 
                         //Получение message.id для последующего удаления
-                        User.SetMessageIdForDelete(chatId, messageId);
+                        //User.SetMessageIdForDelete(chatId, messageId);
+                        InlineKeyboard.SetMessageIdForDelete(chatId, messageId);
 
                         await botClient.SendTextMessageAsync(chatId,
                             text: $"{activity.Name}{status} \n\n" +
@@ -450,8 +454,8 @@ namespace Timetracking_HSE_Bot
                             replyMarkup: activityKeyboard);
 
                             //Удаление прошлой клавиатуры
-                            messageId = User.GetMessageIdForDelete(chatId);
-                            User.RemoveMessageId(chatId);
+                            messageId = InlineKeyboard.GetMessageIdForDelete(chatId);
+                            InlineKeyboard.RemoveMessageId(chatId);
                             await botClient.DeleteMessageAsync(chatId, messageId);
 
                             await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "🗑 Активность удалена");

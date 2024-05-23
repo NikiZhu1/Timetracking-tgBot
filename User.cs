@@ -43,29 +43,29 @@
             SetState(userId, State.None);
         }
 
-        //Словаь в котором хранятся состояния пользователей
-        private static readonly Dictionary<long, int> messageIdsForDelete = new();
+        ////Словаь в котором хранятся состояния пользователей
+        //private static readonly Dictionary<long, int> messageIdsForDelete = new();
 
-        //Записать message.id для удаления
-        public static void SetMessageIdForDelete(long userId, int messageId)
-        {
-            messageIdsForDelete[userId] = messageId;
-        }
+        ////Записать message.id для удаления
+        //public static void SetMessageIdForDelete(long userId, int messageId)
+        //{
+        //    messageIdsForDelete[userId] = messageId;
+        //}
 
-        //Записать message.id для удаления
-        public static int GetMessageIdForDelete(long userId)
-        {
-            if (messageIdsForDelete.TryGetValue(userId, out var messageId))
-            {
-                return messageId;
-            }
+        ////Записать message.id для удаления
+        //public static int GetMessageIdForDelete(long userId)
+        //{
+        //    if (messageIdsForDelete.TryGetValue(userId, out var messageId))
+        //    {
+        //        return messageId;
+        //    }
 
-            return 0;
-        }
+        //    return 0;
+        //}
 
-        public static void RemoveMessageId(long userId)
-        {
-            messageIdsForDelete.Remove(userId);
-        }
+        //public static void RemoveMessageId(long userId)
+        //{
+        //    messageIdsForDelete.Remove(userId);
+        //}
     }
 }

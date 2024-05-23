@@ -86,7 +86,8 @@
         /// <param name="actNumber">Номер активности</param>
         public static void Start(long chatId, int actNumber)
         {
-            TimeTracker.Start(chatId, actNumber);
+            // TimeTracker.Start(chatId, actNumber);
+            DB.StartTime(chatId, actNumber);
             DB.SetActivityStatus(chatId, actNumber, true);
         }
 
@@ -97,18 +98,20 @@
         /// <param name="actNumber">Номер активности</param>
         public static int Stop(long chatId, int actNumber)
         {
-            int totalTime = 0;
+            int totaltime = 0;
             try
             {
-                totalTime = TimeTracker.Stop(chatId, actNumber);
+                //totalTime = TimeTracker.Stop(chatId, actNumber);
                 DB.SetActivityStatus(chatId, actNumber, false);
+                totaltime = DB.StopTime(chatId, actNumber);
+                
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
             }
 
-            return totalTime;
+            return totaltime;
         }
 
         public int CompareTo(Activity? other)

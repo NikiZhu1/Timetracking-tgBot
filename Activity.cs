@@ -160,7 +160,7 @@
 
         public int CompareTo(Activity? other)
         {
-            return this.TotalTime.CompareTo(other.TotalTime);
+            return TotalTime.CompareTo(other.TotalTime);
         }
     }
 }

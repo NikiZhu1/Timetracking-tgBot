@@ -10,6 +10,7 @@ namespace Timetracking_HSE_Bot
     internal class Program
     {
         public static int totalActivitiesCount = 10;
+
         static public TelegramBotClient botClient = new("");
         const string token = "6761464907:AAHFMCFJJaRlEvt1obDsgYgqgliWw9mdyHg";
 
@@ -232,7 +233,6 @@ namespace Timetracking_HSE_Bot
                             seconds += DB.GetStatistic(chatId, activity.Number, month, today.AddDays(i));
                             if (onlyTodayStatistic)
                                 break;
-
                         }
                     }
                     else //значение today не установлено - статистика за месяц или за весь период
@@ -328,7 +328,6 @@ namespace Timetracking_HSE_Bot
                         break;
                     }
 
-
                 case "statistic":
                     {
                         await botClient.SendTextMessageAsync(chatId,
@@ -399,7 +398,6 @@ namespace Timetracking_HSE_Bot
 
                         if (activity != null)
                         {
-                            // Теперь, когда у вас есть активность, вы можете проверить, отслеживается ли она
                             status = activity.IsTracking ? ": Отслеживается ⏱" : "";
                         }
 
@@ -407,11 +405,14 @@ namespace Timetracking_HSE_Bot
                         //User.SetMessageIdForDelete(chatId, messageId);
                         InlineKeyboard.SetMessageIdForDelete(chatId, messageId);
 
+
                         await botClient.SendTextMessageAsync(chatId,
                             text: $"{activity.Name}{status} \n\n" +
                             $"Ты можешь изменить название активности или удалить ее",
                             parseMode: ParseMode.Markdown,
                             replyMarkup: InlineKeyboard.ChangeActivity(actNumber));
+
+           
 
                         await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
                         break;
@@ -426,6 +427,9 @@ namespace Timetracking_HSE_Bot
 
                         await botClient.SendTextMessageAsync(chatId,
                         text: $"Введите новое название для активности \"{activity.Name}\"");
+
+                        //удаление клавиатуры aboutact
+                        await botClient.DeleteMessageAsync(chatId, messageId);
 
                         await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
                         break;
@@ -453,7 +457,10 @@ namespace Timetracking_HSE_Bot
                             text: "⏱ Вот все твои активности. Нажми на ту, которую хочешь изменить или узнать подробности.",
                             replyMarkup: activityKeyboard);
 
-                            //Удаление прошлой клавиатуры
+                            //удаление клавиатуры aboutact
+                            await botClient.DeleteMessageAsync(chatId, messageId);
+
+                            //Удаление прошлой клавиатуры c активностями
                             messageId = InlineKeyboard.GetMessageIdForDelete(chatId);
                             InlineKeyboard.RemoveMessageId(chatId);
                             await botClient.DeleteMessageAsync(chatId, messageId);

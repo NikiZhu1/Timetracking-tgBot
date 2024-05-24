@@ -1,4 +1,5 @@
-﻿using System.Data.SQLite;
+﻿using System.Data.SqlClient;
+using System.Data.SQLite;
 using System.Text.RegularExpressions;
 
 namespace Timetracking_HSE_Bot
@@ -17,7 +18,7 @@ namespace Timetracking_HSE_Bot
     public class DB
     {
         private static readonly string fileName = "DB.db";
-        private static SQLiteConnection DBConection = new($"Data Source={fileName};");
+        private static SQLiteConnection DBConection = new($"Data Source={fileName}; Trusted_Connection=True;");
 
         public static string fullPath = Path.GetFullPath($"{fileName}");
 
@@ -133,44 +134,75 @@ namespace Timetracking_HSE_Bot
             }
         }
 
+        //функция с транзакцией
+        public static async void AddActivity(long chatId, string newValue)
+        {
+            List<Activity> allActivities = GetActivityList(chatId, true);
+            int actCount = allActivities.Count + 1;
+            DateTime dateStart = DateTime.Now;
+            DBConection.Open();
+            SQLiteTransaction transaction = DBConection.BeginTransaction();
+            SQLiteCommand cmd = DBConection.CreateCommand();
+            cmd.Transaction = transaction;
+            try
+            {
+                cmd.CommandText = "INSERT INTO Activities (ChatId, Number, Name, IsTracking, DateStart) VALUES (@chatId, @number, @name, @isTracking, @dateStart)";
+                cmd.Parameters.AddWithValue("@name", newValue);
+                cmd.Parameters.AddWithValue("@chatId", chatId);
+                cmd.Parameters.AddWithValue("@number", actCount);
+                cmd.Parameters.AddWithValue("@isTracking", 0);
+                cmd.Parameters.AddWithValue("@dateStart", dateStart.ToString("yyyy-MM-dd"));
+                cmd.ExecuteNonQuery();
+
+                await transaction.CommitAsync();
+                Console.WriteLine($"{chatId}: Активность #{actCount} - {newValue} добавлена");
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine("Ошибка: " + ex);
+                await transaction.RollbackAsync();
+            }
+            finally { DBConection?.Close(); }
+        }
+
         /// <summary>
         /// Добавить активность
         /// </summary>
         /// <param name="chatId">id пользователя</param>
         /// <param name="newValue">Название добавляемой активности</param>
-        public static void AddActivity(long chatId, string newValue)
-        {
-            List<Activity> allActivities = DB.GetActivityList(chatId, true);
-            int actCount = allActivities.Count + 1;
+        //public static void AddActivity(long chatId, string newValue)
+        //{
+        //    List<Activity> allActivities = DB.GetActivityList(chatId, true);
+        //    int actCount = allActivities.Count + 1;
 
-            try
-            {
-                DBConection.Open();
-                DateTime dateStart = DateTime.Now;
+        //    try
+        //    {
+        //        DBConection.Open();
+        //        DateTime dateStart = DateTime.Now;
 
-                using (SQLiteCommand cmd = DBConection.CreateCommand())
-                {
-                    cmd.CommandText = "INSERT INTO Activities (ChatId, Number, Name, IsTracking, DateStart) VALUES (@chatId, @number, @name, @isTracking, @dateStart)";
-                    cmd.Parameters.AddWithValue("@name", newValue);
-                    cmd.Parameters.AddWithValue("@chatId", chatId);
-                    cmd.Parameters.AddWithValue("@number", actCount);
-                    cmd.Parameters.AddWithValue("@isTracking", 0);
-                    cmd.Parameters.AddWithValue("@dateStart", dateStart.ToString("yyyy-MM-dd"));
-                    cmd.ExecuteNonQuery();
-                }
+        //        using (SQLiteCommand cmd = DBConection.CreateCommand())
+        //        {
+        //            cmd.CommandText = "INSERT INTO Activities (ChatId, Number, Name, IsTracking, DateStart) VALUES (@chatId, @number, @name, @isTracking, @dateStart)";
+        //            cmd.Parameters.AddWithValue("@name", newValue);
+        //            cmd.Parameters.AddWithValue("@chatId", chatId);
+        //            cmd.Parameters.AddWithValue("@number", actCount);
+        //            cmd.Parameters.AddWithValue("@isTracking", 0);
+        //            cmd.Parameters.AddWithValue("@dateStart", dateStart.ToString("yyyy-MM-dd"));
+        //            cmd.ExecuteNonQuery();
+        //        }
 
-                Console.WriteLine($"{chatId}: Активность #{actCount} - {newValue} добавлена");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Ошибка: " + ex);
-                throw;
-            }
-            finally
-            {
-                DBConection?.Close();
-            }
-        }
+        //        Console.WriteLine($"{chatId}: Активность #{actCount} - {newValue} добавлена");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine("Ошибка: " + ex);
+        //        throw;
+        //    }
+        //    finally
+        //    {
+        //        DBConection?.Close();
+        //    }
+        //}
 
         /// <summary>
         /// Завершить активность в таблице Activities
@@ -207,9 +239,7 @@ namespace Timetracking_HSE_Bot
             }
         }
 
-        ///<summary>
-        ///Получить лист активностей
-        ///</summary>
+        //функция с транзакцией
         public static List<Activity> GetActivityList(long chatId, bool getFullList = false)
         {
             List<Activity> activities = new(10);
@@ -221,9 +251,10 @@ namespace Timetracking_HSE_Bot
             try
             {
                 DBConection.Open();
-
+                using var transaction = DBConection.BeginTransaction();
                 using SQLiteCommand cmd = DBConection.CreateCommand();
                 {
+                    cmd.Transaction = transaction;
                     // Запрос для получения активностей
                     cmd.CommandText = command;
                     cmd.Parameters.AddWithValue("@chatId", chatId);
@@ -254,6 +285,7 @@ namespace Timetracking_HSE_Bot
                         }
                         reader.Close();
                     }
+                    transaction.Commit(); // Фиксация транзакции
                 }
             }
             catch (Exception ex)
@@ -270,62 +302,53 @@ namespace Timetracking_HSE_Bot
             return activities;
         }
 
-        /// <summary>
-        /// Получить затраченное время на активность из таблицы StartStopAct
-        /// </summary>
-        /// <param name="chatId">id пользователя</param>
-        /// <param name="actNumber">Номер активности</param>
-        /// <param name="monthNumber">Номер месяца</param>
-        /// <returns></returns>
-        //public static int GetStatistic(long chatId, int actNumber, int monthNumber = 0)
+
+        ///<summary>
+        ///Получить лист активностей
+        ///</summary>
+        //public static List<Activity> GetActivityList(long chatId, bool getFullList = false)
         //{
-        //    string command = $"SELECT SUM(TotalTime) FROM StartStopAct WHERE ChatId = @chatId AND Number = @act";
+        //    List<Activity> activities = new(10);
+        //    string command = $"SELECT Number, Name, IsTracking, DateStart, DateEnd FROM Activities WHERE ChatId = @chatId";
 
-        //    if (monthNumber != 0)
-        //    {
-        //        string month = monthNumber.ToString("00"); // Преобразует число в строку с ведущим нулем
-        //        string pattern = $@"^\d{{4}}-{month}-\d{{2}} \d{{2}}:\d{{2}}:\d{{2}}$";
-
-        //        command += $" AND StopTime REGEXP '{pattern}'";
-        //    }
+        //    if (!getFullList)
+        //        command += " AND DateEnd IS NULL";
 
         //    try
         //    {
         //        DBConection.Open();
 
-        //        if (monthNumber != 0)
-        //        {
-        //            // Создание атрибута для функции REGEXP
-        //            var attribute = new SQLiteFunctionAttribute
-        //            {
-        //                Name = "REGEXP",
-        //                Arguments = 2,
-        //                FuncType = FunctionType.Scalar
-        //            };
-
-        //            // Создание экземпляра пользовательской функции
-        //            var function = new RegexpSQLiteFunction();
-
-        //            // Привязка функции к соединению
-        //            DBConection.BindFunction(attribute, function);
-        //        }
-
         //        using SQLiteCommand cmd = DBConection.CreateCommand();
         //        {
+        //            // Запрос для получения активностей
         //            cmd.CommandText = command;
-
         //            cmd.Parameters.AddWithValue("@chatId", chatId);
-        //            cmd.Parameters.AddWithValue("@act", actNumber);
 
-        //            object sumTime = cmd.ExecuteScalar();
+        //            using var reader = cmd.ExecuteReader();
+        //            {
+        //                int number;
+        //                string name;
+        //                bool isTracking;
+        //                DateTime? dateStart = null;
+        //                DateTime? dateEnd = null;
 
-        //            if (sumTime != null && sumTime != DBNull.Value)
-        //            {
-        //                return Convert.ToInt32(sumTime);
-        //            }
-        //            else
-        //            {
-        //                return 0;
+        //                while (reader.Read())
+        //                {
+        //                    number = Convert.ToInt32(reader["Number"]);
+
+        //                    name = reader["Name"].ToString();
+
+        //                    isTracking = Convert.ToBoolean(reader["IsTracking"]);
+
+        //                    if (reader["DateStart"] is not DBNull)
+        //                        dateStart = Convert.ToDateTime(reader["DateStart"]);
+
+        //                    if (reader["DateEnd"] is not DBNull)
+        //                        dateEnd = Convert.ToDateTime(reader["DateEnd"]);
+
+        //                    activities.Add(new Activity(number, name, isTracking, dateStart, dateEnd));
+        //                }
+        //                reader.Close();
         //            }
         //        }
         //    }
@@ -338,10 +361,18 @@ namespace Timetracking_HSE_Bot
         //    {
         //        DBConection?.Close();
         //    }
+        //    activities.Sort();
+
+        //    return activities;
         //}
 
-
-        // Получить затраченное время на активность из таблицы StartStopAct
+        /// <summary>
+        /// Получить затраченное время на активность из таблицы StartStopAct
+        /// </summary>
+        /// <param name="chatId">id пользователя</param>
+        /// <param name="actNumber">Номер активности</param>
+        /// <param name="monthNumber">Номер месяца</param>
+        /// <returns></returns>
         public static int GetStatistic(long chatId, int actNumber, int monthNumber = 0, DateTime today = default)
         {
             string command = $"SELECT SUM(TotalTime) FROM StartStopAct WHERE ChatId = @chatId AND Number = @act";
@@ -362,7 +393,6 @@ namespace Timetracking_HSE_Bot
                 string pattern = $@"^{todayYear}-{todayMonth}-{todayDay} \d{{2}}:\d{{2}}:\d{{2}}$";
                 command += $" AND StopTime REGEXP '{pattern}'";
             }
-
             try
             {
                 DBConection.Open();

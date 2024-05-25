@@ -150,28 +150,22 @@ namespace Timetracking_HSE_Bot
         //Клавиатура в AboutAct
         public static InlineKeyboardMarkup ChangeArchive(int actNumber)
         {
-            var changeArchiveKeyboard = new InlineKeyboardMarkup(
+            var changeActKeyboard = new InlineKeyboardMarkup(
             new List<InlineKeyboardButton[]>()
             {
                 new InlineKeyboardButton[]
                 {
-                        InlineKeyboardButton.WithCallbackData("📤 Восстановить", $"recover{actNumber}"), InlineKeyboardButton.WithCallbackData("🗑 Удалить", $"delete{actNumber}"),
+                        InlineKeyboardButton.WithCallbackData("📤 Восстановить", $"recover{actNumber}"), InlineKeyboardButton.WithCallbackData("🗑 Удалить", $"deleteInArchive{actNumber}"),
                 },
                 new InlineKeyboardButton[]
                 {
-                        InlineKeyboardButton.WithCallbackData("◀️ Назад в архив", $"backToArchive"),
+                        InlineKeyboardButton.WithCallbackData("◀️ Назад в архив", "backToArchive"),
                 },
             });
 
-            return changeArchiveKeyboard;
+            return changeActKeyboard;
         }
 
-
-        //public enum State
-        //{
-        //    None,
-        //    WaitMessageForAddAct, // Ожидает сообщения для изменения названия активности
-        //}
 
         //Словаь в котором хранятся состояния для удаления
         private static readonly Dictionary<long, int> messageIdsForDelete = new();

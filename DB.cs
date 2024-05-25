@@ -60,39 +60,6 @@ namespace Timetracking_HSE_Bot
             }
         }
 
-        // Прочитать строку в БД - вроде какне нужная функция
-        //public static string Read(string table, string findColumn, long chatId)
-        //{
-        //    string result = "";
-        //    try
-        //    {
-        //        DBConection.Open();
-
-        //        using SQLiteCommand cmd = DBConection.CreateCommand();
-        //        {
-        //            cmd.CommandText = $"SELECT {findColumn} FROM {table} WHERE ChatId = @chatId";
-        //            cmd.Parameters.AddWithValue("@chatId", chatId.ToString());
-
-        //            using SQLiteDataReader reader = cmd.ExecuteReader();
-        //            {
-        //                if (reader.Read())
-        //                {
-        //                    result = reader[findColumn]?.ToString() ?? string.Empty;
-        //                }
-        //            }
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine("Ошибка: " + ex);
-        //    }
-        //    finally
-        //    {
-        //        DBConection?.Close();
-        //    }
-        //    return result;
-        //}
-
         /// <summary>
         /// Обновляем названия активностей в базе данных по id юзера
         /// </summary>
@@ -131,8 +98,15 @@ namespace Timetracking_HSE_Bot
         public static async void AddActivity(long chatId, string newValue)
         {
             List<Activity> allActivities = GetActivityList(chatId, true);
-            int actCount = allActivities.Count + 1;
+
+            int actCount = 1;
+            if (allActivities.Count != 0)
+            {
+                actCount = allActivities.Last().Number + 1;
+            }
+
             DateTime dateStart = DateTime.Now;
+
             DBConection.Open();
             SQLiteTransaction transaction = DBConection.BeginTransaction();
             SQLiteCommand cmd = DBConection.CreateCommand();
@@ -248,7 +222,7 @@ namespace Timetracking_HSE_Bot
 
                     //Удаление из StartStopAct
                     deleterecord.CommandText = $"DELETE FROM StartStopAct WHERE ChatId = @chatId AND Number = @act";
-                   
+
                     deleterecord.ExecuteNonQuery();
 
                     Console.WriteLine($"{chatId}: Активность #{actNumber} удалена");
@@ -300,12 +274,13 @@ namespace Timetracking_HSE_Bot
         //}
 
         //функция получения листа активностей с транзакцией
+
         public static List<Activity> GetActivityList(long chatId, bool getFullList = false, bool getOnlyArchived = false)
         {
             List<Activity> activities = new(10);
             string command = $"SELECT Number, Name, IsTracking, DateStart, DateEnd FROM Activities WHERE ChatId = @chatId";
 
-            if (!getFullList)
+            if (!getFullList && !getOnlyArchived)
                 command += " AND DateEnd IS NULL";
 
             if (getOnlyArchived)
@@ -340,9 +315,13 @@ namespace Timetracking_HSE_Bot
 
                             if (reader["DateStart"] is not DBNull)
                                 dateStart = Convert.ToDateTime(reader["DateStart"]);
+                            else
+                                dateStart = null;
 
                             if (reader["DateEnd"] is not DBNull)
                                 dateEnd = Convert.ToDateTime(reader["DateEnd"]);
+                            else
+                                dateEnd = null;
 
                             activities.Add(new Activity(number, name, isTracking, dateStart, dateEnd));
                         }
@@ -436,7 +415,6 @@ namespace Timetracking_HSE_Bot
         /// <param name="actNumber">Номер активности</param>
         /// <param name="monthNumber">Номер месяца</param>
         /// <returns></returns>
-        /// 
         public static int GetStatistic(long chatId, int actNumber, DateTime? firstDate = null, DateTime? secondDate = null)
         {
             string command = $"SELECT SUM(TotalTime) FROM StartStopAct WHERE ChatId = @chatId AND Number = @act";
@@ -570,7 +548,6 @@ namespace Timetracking_HSE_Bot
             {
                 DBConection?.Close();
             }
-            return 0;
         }
 
         /// <summary>

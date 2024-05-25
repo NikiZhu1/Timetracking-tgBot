@@ -207,7 +207,6 @@ namespace Timetracking_HSE_Bot
 
                 using SQLiteCommand cmd = DBConection.CreateCommand();
                 {
-                    //Завершение активности в Activities
                     cmd.CommandText = $"UPDATE Activities SET DateEnd = @dateEnd WHERE ChatId = @chatId AND Number = @actNumber";
                     cmd.Parameters.AddWithValue("@dateEnd", dateEnd.ToString("yyyy-MM-dd"));
                     cmd.Parameters.AddWithValue("@chatId", chatId);

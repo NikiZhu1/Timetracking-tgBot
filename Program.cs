@@ -82,12 +82,12 @@ namespace Timetracking_HSE_Bot
                         text: "⏱ Вот все ваши активности. Нажми на ту, которую хочешь изменить или узнать подробности.",
                         replyMarkup: activityKeyboard);
 
-                    InlineKeyboard.SetMessageIdForDelete(chatId, messageAct.MessageId);
-
                     //Удаление прошлой клавиатуры c активностями
                     int tempMessageId = InlineKeyboard.GetMessageIdForDelete(chatId);
                     InlineKeyboard.RemoveMessageId(chatId);
                     await botClient.DeleteMessageAsync(chatId, tempMessageId);
+
+                    InlineKeyboard.SetMessageIdForDelete(chatId, messageAct.MessageId);
                 }
                 catch { }
             }
@@ -157,16 +157,12 @@ namespace Timetracking_HSE_Bot
                         text: "⏱ Вот все ваши активности. Нажми на ту, которую хочешь изменить или узнать подробности.",
                         replyMarkup: activityKeyboard);
 
-                    InlineKeyboard.SetMessageIdForDelete(chatId, messageAct.MessageId);
+                    //Удаление прошлой клавиатуры c активностями
+                    int tempMessageId = InlineKeyboard.GetMessageIdForDelete(chatId);
+                    InlineKeyboard.RemoveMessageId(chatId);
+                    await botClient.DeleteMessageAsync(chatId, tempMessageId);
 
-                    try
-                    {
-                        //Удаление прошлой клавиатуры c активностями
-                        int tempMessageId = InlineKeyboard.GetMessageIdForDelete(chatId);
-                        InlineKeyboard.RemoveMessageId(chatId);
-                        await botClient.DeleteMessageAsync(chatId, tempMessageId);
-                    }
-                    catch { }
+                    InlineKeyboard.SetMessageIdForDelete(chatId, messageAct.MessageId);
                 }
                 catch (Exception ex)
                 {

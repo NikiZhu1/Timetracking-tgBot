@@ -66,6 +66,10 @@ namespace Timetracking_HSE_Bot
                 {
                         InlineKeyboardButton.WithCallbackData("🍁Ноябрь", $"month_11"), InlineKeyboardButton.WithCallbackData("❄️Декабрь", $"month_12"),
                 },
+                new InlineKeyboardButton[]
+                {
+                        InlineKeyboardButton.WithCallbackData("◀️Назад ", $"month_13"),
+                },
             });
 
             return monthKeyboard;
@@ -79,7 +83,7 @@ namespace Timetracking_HSE_Bot
             {
                 new InlineKeyboardButton[]
                 {
-                        InlineKeyboardButton.WithCallbackData("За весь период", $"statistic_1"),
+                        InlineKeyboardButton.WithCallbackData("За всё время", $"statistic_1"),
                 },
                 new InlineKeyboardButton[]
                 {

@@ -49,34 +49,78 @@
         }
 
         /// <summary>
-        /// Есть ли уже у пользователя активность с названием <paramref name="activityName"/>
+        /// Есть ли уже у пользователя активность с названием <paramref name="activityName"/> - вроде как уже не нужна
         /// </summary>
         /// <param name="activityName">Проверяемое название активности</param>
         /// <param name="chatId">id пользователя</param>
         /// <param name="actNumber"></param>
         /// <returns></returns>
-        public static bool IsNotRepeatingName(string? activityName, long chatId, int? actNumber = null)
+        //public static bool IsNotRepeatingName(string? activityName, long chatId, int? actNumber = null)
+        //{
+        //    List<Activity> allActivities = DB.GetActivityList(chatId);
+        //    bool result = true;
+
+        //    foreach (Activity activity in allActivities)
+        //    {
+        //        //Если новое название равно текущему
+        //        if (activity.Number == actNumber)
+        //        {
+        //            result = true;
+        //            break;
+        //        }
+
+        //        //Если совпадает с другими активностями
+        //        if (activity.Name == activityName)
+        //        {
+        //            result = false;
+        //            break;
+        //        }
+        //    }
+        //    return result;
+        //}
+
+        //проверяет удаленные и существующие активности на схожесть названия
+        public static int IsUniqueName(string? activityName, long chatId, int? actNumber = null)
         {
-            List<Activity> allActivities = DB.GetActivityList(chatId);
-            bool result = true;
+            List<Activity> allActivities = DB.GetActivityList(chatId, true);
+            int result = 1;
 
             foreach (Activity activity in allActivities)
             {
                 //Если новое название равно текущему
                 if (activity.Number == actNumber)
                 {
-                    result = true;
+                    result = 1;
                     break;
                 }
 
                 //Если совпадает с другими активностями
                 if (activity.Name == activityName)
                 {
-                    result = false;
+                    if (activity.IsEnded)//активность закрыта
+                        result = -1;
+                    else //активность действующая
+                        result = 0;
                     break;
                 }
             }
             return result;
+        }
+
+        //номер той активности которую собираемся восстановить
+        public static int GetRecoveringActNumber(string? activityName, long chatId, int? actNumber = null)
+        {
+            List<Activity> allActivities = DB.GetActivityList(chatId, true);
+
+            foreach (Activity activity in allActivities)
+            {
+                //Если совпадает с другими активностями
+                if (activity.Name == activityName && activity.IsEnded)
+                {
+                    return activity.Number;
+                }
+            }
+            return 0;
         }
 
         /// <summary>

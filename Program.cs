@@ -117,16 +117,72 @@ namespace Timetracking_HSE_Bot
                 replyMarkup: InlineKeyboard.Help());
             }
 
-            //Изменение названия активности
+            ////Изменение названия активности - старая версия
+            //if (userInfo.state == User.State.WaitMessageForChangeAct && userInfo.actNumber.HasValue)
+            //{
+            //    bool isNonrepeatingName = Activity.IsNotRepeatingName(message.Text, chatId, userInfo.actNumber);
+            //    if (!isNonrepeatingName)
+            //    {
+            //        // Если уже есть активность с таким названием
+            //        await botClient.SendTextMessageAsync(
+            //            chatId: chatId,
+            //            text: "❗ У вас уже есть активность с таким названием.");
+            //    }
+            //    else if (message.Text == null)
+            //    {
+            //        // Если пользователь не ввел текст, отправляем предупреждение
+            //        await botClient.SendTextMessageAsync(
+            //            chatId: chatId,
+            //            text: "❗ В качестве названия введите текст или смайлик.");
+            //    }
+            //    else
+            //    {
+            //        // Пользователь ввел текст, обновляем название активности
+            //        try
+            //        {
+            //            DB.UpdateActivityName((int)userInfo.actNumber, message.Text, chatId);
+
+            //            //Удаление прошлой клавиатуры
+            //            //int messageId = User.GetMessageIdForDelete(chatId);
+            //            //User.RemoveMessageId(chatId);
+            //            int messageId = InlineKeyboard.GetMessageIdForDelete(chatId);
+            //            InlineKeyboard.RemoveMessageId(chatId);
+            //            await botClient.DeleteMessageAsync(chatId, messageId);
+
+            //            // Сбросить состояние пользователя
+            //            User.ResetState(chatId);
+
+            //            InlineKeyboardMarkup activityKeyboard = InlineKeyboard.Main(DB.GetActivityList(chatId));
+
+            //            // Отправляем сообщение
+            //            await botClient.SendTextMessageAsync(
+            //                chatId: chatId,
+            //                text: "⏱ Вот все твои активности. Нажми на ту, которую хочешь изменить или узнать подробности.",
+            //                replyMarkup: activityKeyboard);
+            //        }
+            //        catch (Exception ex)
+            //        {
+            //            await botClient.SendTextMessageAsync(chatId, $"‼ Возникла ошибка с подключением данных: {ex.Message}.\n" +
+            //            $"Пожалуйста, свяжитесь с нами через техническую поддержку для устранения ошибки");
+            //        }
+            //    }
+            //}
+
+
+            //Изменение названия активности - новая версия (проверка что такое название есть в "удаленных")
             if (userInfo.state == User.State.WaitMessageForChangeAct && userInfo.actNumber.HasValue)
             {
-                bool isNonrepeatingName = Activity.IsNotRepeatingName(message.Text, chatId, userInfo.actNumber);
-                if (!isNonrepeatingName)
+                int isDeletedName = Activity.IsUniqueName(message.Text, chatId);
+                if (isDeletedName == 0)
                 {
                     // Если уже есть активность с таким названием
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
                         text: "❗ У вас уже есть активность с таким названием.");
+                }
+                else if (isDeletedName == -1)
+                {
+                    await botClient.SendTextMessageAsync(chatId, "У Вас уже была активночть с таким названием.");  
                 }
                 else if (message.Text == null)
                 {
@@ -143,17 +199,13 @@ namespace Timetracking_HSE_Bot
                         DB.UpdateActivityName((int)userInfo.actNumber, message.Text, chatId);
 
                         //Удаление прошлой клавиатуры
-                        //int messageId = User.GetMessageIdForDelete(chatId);
-                        //User.RemoveMessageId(chatId);
                         int messageId = InlineKeyboard.GetMessageIdForDelete(chatId);
                         InlineKeyboard.RemoveMessageId(chatId);
                         await botClient.DeleteMessageAsync(chatId, messageId);
 
                         // Сбросить состояние пользователя
                         User.ResetState(chatId);
-
                         InlineKeyboardMarkup activityKeyboard = InlineKeyboard.Main(DB.GetActivityList(chatId));
-
                         // Отправляем сообщение
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
@@ -168,11 +220,11 @@ namespace Timetracking_HSE_Bot
                 }
             }
 
-            //Добавление новой активности
+            //Добавление новой активности/восстановление активностей
             if (userInfo.state == User.State.WaitMessageForAddAct)
             {
-                bool isNonrepeatingName = Activity.IsNotRepeatingName(message.Text, chatId);
-                if (!isNonrepeatingName)
+                int isDeletedName = Activity.IsUniqueName(message.Text, chatId);
+                if (isDeletedName == 0)
                 {
                     // Если уже есть активность с таким названием
                     await botClient.SendTextMessageAsync(
@@ -188,10 +240,16 @@ namespace Timetracking_HSE_Bot
                 }
                 else
                 {
-                    // Пользователь ввёл название, добавляем активность
+                    // Пользователь ввёл название, добавляем активность/восстанавливаем активность
                     try
                     {
-                        DB.AddActivity(chatId, message.Text);
+                        if (isDeletedName == -1)
+                        {
+                            await botClient.SendTextMessageAsync(chatId, "У Вас уже была активночть с таким названием. Воостанавливаю ее.");
+                            int recoveringNumber = Activity.GetRecoveringActNumber(message.Text, chatId); //номер активности, которая была удалена и которую мы собираемя восстановить
+                            DB.UpdateDateEndStatus(chatId, recoveringNumber); //обновляется дата окончания активности на null
+                        }
+                        else DB.AddActivity(chatId, message.Text);
 
                         //Удаление прошлой клавиатуры
                         int messageId = InlineKeyboard.GetMessageIdForDelete(chatId);

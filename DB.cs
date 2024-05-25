@@ -61,13 +61,7 @@ namespace Timetracking_HSE_Bot
             }
         }
 
-        /// <summary>
-        /// Прочитать строку в БД
-        /// </summary>
-        /// <param name="findColumn">Искомый столбец</param>
-        /// <param name="chatId">id пользователя</param>
-        /// <param name="table">Название таблицы</param>
-        /// <returns></returns>
+        // Прочитать строку в БД - вроде какне нужная функция
         //public static string Read(string table, string findColumn, long chatId)
         //{
         //    string result = "";
@@ -134,7 +128,7 @@ namespace Timetracking_HSE_Bot
             }
         }
 
-        //функция с транзакцией
+        //функция добавления активности с транзакцией
         public static async void AddActivity(long chatId, string newValue)
         {
             List<Activity> allActivities = GetActivityList(chatId, true);
@@ -239,7 +233,7 @@ namespace Timetracking_HSE_Bot
             }
         }
 
-        //функция с транзакцией
+        //функция получения листа активностей с транзакцией
         public static List<Activity> GetActivityList(long chatId, bool getFullList = false)
         {
             List<Activity> activities = new(10);
@@ -597,5 +591,32 @@ namespace Timetracking_HSE_Bot
                 DBConection?.Close();
             }
         }
+
+        //изменяем дату конца активности на null - активность восстановлена
+        public static void UpdateDateEndStatus(long chatId, int actNumber)
+        {
+            try
+            {
+                DBConection.Open();
+
+                using (SQLiteCommand cmd = DBConection.CreateCommand())
+                {
+                    cmd.CommandText = $"UPDATE Activities SET DateEnd = NULL WHERE ChatId = @chatId AND Number = @actNumber";
+                    cmd.Parameters.AddWithValue("@chatId", chatId);
+                    cmd.Parameters.AddWithValue("@actNumber", actNumber);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Ошибка: " + ex);
+                throw;
+            }
+            finally
+            {
+                DBConection?.Close();
+            }
+        }
+
     }
 }

@@ -108,6 +108,10 @@ namespace Timetracking_HSE_Bot
                 {
                         InlineKeyboardButton.WithCallbackData("✏️ Изменить", $"rename{actNumber}"), InlineKeyboardButton.WithCallbackData("🗑 Удалить", $"delete{actNumber}"),
                 },
+                new InlineKeyboardButton[]
+                {
+                        InlineKeyboardButton.WithCallbackData("🗂 Отправить в архив", $"archive{actNumber}"),
+                },
             });
 
             return changeActKeyboard;
@@ -125,6 +129,35 @@ namespace Timetracking_HSE_Bot
 
             return technicalSupportKeyboard;
         }
+
+        public static InlineKeyboardMarkup Archive(List<Activity> archivedActivity)
+        {
+            List<InlineKeyboardButton[]> rows = new();
+     
+            foreach (Activity activity in archivedActivity)
+            {
+                rows.Add(new[] { InlineKeyboardButton.WithCallbackData($"{activity.Name}", $"aboutArchive{activity.Number}")});
+            }  
+
+            return new InlineKeyboardMarkup(rows);
+        }
+
+
+        //Клавиатура в AboutAct
+        public static InlineKeyboardMarkup ChangeArchive(int actNumber)
+        {
+            var changeArchiveKeyboard = new InlineKeyboardMarkup(
+            new List<InlineKeyboardButton[]>()
+            {
+                new InlineKeyboardButton[]
+                {
+                        InlineKeyboardButton.WithCallbackData("📤 Восстановить", $"recover{actNumber}"), InlineKeyboardButton.WithCallbackData("🗑 Удалить", $"delete{actNumber}"),
+                },
+            });
+
+            return changeArchiveKeyboard;
+        }
+
 
         public enum State
         {

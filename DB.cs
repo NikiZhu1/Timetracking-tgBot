@@ -198,12 +198,7 @@ namespace Timetracking_HSE_Bot
         //    }
         //}
 
-        /// <summary>
-        /// Завершить активность в таблице Activities
-        /// </summary>
-        /// <param name="chatId">id пользователя</param>
-        /// <param name="actNumber">Номер активности</param>
-        public static void EndActivity(long chatId, int actNumber)
+        public static void ArchiveActivity(long chatId, int actNumber)
         {
             try
             {
@@ -219,7 +214,7 @@ namespace Timetracking_HSE_Bot
                     cmd.Parameters.AddWithValue("@actNumber", actNumber);
                     cmd.ExecuteNonQuery();
 
-                    Console.WriteLine($"{chatId}: Активность #{actNumber} окончена");
+                    Console.WriteLine($"{chatId}: Активность #{actNumber} отправлена в архив");
                 }
             }
             catch (Exception ex)
@@ -233,14 +228,52 @@ namespace Timetracking_HSE_Bot
             }
         }
 
+        /// <summary>
+        /// Завершить активность в таблице Activities
+        /// </summary>
+        /// <param name="chatId">id пользователя</param>
+        /// <param name="actNumber">Номер активности</param>
+        //public static void EndActivity(long chatId, int actNumber)
+        //{
+        //    try
+        //    {
+        //        DBConection.Open();
+        //        DateTime dateEnd = DateTime.Now;
+
+        //        using SQLiteCommand cmd = DBConection.CreateCommand();
+        //        {
+        //            //Завершение активности в Activities
+        //            cmd.CommandText = $"UPDATE Activities SET DateEnd = @dateEnd WHERE ChatId = @chatId AND Number = @actNumber";
+        //            cmd.Parameters.AddWithValue("@dateEnd", dateEnd.ToString("yyyy-MM-dd"));
+        //            cmd.Parameters.AddWithValue("@chatId", chatId);
+        //            cmd.Parameters.AddWithValue("@actNumber", actNumber);
+        //            cmd.ExecuteNonQuery();
+
+        //            Console.WriteLine($"{chatId}: Активность #{actNumber} окончена");
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine("Ошибка: " + ex);
+        //        throw;
+        //    }
+        //    finally
+        //    {
+        //        DBConection?.Close();
+        //    }
+        //}
+
         //функция получения листа активностей с транзакцией
-        public static List<Activity> GetActivityList(long chatId, bool getFullList = false)
+        public static List<Activity> GetActivityList(long chatId, bool getFullList = false, bool getOnlyArchived = false)
         {
             List<Activity> activities = new(10);
             string command = $"SELECT Number, Name, IsTracking, DateStart, DateEnd FROM Activities WHERE ChatId = @chatId";
 
             if (!getFullList)
                 command += " AND DateEnd IS NULL";
+
+            if (getOnlyArchived)
+                command += " AND DateEnd IS NOT NULL";
 
             try
             {

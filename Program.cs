@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Globalization;
 using System.Text.RegularExpressions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -285,80 +285,73 @@ namespace Timetracking_HSE_Bot
             }
         }
 
-        static async void ShowStatistic(long chatId, int month, DateTime today, bool onlyTodayStatistic = false)
+        static List<Activity> GetStatisticList(long chatId, DateTime? firstDate = null, DateTime? secondDate = null)
         {
+            List<Activity> statistic = new();
             try
             {
                 List<Activity> activityList = DB.GetActivityList(chatId, true);
-                string textWithStatistic = "";
-                int seconds = 0;
-                foreach (Activity activity in activityList) 
+
+                foreach (Activity activity in activityList)
                 {
-                    if (today != default) //значение today установлено - статистика за неделю или за день
+                    int totalSeconds = 0;
+
+                    if (!firstDate.HasValue && !secondDate.HasValue) //за всё время
                     {
-                        for (int i = 0; i >= -7; i--)
-                        {
-                            seconds += DB.GetStatistic(chatId, activity.Number, month, today.AddDays(i));
-                            if (onlyTodayStatistic)
-                                break;
-                        }
+                        totalSeconds = DB.GetStatistic(chatId, activity.Number);
                     }
-                    else //значение today не установлено - статистика за месяц или за весь период
+                    else if (!secondDate.HasValue) //за день
                     {
-                        if (month != 0) //значение месяца установлено - статистика за месяц
-                        {
-                            seconds += DB.GetStatistic(chatId, activity.Number, month);
-                        }
-                            
-                        else //значение месяца не установлено - статистика за весь период
-                        {
-                            seconds += DB.GetStatistic(chatId, activity.Number);
-                        }
-                          
+                        totalSeconds = DB.GetStatistic(chatId, activity.Number, firstDate);
                     }
-                        
-                    if (seconds != 0)
+                    else //за определённый период (неделя, месяц)
                     {
-                        TimeSpan result = TimeSpan.FromSeconds(seconds);
-                        int hour = result.Hours;
-                        int min = result.Minutes;
-                        int sec = result.Seconds;
+                        totalSeconds = DB.GetStatistic(chatId, activity.Number, firstDate, secondDate);
+                    }
 
-                        //Только секунды
-                        if (min == 0)
-                            textWithStatistic += $"{activity.Name}: {sec} сек.\n";
-
-                        //Только минуты с секундами
-                        else if (hour == 0 && min != 0)
-                            textWithStatistic += $"{activity.Name}: {min} мин. {sec} сек.\n";
-
-                        else textWithStatistic += $"{activity.Name}: {hour} ч. {min} мин. {sec} сек.\n";
-
-                        //Обнуляем итоговое время
-                        seconds = 0;
-                    }    
+                    if (totalSeconds > 0)
+                    {
+                        statistic.Add(new Activity(activity.Name, totalSeconds));
+                    }
                 }
 
-                Console.WriteLine($"{chatId}: Получение статистики");
-                if (textWithStatistic != "")
-                {
-                    await botClient.SendTextMessageAsync(
-                          chatId: chatId,
-                          text: textWithStatistic);
-                }
-                else
-                {
-                    await botClient.SendTextMessageAsync(
-                          chatId: chatId,
-                          text: "У вас пока нет записей о затраченном времени\n" +
-                          "🚀 Запускай таймер и можешь отследить свой прогресс!");
-                }
+                statistic.Sort(); //Сортируем полученный список активностей по затраченному времени
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                await botClient.SendTextMessageAsync(chatId, $"‼ Возникла ошибка с подключением данных: {ex.Message}.\n" +
-                     $"Пожалуйста, свяжитесь с нами через техническую поддержку для устранения ошибки");
+                throw;
             }
+
+            return statistic;
+        }
+
+        static async void SendStatictic(long chatId, List<Activity> statisticList, string message)
+        {
+            if (statisticList.Count == 0)
+            {
+                await botClient.SendTextMessageAsync(
+                      chatId: chatId,
+                      text: "У вас пока нет записей об активностях за этот период.\n" +
+                      "🚀 Запускай таймер и можешь отследить свой прогресс!");
+                return;
+            }
+
+            string text = message + "\n";
+
+            string[] medals = { "🥇", "🥈", "🥉" };
+
+            // Формирование текста со статистикой
+            for (int i = 0; i < statisticList.Count; i++)
+            {
+                if (i < 3)
+                    text += medals[i] + statisticList[i].ToString() + "\n";
+                else
+                    text += "\n — " + statisticList[i].ToString();
+            }
+
+            await botClient.SendTextMessageAsync(
+                    chatId: chatId,
+                    text: text);
         }
 
         //Обработка: КАЛЛБЭКИ ОТ ИНЛАЙН-КНОПОК
@@ -411,13 +404,20 @@ namespace Timetracking_HSE_Bot
                     {
                         int statisticType = int.Parse(Regex.Replace(callbackQuery.Data, @"\D", ""));
 
-                        //За весь период
+                        //За всё время
                         if (statisticType == 1)
                         {
-                            await botClient.SendTextMessageAsync(chatId, $"Статистика за весь период");
-                            ShowStatistic(chatId, 0, default);
+                            //await botClient.SendTextMessageAsync(chatId, $"Статистика за весь период");
+                            //ShowStatistic(chatId, 0, default);
+
+                            SendStatictic(chatId, GetStatisticList(chatId), "Статистика за всё время:");
+
+                            await botClient.DeleteMessageAsync(chatId, messageId);
+                            Console.WriteLine($"{chatId}: Получение статистики за всё время");
+
+                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "✅ Статистика получена");
                         }
-                            
+
                         //За месяц
                         else if (statisticType == 2)
                         {
@@ -425,33 +425,65 @@ namespace Timetracking_HSE_Bot
 
                             await botClient.EditMessageTextAsync(chatId, messageId,
                             text: "Выберете месяц, за который Вы хотите получить статистику активностей",
-                            parseMode: ParseMode.Markdown,
                             replyMarkup: monthKeyboard);
+
+                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
                         }
 
                         //За неделю
                         else if (statisticType == 3)
                         {
-                            await botClient.SendTextMessageAsync(chatId, $"Статистика за последнюю неделю");
+                            //await botClient.SendTextMessageAsync(chatId, $"Статистика за последнюю неделю");
                             DateTime today = DateTime.Now.Date;
-                            ShowStatistic(chatId, 0, today);
+                            //ShowStatistic(chatId, 0, today);
+                            SendStatictic(chatId, GetStatisticList(chatId, today.AddDays(-7), today), "Статистика за последнюю неделю:");
+
+                            await botClient.DeleteMessageAsync(chatId, messageId);
+                            Console.WriteLine($"{chatId}: Получение статистики за неделю");
+
+                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "✅ Статистика получена");
                         }
 
                         //За день
                         else if (statisticType == 4)
                         {
-                            await botClient.SendTextMessageAsync(chatId, $"Статистика за текущий день");
+                            //await botClient.SendTextMessageAsync(chatId, $"Статистика за текущий день");
                             DateTime today = DateTime.Now.Date;
-                            ShowStatistic(chatId, 0, today, true);
+                            //ShowStatistic(chatId, 0, today, true);
+                            SendStatictic(chatId, GetStatisticList(chatId, today), "Статистика за текущий день");
+
+                            await botClient.DeleteMessageAsync(chatId, messageId);
+                            Console.WriteLine($"{chatId}: Получение статистики за текущий день");
+
+                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "✅ Статистика получена");
                         }
 
-                        await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "✅ Статистика получена");
                         break;
                     }
                 case "month_":
                     {
                         int monthNumber = int.Parse(Regex.Replace(callbackQuery.Data, @"\D", ""));
-                        ShowStatistic(chatId, monthNumber, default);
+                        //ShowStatistic(chatId, monthNumber, default);
+
+                        if (monthNumber == 13)
+                        {
+                            await botClient.EditMessageTextAsync(chatId, messageId,
+                                text: "Выберете, в каком формате Вы хотите получить статистику",
+                                parseMode: ParseMode.Markdown,
+                                replyMarkup: InlineKeyboard.StaticticType());
+                            break;
+                        }
+
+                        DateTime today = DateTime.Now.Date;
+                        DateTime firstDate = new(today.Year, monthNumber, 1);
+                        DateTime secondDate = firstDate.AddMonths(1).AddDays(-1);
+                        List<Activity> statistic = GetStatisticList(chatId, firstDate, secondDate);
+
+                        string month = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(monthNumber);
+                        SendStatictic(chatId, statistic, $"Статистика за {month}:");
+
+                        await botClient.DeleteMessageAsync(chatId, messageId);
+                        Console.WriteLine($"{chatId}: Получение статистики за месяц");
 
                         await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "✅ Статистика получена");
                         break;

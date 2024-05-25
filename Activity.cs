@@ -24,20 +24,7 @@
 
         public DateTime? DateEnd { get; set; }
 
-        public int TotalTime
-        {
-            get
-            {
-                if (DateEnd != null && DateStart != null)
-                {
-                    TimeSpan result = (TimeSpan)(DateEnd - DateStart);
-                    int totalSeconds = (int)result.TotalSeconds;
-                    return totalSeconds;
-                }
-                else
-                    return 0;
-            }
-        }
+        public int TotalTime { get; set; }
 
         public Activity(int number, string name, bool isTracking, DateTime? dateStart, DateTime? dateEnd)
         {
@@ -46,6 +33,35 @@
             IsTracking = isTracking;
             DateStart = dateStart;
             DateEnd = dateEnd;
+        }
+
+        public Activity(string name, int totalTime)
+        {
+            Name = name;
+            TotalTime = totalTime;
+        }
+
+        public override string ToString()
+        {
+            if (TotalTime > 0)
+            {
+                TimeSpan result = TimeSpan.FromSeconds(TotalTime);
+                int hour = result.Hours;
+                int min = result.Minutes;
+                int sec = result.Seconds;
+
+                //Только секунды
+                if (min == 0)
+                    return $"{Name}: {sec} сек.";
+
+                //Только минуты с секундами
+                else if (hour == 0)
+                    return $"{Name}: {min} мин. {sec} сек.";
+
+                else return $"{Name}: {hour} ч. {min} мин. {sec} сек.";
+            }
+            else
+                return string.Empty;
         }
 
         /// <summary>
@@ -136,7 +152,7 @@
         }
 
         /// <summary>
-        /// Остановить активностm
+        /// Остановить активность и получить итоговое время
         /// </summary>
         /// <param name="chatId">id пользователя</param>
         /// <param name="actNumber">Номер активности</param>
@@ -148,7 +164,7 @@
                 //totalTime = TimeTracker.Stop(chatId, actNumber);
                 DB.SetActivityStatus(chatId, actNumber, false);
                 totaltime = DB.StopTime(chatId, actNumber);
-                
+
             }
             catch (Exception e)
             {
@@ -160,7 +176,10 @@
 
         public int CompareTo(Activity? other)
         {
-            return this.TotalTime.CompareTo(other.TotalTime);
+            if (other == null)
+                return 1;
+
+            return other.TotalTime.CompareTo(TotalTime);
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using System.Data.SqlClient;
-using System.Data.SQLite;
+﻿using System.Data.SQLite;
 using System.Text.RegularExpressions;
 
 namespace Timetracking_HSE_Bot
@@ -151,7 +150,7 @@ namespace Timetracking_HSE_Bot
                 await transaction.CommitAsync();
                 Console.WriteLine($"{chatId}: Активность #{actCount} - {newValue} добавлена");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine("Ошибка: " + ex);
                 await transaction.RollbackAsync();
@@ -438,42 +437,22 @@ namespace Timetracking_HSE_Bot
         /// <param name="actNumber">Номер активности</param>
         /// <param name="monthNumber">Номер месяца</param>
         /// <returns></returns>
-        public static int GetStatistic(long chatId, int actNumber, int monthNumber = 0, DateTime today = default)
+        /// 
+        public static int GetStatistic(long chatId, int actNumber, DateTime? firstDate = null, DateTime? secondDate = null)
         {
             string command = $"SELECT SUM(TotalTime) FROM StartStopAct WHERE ChatId = @chatId AND Number = @act";
 
-            if (monthNumber != 0)
+            if (firstDate.HasValue && secondDate.HasValue)
             {
-                string month = monthNumber.ToString("00"); // Преобразует число в строку с ведущим нулем
-                string pattern = $@"^\d{{4}}-{month}-\d{{2}} \d{{2}}:\d{{2}}:\d{{2}}$";
-
-                command += $" AND StopTime REGEXP '{pattern}'";
+                command += $" AND StopTime BETWEEN @firstDate AND @secondDate";
             }
-
-            if (today != default)
+            else if (firstDate.HasValue)
             {
-                string todayYear = today.Year.ToString();
-                string todayMonth = today.Month.ToString("00");
-                string todayDay = today.Day.ToString("00");
-                string pattern = $@"^{todayYear}-{todayMonth}-{todayDay} \d{{2}}:\d{{2}}:\d{{2}}$";
-                command += $" AND StopTime REGEXP '{pattern}'";
+                command += $" AND DATE(StopTime) = @firstDate";
             }
             try
             {
                 DBConection.Open();
-                if (today != null || monthNumber != 0)
-                {
-                    var attribute = new SQLiteFunctionAttribute
-                    {
-                        Name = "REGEXP",
-                        Arguments = 2,
-                        FuncType = FunctionType.Scalar
-                    };
-                    // Создание экземпляра пользовательской функции
-                    var function = new RegexpSQLiteFunction();
-                    // Привязка функции к соединению
-                    DBConection.BindFunction(attribute, function);
-                }
 
                 using SQLiteCommand cmd = DBConection.CreateCommand();
                 {
@@ -482,16 +461,23 @@ namespace Timetracking_HSE_Bot
                     cmd.Parameters.AddWithValue("@chatId", chatId);
                     cmd.Parameters.AddWithValue("@act", actNumber);
 
+                    if (firstDate.HasValue && secondDate.HasValue)
+                    {
+                        cmd.Parameters.AddWithValue("@firstDate", firstDate.Value.ToString("yyyy-MM-dd"));
+                        cmd.Parameters.AddWithValue("@secondDate", secondDate.Value.ToString("yyyy-MM-dd"));
+                    }
+                    else if (firstDate.HasValue)
+                    {
+                        cmd.Parameters.AddWithValue("@firstDate", firstDate.Value.ToString("yyyy-MM-dd"));
+                    }
+
                     object sumTime = cmd.ExecuteScalar();
 
                     if (sumTime != null && sumTime != DBNull.Value)
-                    {
                         return Convert.ToInt32(sumTime);
-                    }
+
                     else
-                    {
                         return 0;
-                    }
                 }
             }
             catch (Exception ex)
@@ -504,7 +490,6 @@ namespace Timetracking_HSE_Bot
                 DBConection?.Close();
             }
         }
-
 
         /// <summary>
         /// Записать время начала активности в БД

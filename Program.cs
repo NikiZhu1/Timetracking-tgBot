@@ -192,7 +192,7 @@ namespace Timetracking_HSE_Bot
                 }
                 else if (isDeletedName == -1)
                 {
-                    await botClient.SendTextMessageAsync(chatId, "У Вас есть активность с таким названием в архиве.");  
+                    await botClient.SendTextMessageAsync(chatId, "У Вас есть активность с таким названием в архиве.");
                 }
                 else if (message.Text == null)
                 {
@@ -571,7 +571,7 @@ namespace Timetracking_HSE_Bot
 
                 case "recover":
                     {
-                        int actNumber = int.Parse(Regex.Replace(callbackQuery.Data, @"\D", ""));  
+                        int actNumber = int.Parse(Regex.Replace(callbackQuery.Data, @"\D", ""));
                         DB.UpdateDateEndStatus(chatId, actNumber); //обновляется дата окончания активности на null
                         InlineKeyboardMarkup activityKeyboard = InlineKeyboard.Main(DB.GetActivityList(chatId));
 

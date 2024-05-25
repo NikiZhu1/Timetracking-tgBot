@@ -3,26 +3,23 @@
   <Class Name="Timetracking_HSE_Bot.Activity">
     <Position X="12.25" Y="1.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAABACAAAAAQAAAAAAQAAAAAAAAAIAAAAAAAAAA=</HashCode>
+      <HashCode>BAIACAABACAAAAQEAEAAAAQAEAABAAEAIAAAAAAAAAA=</HashCode>
       <FileName>Activity.cs</FileName>
     </TypeIdentifier>
+    <Lollipop Position="0.2" />
   </Class>
   <Class Name="Timetracking_HSE_Bot.DB">
-    <Position X="10.25" Y="1.75" Width="1.5" />
+    <Position X="9.75" Y="1.75" Width="2" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAEACAACGAAAAAAAAoIAACAQAAAEAAAAgEBAA=</HashCode>
+      <HashCode>AAABAAAAEACAACGAAAAAAAAoIEACAAAAAEAAAAgEBAA=</HashCode>
       <FileName>DB.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Timetracking_HSE_Bot.TimeTracker">
-    <Position X="14.25" Y="1.75" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAQAAAAAACAAAAAAAAAgAAAAAAAAAAAAIAAAAAAAAAg=</HashCode>
-      <FileName>TimeTracker.cs</FileName>
-    </TypeIdentifier>
-  </Class>
   <Class Name="Timetracking_HSE_Bot.User">
-    <Position X="16.25" Y="1.75" Width="1.5" />
+    <Position X="14.25" Y="1.75" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
     <NestedTypes>
       <Enum Name="Timetracking_HSE_Bot.User.State" Collapsed="true">
         <TypeIdentifier>
@@ -33,6 +30,23 @@
     <TypeIdentifier>
       <HashCode>AAAABEAAAAAAABAAAAAAAAAABAAAAAAIAAAAAAAAAAA=</HashCode>
       <FileName>User.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Timetracking_HSE_Bot.InlineKeyboard">
+    <Position X="16.25" Y="1.75" Width="2" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Enum Name="Timetracking_HSE_Bot.InlineKeyboard.State" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>InlineKeyboard.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAAgAAAAAAIAAAAAAQAggAAAAAAAAAEAIAABAgAhAA=</HashCode>
+      <FileName>InlineKeyboard.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Font Name="Segoe UI" Size="9" />

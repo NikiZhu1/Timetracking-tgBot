@@ -198,6 +198,7 @@ namespace Timetracking_HSE_Bot
         //    }
         //}
 
+        ///Архивация активности
         public static void ArchiveActivity(long chatId, int actNumber)
         {
             try
@@ -221,6 +222,43 @@ namespace Timetracking_HSE_Bot
             {
                 Console.WriteLine("Ошибка: " + ex);
                 throw;
+            }
+            finally
+            {
+                DBConection?.Close();
+            }
+        }
+
+        /// <summary>
+        /// Удаление активности из таблиц RegUsers и StartStopAct
+        /// </summary>
+        /// <param name="chatId">id пользователя</param>
+        /// <param name="actNumber">Номер активности</param>
+        public static void DeleteActivity(long chatId, int actNumber)
+        {
+            try
+            {
+                DBConection.Open();
+
+                using SQLiteCommand deleterecord = DBConection.CreateCommand();
+                {
+                    //Удаление из Activities
+                    deleterecord.CommandText = $"DELETE FROM Activities WHERE ChatId = @chatId AND Number = @act";
+                    deleterecord.Parameters.AddWithValue("@chatId", chatId);
+                    deleterecord.Parameters.AddWithValue("@act", actNumber);
+                    deleterecord.ExecuteNonQuery();
+
+                    //Удаление из StartStopAct
+                    deleterecord.CommandText = $"DELETE FROM StartStopAct WHERE ChatId = @chatId AND Number = @act";
+                   
+                    deleterecord.ExecuteNonQuery();
+
+                    Console.WriteLine($"{chatId}: Активность #{actNumber} удалена");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Ошибка: " + ex);
             }
             finally
             {

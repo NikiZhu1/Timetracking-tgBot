@@ -568,42 +568,44 @@ namespace Timetracking_HSE_Bot
                     }
                 case "delete":
                     {
-                        //int actNumber = int.Parse(Regex.Replace(callbackQuery.Data, @"\D", ""));
-                        //Activity? activity = activityList.FirstOrDefault(a => a.Number == actNumber);
+                        int actNumber = int.Parse(Regex.Replace(callbackQuery.Data, @"\D", ""));
+                        Activity? activity = activityList.FirstOrDefault(a => a.Number == actNumber);
 
-                        //if (activity.IsTracking)
-                        //{
-                        //    await botClient.AnswerCallbackQueryAsync(callbackQuery.Id,
-                        //    "⚙️ Вы удалили отслеживаемую активность.",
-                        //    showAlert: true);
-                        //}
+                        if (activity.IsTracking)
+                        {
+                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id,
+                            "⚙️ Вы удалили отслеживаемую активность.",
+                            showAlert: true);
+                        }
 
-                        //try
-                        //{
-                        //    DB.EndActivity(chatId, actNumber);
+                        try
+                        {
+                            //DB.EndActivity(chatId, actNumber);
+                            DB.DeleteActivity(chatId, actNumber);
 
-                        //    InlineKeyboardMarkup activityKeyboard = InlineKeyboard.Main(DB.GetActivityList(chatId));
 
-                        //    await botClient.SendTextMessageAsync(
-                        //    chatId: chatId,
-                        //    text: "⏱ Вот все твои активности. Нажми на ту, которую хочешь изменить или узнать подробности.",
-                        //    replyMarkup: activityKeyboard);
+                            InlineKeyboardMarkup activityKeyboard = InlineKeyboard.Main(DB.GetActivityList(chatId));
 
-                        //    //удаление клавиатуры aboutact
-                        //    await botClient.DeleteMessageAsync(chatId, messageId);
+                            await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "⏱ Вот все твои активности. Нажми на ту, которую хочешь изменить или узнать подробности.",
+                            replyMarkup: activityKeyboard);
 
-                        //    //Удаление прошлой клавиатуры c активностями
-                        //    messageId = InlineKeyboard.GetMessageIdForDelete(chatId);
-                        //    InlineKeyboard.RemoveMessageId(chatId);
-                        //    await botClient.DeleteMessageAsync(chatId, messageId);
+                            //удаление клавиатуры aboutact
+                            await botClient.DeleteMessageAsync(chatId, messageId);
 
-                        //    await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "🗑 Активность удалена");
-                        //}
-                        //catch (Exception ex)
-                        //{
-                        //    await botClient.SendTextMessageAsync(chatId, $"‼ Возникла ошибка с подключением данных: {ex.Message}.\n"
-                        //    + $"Пожалуйста, свяжитесь с нами через техническую поддержку для устранения ошибки");
-                        //}
+                            //Удаление прошлой клавиатуры c активностями
+                            messageId = InlineKeyboard.GetMessageIdForDelete(chatId);
+                            InlineKeyboard.RemoveMessageId(chatId);
+                            await botClient.DeleteMessageAsync(chatId, messageId);
+
+                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "🗑 Активность удалена");
+                        }
+                        catch (Exception ex)
+                        {
+                            await botClient.SendTextMessageAsync(chatId, $"‼ Возникла ошибка с подключением данных: {ex.Message}.\n"
+                            + $"Пожалуйста, свяжитесь с нами через техническую поддержку для устранения ошибки");
+                        }
 
                         break;
                     }

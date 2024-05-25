@@ -37,13 +37,6 @@
     <Compartments>
       <Compartment Name="Nested Types" Collapsed="false" />
     </Compartments>
-    <NestedTypes>
-      <Enum Name="Timetracking_HSE_Bot.InlineKeyboard.State" Collapsed="true">
-        <TypeIdentifier>
-          <NewMemberFileName>InlineKeyboard.cs</NewMemberFileName>
-        </TypeIdentifier>
-      </Enum>
-    </NestedTypes>
     <TypeIdentifier>
       <HashCode>AAAAgAAAAAAIAAAAAAQAggAAAAAAAAAEAIAABAgAhAA=</HashCode>
       <FileName>InlineKeyboard.cs</FileName>

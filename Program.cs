@@ -82,6 +82,8 @@ namespace Timetracking_HSE_Bot
                         chatId: chatId,
                         text: "⏱ Вот все ваши активности. Нажми на ту, которую хочешь изменить или узнать подробности.",
                         replyMarkup: activityKeyboard);
+
+                    InlineKeyboard.SetMessageIdForDelete(chatId, message.MessageId);
                 }
                 catch (Exception ex)
                 {
@@ -96,7 +98,7 @@ namespace Timetracking_HSE_Bot
                 InlineKeyboardMarkup archivedActivityKeyboard = InlineKeyboard.Archive(DB.GetActivityList(chatId, true, true));
 
                 //Вывод клавиатуры с сообщением
-                await botClient.SendTextMessageAsync(chatId, "Вот все заархивированные активности. Вы можете удалить их или восстановить",
+                await botClient.SendTextMessageAsync(chatId, "Вот все активности в архиве. Вы можете восстановить их или удалить",
                     replyMarkup: archivedActivityKeyboard);
             }
 
@@ -216,11 +218,14 @@ namespace Timetracking_HSE_Bot
                         // Сбросить состояние пользователя
                         User.ResetState(chatId);
                         InlineKeyboardMarkup activityKeyboard = InlineKeyboard.Main(DB.GetActivityList(chatId));
+
                         // Отправляем сообщение
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
                             text: "⏱ Вот все твои активности. Нажми на ту, которую хочешь изменить или узнать подробности.",
                             replyMarkup: activityKeyboard);
+
+                        InlineKeyboard.SetMessageIdForDelete(chatId, messageId);
                     }
                     catch (Exception ex)
                     {
@@ -275,6 +280,8 @@ namespace Timetracking_HSE_Bot
                           chatId: chatId,
                           text: "⏱ Вот все твои активности. Нажми на ту, которую хочешь изменить или узнать подробности.",
                           replyMarkup: activityKeyboard);
+
+                        InlineKeyboard.SetMessageIdForDelete(chatId, messageId);
                     }
                     catch (Exception ex)
                     {
@@ -499,18 +506,17 @@ namespace Timetracking_HSE_Bot
                         if (activity != null)
                         {
                             status = activity.IsTracking ? ": Отслеживается ⏱" : "";
+
+                            //Получение message.id для последующего удаления
+                            InlineKeyboard.SetMessageIdForDelete(chatId, messageId);
+
+
+                            await botClient.SendTextMessageAsync(chatId,
+                                text: $"{activity.Name}{status} \n\n" +
+                                $"Ты можешь изменить название активности или удалить ее",
+                                parseMode: ParseMode.Markdown,
+                                replyMarkup: InlineKeyboard.ChangeActivity(actNumber));
                         }
-
-                        //Получение message.id для последующего удаления
-                        //User.SetMessageIdForDelete(chatId, messageId);
-                        InlineKeyboard.SetMessageIdForDelete(chatId, messageId);
-
-
-                        await botClient.SendTextMessageAsync(chatId,
-                            text: $"{activity.Name}{status} \n\n" +
-                            $"Ты можешь изменить название активности или удалить ее",
-                            parseMode: ParseMode.Markdown,
-                            replyMarkup: InlineKeyboard.ChangeActivity(actNumber));
 
                         await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
                         break;
@@ -520,12 +526,12 @@ namespace Timetracking_HSE_Bot
                         int actNumber = int.Parse(Regex.Replace(callbackQuery.Data, @"\D", ""));
                         Activity? activity = activityList.FirstOrDefault(a => a.Number == actNumber);
 
-                        //if (activity.IsTracking)
-                        //{
-                        //    await botClient.AnswerCallbackQueryAsync(callbackQuery.Id,
-                        //    "⚙️ Вы заархивировали отслеживаемую активность.",
-                        //    showAlert: true);
-                        //}
+                        if (activity.IsTracking)
+                        {
+                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id,
+                            "⚙️ Вы заархивировали отслеживаемую активность.",
+                            showAlert: true);
+                        }
 
                         try
                         {
@@ -540,14 +546,16 @@ namespace Timetracking_HSE_Bot
                             replyMarkup: activityKeyboard);
 
                             //удаление клавиатуры aboutact
-                            //await botClient.DeleteMessageAsync(chatId, messageId);
+                            await botClient.DeleteMessageAsync(chatId, messageId);
 
                             //Удаление прошлой клавиатуры c активностями
-                            //messageId = InlineKeyboard.GetMessageIdForDelete(chatId);
-                            //InlineKeyboard.RemoveMessageId(chatId);
-                            //await botClient.DeleteMessageAsync(chatId, messageId);
+                            messageId = InlineKeyboard.GetMessageIdForDelete(chatId);
+                            InlineKeyboard.RemoveMessageId(chatId);
+                            await botClient.DeleteMessageAsync(chatId, messageId);
 
-                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "🗑 Активность заархивирована");
+                            InlineKeyboard.SetMessageIdForDelete(chatId, messageId);
+
+                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "🗂 Активность отправлена в архив");
                         }
                         catch (Exception ex)
                         {
@@ -561,9 +569,28 @@ namespace Timetracking_HSE_Bot
                     {
                         int actNumber = int.Parse(Regex.Replace(callbackQuery.Data, @"\D", ""));
 
-                        await botClient.SendTextMessageAsync(chatId, "Ты можешь изменить название активности или удалить ее",
+                        List<Activity> archive = DB.GetActivityList(chatId, true, true);
+                        Activity? activity = archive.FirstOrDefault(a => a.Number == actNumber);
+
+                        await botClient.EditMessageTextAsync(chatId, messageId,
+                            text: $"{activity.Name} в архиве\n\n" +
+                                  $"Ты можешь восстановить её, для дальнейшего отслеживания или полностью удалить",
                             parseMode: ParseMode.Markdown,
                             replyMarkup: InlineKeyboard.ChangeArchive(actNumber));
+
+                        await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
+                        break;
+                    }
+
+                case "backToArchive":
+                    {
+                        //Инициализация инлайн клавиатуры
+                        InlineKeyboardMarkup archivedActivityKeyboard = InlineKeyboard.Archive(DB.GetActivityList(chatId, true, true));
+
+                        //Вывод клавиатуры с сообщением
+                        await botClient.EditMessageTextAsync(chatId, messageId,
+                            "Вот все активности в архиве. Вы можете восстановить их или удалить",
+                            replyMarkup: archivedActivityKeyboard);
 
                         await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
                         break;
@@ -579,6 +606,25 @@ namespace Timetracking_HSE_Bot
                           chatId: chatId,
                           text: "⏱ Вот все твои активности. Нажми на ту, которую хочешь изменить или узнать подробности.",
                           replyMarkup: activityKeyboard);
+
+                        //Удаление AboutArchiveAct
+                        await botClient.DeleteMessageAsync(chatId, messageId);
+
+                        try
+                        {
+                            //Удаление прошлой клавиатуры c активностями
+                            messageId = InlineKeyboard.GetMessageIdForDelete(chatId);
+                            InlineKeyboard.RemoveMessageId(chatId);
+                            await botClient.DeleteMessageAsync(chatId, messageId);
+                        }
+                        catch (Exception e)
+                        {
+                            await Console.Out.WriteLineAsync(e.Message);
+                        }
+
+                        InlineKeyboard.SetMessageIdForDelete(chatId, messageId);
+
+                        await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "📤 Активность восстановленна");
                         break;
                     }
                 case "rename":

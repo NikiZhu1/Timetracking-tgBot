@@ -216,13 +216,12 @@ namespace Timetracking_HSE_Bot
                 {
                     //Удаление из Activities
                     deleterecord.CommandText = $"DELETE FROM Activities WHERE ChatId = @chatId AND Number = @act";
+                   
                     deleterecord.Parameters.AddWithValue("@chatId", chatId);
                     deleterecord.Parameters.AddWithValue("@act", actNumber);
                     deleterecord.ExecuteNonQuery();
-
                     //Удаление из StartStopAct
                     deleterecord.CommandText = $"DELETE FROM StartStopAct WHERE ChatId = @chatId AND Number = @act";
-
                     deleterecord.ExecuteNonQuery();
 
                     Console.WriteLine($"{chatId}: Активность #{actNumber} удалена");

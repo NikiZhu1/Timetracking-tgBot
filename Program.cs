@@ -564,6 +564,7 @@ namespace Timetracking_HSE_Bot
                         await botClient.SendTextMessageAsync(chatId, "Ты можешь изменить название активности или удалить ее",
                             parseMode: ParseMode.Markdown,
                             replyMarkup: InlineKeyboard.ChangeArchive(actNumber));
+                        InlineKeyboard.SetMessageIdForDelete(chatId, messageId);
 
                         await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
                         break;
@@ -623,13 +624,13 @@ namespace Timetracking_HSE_Bot
                             text: "⏱ Вот все твои активности. Нажми на ту, которую хочешь изменить или узнать подробности.",
                             replyMarkup: activityKeyboard);
 
-                            ////удаление клавиатуры aboutact
-                            //await botClient.DeleteMessageAsync(chatId, messageId);
+                            //удаление клавиатуры aboutact
+                            await botClient.DeleteMessageAsync(chatId, messageId);
 
-                            ////Удаление прошлой клавиатуры c активностями
-                            //messageId = InlineKeyboard.GetMessageIdForDelete(chatId);
-                            //InlineKeyboard.RemoveMessageId(chatId);
-                            //await botClient.DeleteMessageAsync(chatId, messageId);
+                            //Удаление прошлой клавиатуры c активностями
+                            messageId = InlineKeyboard.GetMessageIdForDelete(chatId);
+                            InlineKeyboard.RemoveMessageId(chatId);
+                            await botClient.DeleteMessageAsync(chatId, messageId);
 
                             await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "🗑 Активность удалена");
                         }

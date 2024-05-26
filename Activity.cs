@@ -70,37 +70,12 @@
         }
 
         /// <summary>
-        /// Есть ли уже у пользователя активность с названием <paramref name="activityName"/> - вроде как уже не нужна
+        /// Проверка на существование активности с данным названием
         /// </summary>
-        /// <param name="activityName">Проверяемое название активности</param>
-        /// <param name="chatId">id пользователя</param>
+        /// <param name="activityName"></param>
+        /// <param name="chatId"></param>
         /// <param name="actNumber"></param>
         /// <returns></returns>
-        //public static bool IsNotRepeatingName(string? activityName, long chatId, int? actNumber = null)
-        //{
-        //    List<Activity> allActivities = DB.GetActivityList(chatId);
-        //    bool result = true;
-
-        //    foreach (Activity activity in allActivities)
-        //    {
-        //        //Если новое название равно текущему
-        //        if (activity.Number == actNumber)
-        //        {
-        //            result = true;
-        //            break;
-        //        }
-
-        //        //Если совпадает с другими активностями
-        //        if (activity.Name == activityName)
-        //        {
-        //            result = false;
-        //            break;
-        //        }
-        //    }
-        //    return result;
-        //}
-
-        //проверяет удаленные и существующие активности на схожесть названия
         public static int IsUniqueName(string? activityName, long chatId, int? actNumber = null)
         {
             List<Activity> allActivities = DB.GetActivityList(chatId, true);
@@ -130,7 +105,13 @@
             return result;
         }
 
-        //номер той активности которую собираемся восстановить
+        /// <summary>
+        /// Получить номер восстанавливаемой активности
+        /// </summary>
+        /// <param name="activityName"></param>
+        /// <param name="chatId"></param>
+        /// <param name="actNumber"></param>
+        /// <returns></returns>
         public static int GetRecoveringActNumber(string? activityName, long chatId, int? actNumber = null)
         {
             List<Activity> allActivities = DB.GetActivityList(chatId, true);

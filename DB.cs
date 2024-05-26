@@ -94,7 +94,11 @@ namespace Timetracking_HSE_Bot
             }
         }
 
-        //функция добавления активности с транзакцией
+        /// <summary>
+        /// Добавить активность
+        /// </summary>
+        /// <param name="chatId"></param>
+        /// <param name="newValue"></param>
         public static async void AddActivity(long chatId, string newValue)
         {
             List<Activity> allActivities = GetActivityList(chatId, true);
@@ -133,45 +137,10 @@ namespace Timetracking_HSE_Bot
         }
 
         /// <summary>
-        /// Добавить активность
+        /// Архивация активности
         /// </summary>
-        /// <param name="chatId">id пользователя</param>
-        /// <param name="newValue">Название добавляемой активности</param>
-        //public static void AddActivity(long chatId, string newValue)
-        //{
-        //    List<Activity> allActivities = DB.GetActivityList(chatId, true);
-        //    int actCount = allActivities.Count + 1;
-
-        //    try
-        //    {
-        //        DBConection.Open();
-        //        DateTime dateStart = DateTime.Now;
-
-        //        using (SQLiteCommand cmd = DBConection.CreateCommand())
-        //        {
-        //            cmd.CommandText = "INSERT INTO Activities (ChatId, Number, Name, IsTracking, DateStart) VALUES (@chatId, @number, @name, @isTracking, @dateStart)";
-        //            cmd.Parameters.AddWithValue("@name", newValue);
-        //            cmd.Parameters.AddWithValue("@chatId", chatId);
-        //            cmd.Parameters.AddWithValue("@number", actCount);
-        //            cmd.Parameters.AddWithValue("@isTracking", 0);
-        //            cmd.Parameters.AddWithValue("@dateStart", dateStart.ToString("yyyy-MM-dd"));
-        //            cmd.ExecuteNonQuery();
-        //        }
-
-        //        Console.WriteLine($"{chatId}: Активность #{actCount} - {newValue} добавлена");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine("Ошибка: " + ex);
-        //        throw;
-        //    }
-        //    finally
-        //    {
-        //        DBConection?.Close();
-        //    }
-        //}
-
-        ///Архивация активности
+        /// <param name="chatId"></param>
+        /// <param name="actNumber"></param>
         public static void ArchiveActivity(long chatId, int actNumber)
         {
             try
@@ -238,42 +207,12 @@ namespace Timetracking_HSE_Bot
         }
 
         /// <summary>
-        /// Завершить активность в таблице Activities
+        /// Получить лист активностей
         /// </summary>
-        /// <param name="chatId">id пользователя</param>
-        /// <param name="actNumber">Номер активности</param>
-        //public static void EndActivity(long chatId, int actNumber)
-        //{
-        //    try
-        //    {
-        //        DBConection.Open();
-        //        DateTime dateEnd = DateTime.Now;
-
-        //        using SQLiteCommand cmd = DBConection.CreateCommand();
-        //        {
-        //            //Завершение активности в Activities
-        //            cmd.CommandText = $"UPDATE Activities SET DateEnd = @dateEnd WHERE ChatId = @chatId AND Number = @actNumber";
-        //            cmd.Parameters.AddWithValue("@dateEnd", dateEnd.ToString("yyyy-MM-dd"));
-        //            cmd.Parameters.AddWithValue("@chatId", chatId);
-        //            cmd.Parameters.AddWithValue("@actNumber", actNumber);
-        //            cmd.ExecuteNonQuery();
-
-        //            Console.WriteLine($"{chatId}: Активность #{actNumber} окончена");
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine("Ошибка: " + ex);
-        //        throw;
-        //    }
-        //    finally
-        //    {
-        //        DBConection?.Close();
-        //    }
-        //}
-
-        //функция получения листа активностей с транзакцией
-
+        /// <param name="chatId"></param>
+        /// <param name="getFullList"></param>
+        /// <param name="getOnlyArchived"></param>
+        /// <returns></returns>
         public static List<Activity> GetActivityList(long chatId, bool getFullList = false, bool getOnlyArchived = false)
         {
             List<Activity> activities = new(10);
@@ -342,70 +281,6 @@ namespace Timetracking_HSE_Bot
 
             return activities;
         }
-
-
-        ///<summary>
-        ///Получить лист активностей
-        ///</summary>
-        //public static List<Activity> GetActivityList(long chatId, bool getFullList = false)
-        //{
-        //    List<Activity> activities = new(10);
-        //    string command = $"SELECT Number, Name, IsTracking, DateStart, DateEnd FROM Activities WHERE ChatId = @chatId";
-
-        //    if (!getFullList)
-        //        command += " AND DateEnd IS NULL";
-
-        //    try
-        //    {
-        //        DBConection.Open();
-
-        //        using SQLiteCommand cmd = DBConection.CreateCommand();
-        //        {
-        //            // Запрос для получения активностей
-        //            cmd.CommandText = command;
-        //            cmd.Parameters.AddWithValue("@chatId", chatId);
-
-        //            using var reader = cmd.ExecuteReader();
-        //            {
-        //                int number;
-        //                string name;
-        //                bool isTracking;
-        //                DateTime? dateStart = null;
-        //                DateTime? dateEnd = null;
-
-        //                while (reader.Read())
-        //                {
-        //                    number = Convert.ToInt32(reader["Number"]);
-
-        //                    name = reader["Name"].ToString();
-
-        //                    isTracking = Convert.ToBoolean(reader["IsTracking"]);
-
-        //                    if (reader["DateStart"] is not DBNull)
-        //                        dateStart = Convert.ToDateTime(reader["DateStart"]);
-
-        //                    if (reader["DateEnd"] is not DBNull)
-        //                        dateEnd = Convert.ToDateTime(reader["DateEnd"]);
-
-        //                    activities.Add(new Activity(number, name, isTracking, dateStart, dateEnd));
-        //                }
-        //                reader.Close();
-        //            }
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine("Ошибка: " + ex);
-        //        throw;
-        //    }
-        //    finally
-        //    {
-        //        DBConection?.Close();
-        //    }
-        //    activities.Sort();
-
-        //    return activities;
-        //}
 
         /// <summary>
         /// Получить затраченное время на активность из таблицы StartStopAct

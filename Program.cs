@@ -107,7 +107,6 @@ namespace Timetracking_HSE_Bot
                 else
                 {
                     //Инициализация инлайн клавиатуры
-                    //InlineKeyboardMarkup archivedActivityKeyboard = InlineKeyboard.Archive(DB.GetActivityList(chatId, true, true));
                     InlineKeyboardMarkup archivedActivityKeyboard = InlineKeyboard.Archive(DB.GetActivityList(chatId, getOnlyArchived: true));
 
                     //Вывод клавиатуры с сообщением
@@ -386,7 +385,6 @@ namespace Timetracking_HSE_Bot
                         text: $"✏ Введите название для новой активности");
 
                         //Получение message.id для последующего удаления
-                        //User.SetMessageIdForDelete(chatId, messageId);
                         InlineKeyboard.SetMessageIdForDelete(chatId, messageId);
 
                         await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
@@ -411,8 +409,6 @@ namespace Timetracking_HSE_Bot
                         //За всё время
                         if (statisticType == 1)
                         {
-                            //ShowStatistic(chatId, 0, default);
-
                             SendStatictic(chatId, GetStatisticList(chatId), "Статистика за всё время:");
 
                             await botClient.DeleteMessageAsync(chatId, messageId);
@@ -437,7 +433,6 @@ namespace Timetracking_HSE_Bot
                         else if (statisticType == 3)
                         {
                             DateTime today = DateTime.Now.Date;
-                            //ShowStatistic(chatId, 0, today);
                             SendStatictic(chatId, GetStatisticList(chatId, today.AddDays(-7), today.AddDays(1)), "Статистика за последнюю неделю:");
 
                             await botClient.DeleteMessageAsync(chatId, messageId);
@@ -450,7 +445,6 @@ namespace Timetracking_HSE_Bot
                         else if (statisticType == 4)
                         {
                             DateTime today = DateTime.Now.Date;
-                            //ShowStatistic(chatId, 0, today, true);
                             SendStatictic(chatId, GetStatisticList(chatId, today), "Статистика за текущий день");
 
                             await botClient.DeleteMessageAsync(chatId, messageId);
@@ -464,7 +458,6 @@ namespace Timetracking_HSE_Bot
                 case "month_":
                     {
                         int monthNumber = int.Parse(Regex.Replace(callbackQuery.Data, @"\D", ""));
-                        //ShowStatistic(chatId, monthNumber, default);
 
                         if (monthNumber == 13)
                         {
@@ -673,13 +666,6 @@ namespace Timetracking_HSE_Bot
                         {
                             //Удаление AboutArchiveAct
                             await botClient.DeleteMessageAsync(chatId, messageId);
-
-
-                            /////это вроде уде не надо мы удаляем клавиатуру основых активностей когда отправляем список архивный
-                            ////Удаление прошлой клавиатуры c активностями
-                            //int tempMessageId = InlineKeyboard.GetMessageIdForDelete(chatId);
-                            //InlineKeyboard.RemoveMessageId(chatId);
-                            //await botClient.DeleteMessageAsync(chatId, tempMessageId);
                         }
                         catch (Exception e)
                         {

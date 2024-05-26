@@ -122,7 +122,7 @@ namespace Timetracking_HSE_Bot
                     int messageId = InlineKeyboard.GetMessageIdForDelete(chatId);
                     InlineKeyboard.RemoveMessageId(chatId);
                     if (messageId != 0)
-                          await botClient.DeleteMessageAsync(chatId, messageId);
+                        await botClient.DeleteMessageAsync(chatId, messageId);
                 }
             }
 
@@ -169,7 +169,7 @@ namespace Timetracking_HSE_Bot
                     int tempMessageId = InlineKeyboard.GetMessageIdForDelete(chatId);
                     InlineKeyboard.RemoveMessageId(chatId);
                     if (tempMessageId != 0)
-                         await botClient.DeleteMessageAsync(chatId, tempMessageId);
+                        await botClient.DeleteMessageAsync(chatId, tempMessageId);
 
                     InlineKeyboard.SetMessageIdForDelete(chatId, messageAct.MessageId);
                 }
@@ -438,7 +438,7 @@ namespace Timetracking_HSE_Bot
                         {
                             DateTime today = DateTime.Now.Date;
                             //ShowStatistic(chatId, 0, today);
-                            SendStatictic(chatId, GetStatisticList(chatId, today.AddDays(-7), today), "Статистика за последнюю неделю:");
+                            SendStatictic(chatId, GetStatisticList(chatId, today.AddDays(-7), today.AddDays(1)), "Статистика за последнюю неделю:");
 
                             await botClient.DeleteMessageAsync(chatId, messageId);
                             Console.WriteLine($"{chatId}: Получение статистики за неделю");
@@ -508,6 +508,14 @@ namespace Timetracking_HSE_Bot
                                 parseMode: ParseMode.Markdown,
                                 replyMarkup: InlineKeyboard.ChangeActivity(actNumber));
                         }
+                        else
+                        {
+                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "Действие невозможно");
+
+                            //Удаление клавиатуры с невозможным действием
+                            await botClient.DeleteMessageAsync(chatId, messageId);
+                            break;
+                        }
 
                         await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
                         break;
@@ -516,6 +524,15 @@ namespace Timetracking_HSE_Bot
                     {
                         int actNumber = int.Parse(Regex.Replace(callbackQuery.Data, @"\D", ""));
                         Activity? activity = activityList.FirstOrDefault(a => a.Number == actNumber);
+
+                        if (activity == null)
+                        {
+                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "Действие невозможно");
+
+                            //Удаление клавиатуры с невозможным действием
+                            await botClient.DeleteMessageAsync(chatId, messageId);
+                            break;
+                        }
 
                         if (activity.IsTracking)
                         {
@@ -569,6 +586,15 @@ namespace Timetracking_HSE_Bot
                         List<Activity> archive = DB.GetActivityList(chatId, getOnlyArchived: true);
                         Activity? activity = archive.FirstOrDefault(a => a.Number == actNumber);
 
+                        if (activity == null)
+                        {
+                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "Действие невозможно");
+
+                            //Удаление клавиатуры с невозможным действием
+                            await botClient.DeleteMessageAsync(chatId, messageId);
+                            break;
+                        }
+
                         await botClient.EditMessageTextAsync(chatId, messageId,
                             text: $"🗂 {activity.Name} в архиве\n\n" +
                                   $"Вы можете восстановить её, чтобы снова можно отслеживать её или полностью удалить.",
@@ -582,6 +608,15 @@ namespace Timetracking_HSE_Bot
                 case "backToArchive":
                     {
                         List<Activity> archive = DB.GetActivityList(chatId, getOnlyArchived: true);
+
+                        if (archive == null)
+                        {
+                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "Действие невозможно");
+
+                            //Удаление клавиатуры с невозможным действием
+                            await botClient.DeleteMessageAsync(chatId, messageId);
+                            break;
+                        }
 
                         if (archive.Count == 0)
                         {
@@ -612,6 +647,15 @@ namespace Timetracking_HSE_Bot
                         int actNumber = int.Parse(Regex.Replace(callbackQuery.Data, @"\D", ""));
                         List<Activity> archive = DB.GetActivityList(chatId, getOnlyArchived: true);
                         Activity? activity = archive.FirstOrDefault(a => a.Number == actNumber);
+
+                        if (activity == null)
+                        {
+                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "Действие невозможно");
+
+                            //Удаление клавиатуры с невозможным действием
+                            await botClient.DeleteMessageAsync(chatId, messageId);
+                            break;
+                        }
 
                         //Обновляется дата окончания активности на null
                         DB.UpdateDateEndStatus(chatId, actNumber);
@@ -653,6 +697,15 @@ namespace Timetracking_HSE_Bot
                         int actNumber = int.Parse(Regex.Replace(callbackQuery.Data, @"\D", ""));
                         Activity? activity = activityList.FirstOrDefault(a => a.Number == actNumber);
 
+                        if (activity == null)
+                        {
+                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "Действие невозможно");
+
+                            //Удаление клавиатуры с невозможным действием
+                            await botClient.DeleteMessageAsync(chatId, messageId);
+                            break;
+                        }
+
                         //Изменение состояния пользователя
                         User.SetState(chatId, User.State.WaitMessageForChangeAct, actNumber);
 
@@ -665,11 +718,20 @@ namespace Timetracking_HSE_Bot
                         await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
                         break;
                     }
-                    
+
                 case "delete":
                     {
                         int actNumber = int.Parse(Regex.Replace(callbackQuery.Data, @"\D", ""));
                         Activity? activity = activityList.FirstOrDefault(a => a.Number == actNumber);
+
+                        if (activity == null)
+                        {
+                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "Действие невозможно");
+
+                            //Удаление клавиатуры с невозможным действием
+                            await botClient.DeleteMessageAsync(chatId, messageId);
+                            break;
+                        }
 
                         if (activity.IsTracking)
                         {
@@ -716,16 +778,25 @@ namespace Timetracking_HSE_Bot
                 case "deleteInArchive":
                     {
                         int actNumber = int.Parse(Regex.Replace(callbackQuery.Data, @"\D", ""));
-                        List<Activity> archivedList = DB.GetActivityList(chatId, getOnlyArchived:true);
+                        List<Activity> archivedList = DB.GetActivityList(chatId, getOnlyArchived: true);
                         Activity? activity = archivedList.FirstOrDefault(a => a.Number == actNumber);
+
+                        if (activity == null)
+                        {
+                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "Действие невозможно");
+
+                            //Удаление клавиатуры с невозможным действием
+                            await botClient.DeleteMessageAsync(chatId, messageId);
+                            break;
+                        }
 
                         try
                         {
                             //Удаление активности
                             DB.DeleteActivity(chatId, actNumber);
-                            
+
                             await botClient.SendTextMessageAsync(chatId,
-                            text: $"🗑 {activity.Name}: активность удалена" );
+                            text: $"🗑 {activity.Name}: активность удалена");
 
                             //удаление клавиатуры aboutact
                             await botClient.DeleteMessageAsync(chatId, messageId);
@@ -769,6 +840,15 @@ namespace Timetracking_HSE_Bot
                         int actNumber = int.Parse(Regex.Replace(callbackQuery.Data, @"\D", ""));
                         Activity? activity = activityList.FirstOrDefault(a => a.Number == actNumber);
 
+                        if (activity == null)
+                        {
+                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "Действие невозможно");
+
+                            //Удаление клавиатуры с невозможным действием
+                            await botClient.DeleteMessageAsync(chatId, messageId);
+                            break;
+                        }
+
                         if (activity.IsTracking)
                         {
                             await Console.Out.WriteLineAsync($"{chatId}: Активность уже начата");
@@ -790,6 +870,15 @@ namespace Timetracking_HSE_Bot
                     {
                         int actNumber = int.Parse(Regex.Replace(callbackQuery.Data, @"\D", ""));
                         Activity? activity = activityList.FirstOrDefault(a => a.Number == actNumber);
+
+                        if (activity == null)
+                        {
+                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "Действие невозможно");
+
+                            //Удаление клавиатуры с невозможным действием
+                            await botClient.DeleteMessageAsync(chatId, messageId);
+                            break;
+                        }
 
                         if (!activity.IsTracking)
                         {

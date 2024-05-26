@@ -12,10 +12,10 @@
         {
             get
             {
-                if (DateEnd is null)
-                    return false;
-                else
+                if (DateEnd is not null)
                     return true;
+                else
+                    return false;
             }
             set { }
         }
@@ -41,7 +41,7 @@
             TotalTime = totalTime;
         }
 
-        public override string ToString()
+        public string totalTimeToString()
         {
             if (TotalTime > 0)
             {
@@ -52,16 +52,21 @@
 
                 //Только секунды
                 if (min == 0)
-                    return $"{Name}: {sec} сек.";
+                    return $"{sec} сек.";
 
                 //Только минуты с секундами
                 else if (hour == 0)
-                    return $"{Name}: {min} мин. {sec} сек.";
+                    return $"{min} мин. {sec} сек.";
 
-                else return $"{Name}: {hour} ч. {min} мин. {sec} сек.";
+                else return $"{hour} ч. {min} мин. {sec} сек.";
             }
             else
                 return string.Empty;
+        }
+
+        public override string ToString()
+        {
+            return $"{Name}: {totalTimeToString()}";
         }
 
         /// <summary>
@@ -99,12 +104,13 @@
         public static int IsUniqueName(string? activityName, long chatId, int? actNumber = null)
         {
             List<Activity> allActivities = DB.GetActivityList(chatId, true);
+            Activity? changeActivity = allActivities.FirstOrDefault(a => a.Number == actNumber);
             int result = 1;
 
             foreach (Activity activity in allActivities)
             {
                 //Если новое название равно текущему
-                if (activity.Number == actNumber)
+                if (changeActivity is null || changeActivity.Name == activityName)
                 {
                     result = 1;
                     break;
@@ -113,8 +119,9 @@
                 //Если совпадает с другими активностями
                 if (activity.Name == activityName)
                 {
-                    if (activity.IsEnded)//активность закрыта
+                    if (activity.IsEnded) //активность в архиве
                         result = -1;
+
                     else //активность действующая
                         result = 0;
                     break;
@@ -164,7 +171,6 @@
                 //totalTime = TimeTracker.Stop(chatId, actNumber);
                 DB.SetActivityStatus(chatId, actNumber, false);
                 totaltime = DB.StopTime(chatId, actNumber);
-
             }
             catch (Exception e)
             {

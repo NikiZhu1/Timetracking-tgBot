@@ -134,40 +134,38 @@ namespace Timetracking_HSE_Bot
             return technicalSupportKeyboard;
         }
 
+        //Клавиатура с архивированными активностями
         public static InlineKeyboardMarkup Archive(List<Activity> archivedActivity)
         {
             List<InlineKeyboardButton[]> rows = new();
-     
+
             foreach (Activity activity in archivedActivity)
             {
-                rows.Add(new[] { InlineKeyboardButton.WithCallbackData($"{activity.Name}", $"aboutArchive{activity.Number}")});
-            }  
+                rows.Add(new[] { InlineKeyboardButton.WithCallbackData($"{activity.Name}", $"aboutArchive{activity.Number}") });
+            }
 
             return new InlineKeyboardMarkup(rows);
         }
 
-
         //Клавиатура в AboutAct
         public static InlineKeyboardMarkup ChangeArchive(int actNumber)
         {
-            var changeArchiveKeyboard = new InlineKeyboardMarkup(
+            var changeActKeyboard = new InlineKeyboardMarkup(
             new List<InlineKeyboardButton[]>()
             {
                 new InlineKeyboardButton[]
                 {
-                        InlineKeyboardButton.WithCallbackData("📤 Восстановить", $"recover{actNumber}"), InlineKeyboardButton.WithCallbackData("🗑 Удалить", $"delete{actNumber}"),
+                        InlineKeyboardButton.WithCallbackData("📤 Восстановить", $"recover{actNumber}"), InlineKeyboardButton.WithCallbackData("🗑 Удалить", $"deleteInArchive{actNumber}"),
+                },
+                new InlineKeyboardButton[]
+                {
+                        InlineKeyboardButton.WithCallbackData("◀️ Назад в архив", "backToArchive"),
                 },
             });
 
-            return changeArchiveKeyboard;
+            return changeActKeyboard;
         }
 
-
-        public enum State
-        {
-            None,
-            WaitMessageForAddAct, // Ожидает сообщения для изменения названия активности
-        }
 
         //Словаь в котором хранятся состояния для удаления
         private static readonly Dictionary<long, int> messageIdsForDelete = new();
@@ -178,7 +176,7 @@ namespace Timetracking_HSE_Bot
             messageIdsForDelete[userId] = messageId;
         }
 
-        //Записать message.id для удаления
+        //Получить message.id для удаления
         public static int GetMessageIdForDelete(long userId)
         {
             if (messageIdsForDelete.TryGetValue(userId, out var messageId))

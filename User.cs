@@ -40,7 +40,8 @@
         //Сбросить состояние
         public static void ResetState(long userId)
         {
-            SetState(userId, State.None);
+            //SetState(userId, State.None);
+            userStates.Remove(userId);
         }
 
         ////Словаь в котором хранятся состояния пользователей

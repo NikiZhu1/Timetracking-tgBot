@@ -92,7 +92,7 @@ namespace Timetracking_HSE_Bot
                 catch { }
             }
 
-            if (message.Text != null && message.Text == "/archive")
+            else if (message.Text != null && message.Text == "/archive")
             {
                 List<Activity> archive = DB.GetActivityList(chatId, getOnlyArchived: true);
 
@@ -126,7 +126,7 @@ namespace Timetracking_HSE_Bot
                 }
             }
 
-            if (message.Text != null && message.Text == "/help")
+            else if (message.Text != null && message.Text == "/help")
             {
                 await botClient.SendTextMessageAsync(chatId,
                 text: " ⏳ Бот Ловец времени поможет Вам отслеживать время выполнения Ваших задач.\n" +
@@ -152,7 +152,7 @@ namespace Timetracking_HSE_Bot
                 replyMarkup: InlineKeyboard.Help());
             }
 
-            if (message.Text != null && message.Text == "/menu")
+            else if (message.Text != null && message.Text == "/menu")
             {
                 try
                 {
@@ -173,15 +173,11 @@ namespace Timetracking_HSE_Bot
 
                     InlineKeyboard.SetMessageIdForDelete(chatId, messageAct.MessageId);
                 }
-                catch (Exception ex)
-                {
-                    await botClient.SendTextMessageAsync(chatId, $"‼ Возникла ошибка с подключением данных: {ex.Message}.\n" +
-                        $"Пожалуйста, свяжитесь с нами через техническую поддержку для устранения ошибки");
-                }
+                catch { }
             }
 
             //Изменение названия активности - новая версия (проверка что такое название есть в архиве)
-            if (userInfo.state == User.State.WaitMessageForChangeAct && userInfo.actNumber.HasValue)
+            else if (userInfo.state == User.State.WaitMessageForChangeAct && userInfo.actNumber.HasValue)
             {
                 int isDeletedName = Activity.IsUniqueName(message.Text, chatId, userInfo.actNumber);
                 if (isDeletedName == 0)
@@ -237,7 +233,7 @@ namespace Timetracking_HSE_Bot
             }
 
             //Добавление новой активности/восстановление активностей
-            if (userInfo.state == User.State.WaitMessageForAddAct)
+            else if (userInfo.state == User.State.WaitMessageForAddAct)
             {
                 int isDeletedName = Activity.IsUniqueName(message.Text, chatId);
                 if (isDeletedName == 0)

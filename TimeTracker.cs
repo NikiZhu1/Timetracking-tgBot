@@ -1,5 +1,7 @@
 ﻿namespace Timetracking_HSE_Bot
 {
+    ///класс больше не используется
+
     //public class TimeTracker
     //{
     //    private static DateTime startTime;

@@ -4,6 +4,7 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
+using System.Configuration;
 
 namespace Timetracking_HSE_Bot
 {
@@ -12,11 +13,10 @@ namespace Timetracking_HSE_Bot
         public static int totalActivitiesCount = 10;
 
         static public TelegramBotClient botClient = new("");
-        const string token = "6761464907:AAHFMCFJJaRlEvt1obDsgYgqgliWw9mdyHg";
-
         //Старт бота
         static async Task Main(string[] args)
         {
+            string token = ConfigurationManager.AppSettings["Token"];
             botClient = new TelegramBotClient(token);
             var me = await botClient.GetMeAsync(); //Получаем информацию о боте
             botClient.StartReceiving(Update, Error);

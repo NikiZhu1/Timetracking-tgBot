@@ -3,16 +3,16 @@ using System.Text.RegularExpressions;
 
 namespace Timetracking_HSE_Bot
 {
-    // Класс для пользовательской функции REGEXP
-    public class RegexpSQLiteFunction : SQLiteFunction
-    {
-        public override object Invoke(object[] args)
-        {
-            string pattern = args[0].ToString();
-            string input = args[1].ToString();
-            return Regex.IsMatch(input, pattern);
-        }
-    }
+    //// Класс для пользовательской функции REGEXP
+    //public class RegexpSQLiteFunction : SQLiteFunction
+    //{
+    //    public override object Invoke(object[] args)
+    //    {
+    //        string pattern = args[0].ToString();
+    //        string input = args[1].ToString();
+    //        return Regex.IsMatch(input, pattern);
+    //    }
+    //}
 
     public class DB
     {

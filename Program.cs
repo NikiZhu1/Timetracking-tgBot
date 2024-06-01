@@ -470,7 +470,7 @@ namespace Timetracking_HSE_Bot
 
                         DateTime today = DateTime.Now.Date;
                         DateTime firstDate = new(today.Year, monthNumber, 1);
-                        DateTime secondDate = firstDate.AddMonths(1).AddDays(-1);
+                        DateTime secondDate = firstDate.AddMonths(1);
                         List<Activity> statistic = GetStatisticList(chatId, firstDate, secondDate);
 
                         string month = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(monthNumber);

@@ -80,12 +80,13 @@
         {
             List<Activity> allActivities = DB.GetActivityList(chatId, true);
             Activity? changeActivity = allActivities.FirstOrDefault(a => a.Number == actNumber);
+
             int result = 1;
 
             foreach (Activity activity in allActivities)
             {
                 //Если новое название равно текущему
-                if (changeActivity is null || changeActivity.Name == activityName)
+                if (changeActivity is not null && changeActivity.Name == activityName)
                 {
                     result = 1;
                     break;

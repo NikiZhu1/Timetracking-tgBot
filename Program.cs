@@ -89,7 +89,12 @@ namespace Timetracking_HSE_Bot
 
                     InlineKeyboard.SetMessageIdForDelete(chatId, messageAct.MessageId);
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    await botClient.SendTextMessageAsync(chatId, $"‼ Возникла ошибка с подключением данных: {ex.Message}.\n" +
+                        $"Пожалуйста, свяжитесь с нами через техническую поддержку для устранения ошибки");
+                }
             }
 
             else if (message.Text != null && message.Text == "/archive")
@@ -172,7 +177,12 @@ namespace Timetracking_HSE_Bot
 
                     InlineKeyboard.SetMessageIdForDelete(chatId, messageAct.MessageId);
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    await botClient.SendTextMessageAsync(chatId, $"‼ Возникла ошибка с выполнением команды: {ex.Message}.\n" +
+                        $"Пожалуйста, свяжитесь с нами через техническую поддержку для устранения ошибки");
+                }
             }
 
             //Изменение названия активности - новая версия (проверка что такое название есть в архиве)
@@ -650,32 +660,32 @@ namespace Timetracking_HSE_Bot
                             break;
                         }
 
-                        //Обновляется дата окончания активности на null
-                        DB.UpdateDateEndStatus(chatId, actNumber);
-
-                        await botClient.SendTextMessageAsync(chatId,
-                        text: $"📤 {activity.Name}: восстановлено из архива");
-
-                        //Отправка списка активностей
-                        InlineKeyboardMarkup activityKeyboard = InlineKeyboard.Main(DB.GetActivityList(chatId));
-                        Message newMessage = await botClient.SendTextMessageAsync(chatId,
-                          text: "⏱ Вот все твои активности. Нажми на ту, которую хочешь изменить или узнать подробности.",
-                          replyMarkup: activityKeyboard);
-
                         try
                         {
+                            //Обновляется дата окончания активности на null
+                            DB.UpdateDateEndStatus(chatId, actNumber);
+
+                            await botClient.SendTextMessageAsync(chatId,
+                            text: $"📤 {activity.Name}: восстановлено из архива");
+
+                            //Отправка списка активностей
+                            InlineKeyboardMarkup activityKeyboard = InlineKeyboard.Main(DB.GetActivityList(chatId));
+                            Message newMessage = await botClient.SendTextMessageAsync(chatId,
+                              text: "⏱ Вот все твои активности. Нажми на ту, которую хочешь изменить или узнать подробности.",
+                              replyMarkup: activityKeyboard);
+
                             //Удаление AboutArchiveAct
                             await botClient.DeleteMessageAsync(chatId, messageId);
+
+                            //Запомнить id сообщения для удаления
+                            InlineKeyboard.SetMessageIdForDelete(chatId, newMessage.MessageId);
+                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "📤 Активность восстановленна");
                         }
-                        catch (Exception e)
+                        catch(Exception ex)
                         {
-                            await Console.Out.WriteLineAsync(e.Message);
+                            await botClient.SendTextMessageAsync(chatId, $"‼ Возникла ошибка: {ex.Message}.\n"
+                            + $"Пожалуйста, свяжитесь с нами через техническую поддержку для устранения ошибки");
                         }
-
-                        //Запомнить id сообщения для удаления
-                        InlineKeyboard.SetMessageIdForDelete(chatId, newMessage.MessageId);
-
-                        await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "📤 Активность восстановленна");
                         break;
                     }
                 case "rename":

@@ -52,7 +52,7 @@ namespace Timetracking_HSE_Bot
             catch (Exception ex)
             {
                 Console.WriteLine("Ошибка: " + ex);
-                throw;
+                throw; 
             }
             finally
             {
@@ -132,6 +132,7 @@ namespace Timetracking_HSE_Bot
             {
                 Console.WriteLine("Ошибка: " + ex);
                 await transaction.RollbackAsync();
+                throw;
             }
             finally { DBConection?.Close(); }
         }
@@ -199,6 +200,7 @@ namespace Timetracking_HSE_Bot
             catch (Exception ex)
             {
                 Console.WriteLine("Ошибка: " + ex);
+                throw;
             }
             finally
             {

@@ -99,7 +99,41 @@ namespace Timetracking_HSE_Bot
         /// </summary>
         /// <param name="chatId"></param>
         /// <param name="newValue"></param>
-        public static async void AddActivity(long chatId, string newValue)
+        //public static void AddActivity(long chatId, string newValue)
+        //{
+        //    List<Activity> allActivities = GetActivityList(chatId, true);
+
+        //    int actCount = 1;
+        //    if (allActivities.Count != 0)
+        //    {
+        //        actCount = allActivities.Last().Number + 1;
+        //    }
+
+        //    DateTime dateStart = DateTime.Now;
+
+        //    DBConection.Open();
+        //    SQLiteCommand cmd = DBConection.CreateCommand();
+        //    try
+        //    {
+        //        cmd.CommandText = "INSERT INTO Activities (ChatId, Number, Name, IsTracking, DateStart) VALUES (@chatId, @number, @name, @isTracking, @dateStart)";
+        //        cmd.Parameters.AddWithValue("@name", newValue);
+        //        cmd.Parameters.AddWithValue("@chatId", chatId);
+        //        cmd.Parameters.AddWithValue("@number", actCount);
+        //        cmd.Parameters.AddWithValue("@isTracking", 0);
+        //        cmd.Parameters.AddWithValue("@dateStart", dateStart.ToString("yyyy-MM-dd"));
+        //        cmd.ExecuteNonQuery();
+
+        //        Console.WriteLine($"{chatId}: Активность #{actCount} - {newValue} добавлена");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine("Ошибка: " + ex);
+        //        throw;
+        //    }
+        //    finally { DBConection?.Close(); }
+        //}
+
+        public static async Task AddActivity(long chatId, string newValue)
         {
             List<Activity> allActivities = GetActivityList(chatId, true);
 
@@ -110,28 +144,33 @@ namespace Timetracking_HSE_Bot
             }
 
             DateTime dateStart = DateTime.Now;
+            try 
+            { 
+                DBConection.Open();
 
-            DBConection.Open();
-            SQLiteTransaction transaction = DBConection.BeginTransaction();
-            SQLiteCommand cmd = DBConection.CreateCommand();
-            cmd.Transaction = transaction;
-            try
-            {
-                cmd.CommandText = "INSERT INTO Activities (ChatId, Number, Name, IsTracking, DateStart) VALUES (@chatId, @number, @name, @isTracking, @dateStart)";
-                cmd.Parameters.AddWithValue("@name", newValue);
-                cmd.Parameters.AddWithValue("@chatId", chatId);
-                cmd.Parameters.AddWithValue("@number", actCount);
-                cmd.Parameters.AddWithValue("@isTracking", 0);
-                cmd.Parameters.AddWithValue("@dateStart", dateStart.ToString("yyyy-MM-dd"));
-                cmd.ExecuteNonQuery();
+                using SQLiteCommand cmd = DBConection.CreateCommand();
+                {
+                    cmd.CommandText = "INSERT INTO Activities (ChatId, Number, Name, IsTracking, DateStart) VALUES (@chatId, @number, @name, @isTracking, @dateStart)";
+                    cmd.Parameters.AddWithValue("@name", newValue);
+                    cmd.Parameters.AddWithValue("@chatId", chatId);
+                    cmd.Parameters.AddWithValue("@number", actCount);
+                    cmd.Parameters.AddWithValue("@isTracking", 0);
+                    cmd.Parameters.AddWithValue("@dateStart", dateStart.ToString("yyyy-MM-dd"));
 
-                await transaction.CommitAsync();
-                Console.WriteLine($"{chatId}: Активность #{actCount} - {newValue} добавлена");
+                    DateTime queryStartTime = DateTime.Now;
+
+                    await cmd.ExecuteNonQueryAsync();
+
+                    DateTime queryEndTime = DateTime.Now;
+                    TimeSpan queryExecutionTime = queryEndTime - queryStartTime;
+                    Console.WriteLine($"Время выполнения запроса: {queryExecutionTime.TotalSeconds}");
+
+                    Console.WriteLine($"{chatId}: Активность #{actCount} - {newValue} добавлена");
+                }
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Ошибка: " + ex);
-                await transaction.RollbackAsync();
                 throw;
             }
             finally { DBConection?.Close(); }
@@ -176,30 +215,31 @@ namespace Timetracking_HSE_Bot
         /// </summary>
         /// <param name="chatId">id пользователя</param>
         /// <param name="actNumber">Номер активности</param>
-        public static void DeleteActivity(long chatId, int actNumber)
+        public static async void DeleteActivity(long chatId, int actNumber)
         {
+            DBConection.Open();
+            SQLiteTransaction transaction = DBConection.BeginTransaction();
+            SQLiteCommand deleterecord = DBConection.CreateCommand();
+            deleterecord.Transaction = transaction;
             try
             {
-                DBConection.Open();
+                //Удаление из Activities
+                deleterecord.CommandText = $"DELETE FROM Activities WHERE ChatId = @chatId AND Number = @act";
 
-                using SQLiteCommand deleterecord = DBConection.CreateCommand();
-                {
-                    //Удаление из Activities
-                    deleterecord.CommandText = $"DELETE FROM Activities WHERE ChatId = @chatId AND Number = @act";
-                   
-                    deleterecord.Parameters.AddWithValue("@chatId", chatId);
-                    deleterecord.Parameters.AddWithValue("@act", actNumber);
-                    deleterecord.ExecuteNonQuery();
-                    //Удаление из StartStopAct
-                    deleterecord.CommandText = $"DELETE FROM StartStopAct WHERE ChatId = @chatId AND Number = @act";
-                    deleterecord.ExecuteNonQuery();
+                deleterecord.Parameters.AddWithValue("@chatId", chatId);
+                deleterecord.Parameters.AddWithValue("@act", actNumber);
+                deleterecord.ExecuteNonQuery();
+                //Удаление из StartStopAct
+                deleterecord.CommandText = $"DELETE FROM StartStopAct WHERE ChatId = @chatId AND Number = @act";
+                deleterecord.ExecuteNonQuery();
 
-                    Console.WriteLine($"{chatId}: Активность #{actNumber} удалена");
-                }
+                await transaction.CommitAsync();
+                Console.WriteLine($"{chatId}: Активность #{actNumber} удалена");
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Ошибка: " + ex);
+                await transaction.RollbackAsync();
                 throw;
             }
             finally
@@ -225,17 +265,16 @@ namespace Timetracking_HSE_Bot
 
             if (getOnlyArchived)
                 command += " AND DateEnd IS NOT NULL";
-
             try
             {
                 DBConection.Open();
-                using var transaction = DBConection.BeginTransaction();
                 using SQLiteCommand cmd = DBConection.CreateCommand();
                 {
-                    cmd.Transaction = transaction;
+                    DateTime queryStartTime = DateTime.Now;
                     // Запрос для получения активностей
                     cmd.CommandText = command;
                     cmd.Parameters.AddWithValue("@chatId", chatId);
+
 
                     using var reader = cmd.ExecuteReader();
                     {
@@ -267,7 +306,11 @@ namespace Timetracking_HSE_Bot
                         }
                         reader.Close();
                     }
-                    transaction.Commit(); // Фиксация транзакции
+
+                    DateTime queryEndTime = DateTime.Now;
+                    TimeSpan queryExecutionTime = queryEndTime - queryStartTime;
+
+                    Console.WriteLine($"Запрос (список акт-ей) к базе данных выполнен за: {queryExecutionTime.TotalSeconds} секунд");
                 }
             }
             catch (Exception ex)

@@ -270,30 +270,29 @@ namespace Timetracking_HSE_Bot
                             int recoveringNumber = Activity.GetRecoveringActNumber(message.Text, chatId); //номер активности, которая была удалена и которую мы собираемя восстановить
                             DB.UpdateDateEndStatus(chatId, recoveringNumber); //обновляется дата окончания активности на null
                         }
-                        else DB.AddActivity(chatId, message.Text);
-
-                        //Удаление прошлой клавиатуры
-                        int messageId = InlineKeyboard.GetMessageIdForDelete(chatId);
-                        InlineKeyboard.RemoveMessageId(chatId);
-                        await botClient.DeleteMessageAsync(chatId, messageId);
-
-                        // Сбросить состояние пользователя
-                        User.ResetState(chatId);
-
-                        InlineKeyboardMarkup activityKeyboard = InlineKeyboard.Main(DB.GetActivityList(chatId));
-
-                        await botClient.SendTextMessageAsync(
-                          chatId: chatId,
-                          text: "⏱ Вот все твои активности. Нажми на ту, которую хочешь изменить или узнать подробности.",
-                          replyMarkup: activityKeyboard);
-
-                        InlineKeyboard.SetMessageIdForDelete(chatId, messageId);
+                        else await DB.AddActivity(chatId, message.Text);
                     }
                     catch (Exception ex)
                     {
                         await botClient.SendTextMessageAsync(chatId, $"‼ Возникла ошибка с подключением данных: {ex.Message}.\n" +
                         $"Пожалуйста, свяжитесь с нами через техническую поддержку для устранения ошибки");
                     }
+                    //Удаление прошлой клавиатуры
+                    int messageId = InlineKeyboard.GetMessageIdForDelete(chatId);
+                    InlineKeyboard.RemoveMessageId(chatId);
+                    await botClient.DeleteMessageAsync(chatId, messageId);
+
+                    // Сбросить состояние пользователя
+                    User.ResetState(chatId);
+
+                    InlineKeyboardMarkup activityKeyboard = InlineKeyboard.Main(DB.GetActivityList(chatId));
+
+                    await botClient.SendTextMessageAsync(
+                      chatId: chatId,
+                      text: "⏱ Вот все твои активности. Нажми на ту, которую хочешь изменить или узнать подробности.",
+                      replyMarkup: activityKeyboard);
+
+                    InlineKeyboard.SetMessageIdForDelete(chatId, messageId);
                 }
             }
         }

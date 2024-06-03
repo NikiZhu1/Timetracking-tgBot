@@ -17,7 +17,7 @@ namespace Timetracking_HSE_Bot
                 InlineKeyboardButton activityButton = new("");
                 InlineKeyboardButton statusButton = new("");
 
-                if (!activity.IsEnded)
+                if (!activity.InArchive)
                 {
                     // Создаем кнопки для активности
                     activityButton = activity.IsTracking
@@ -165,7 +165,6 @@ namespace Timetracking_HSE_Bot
 
             return changeActKeyboard;
         }
-
 
         //Словаь в котором хранятся состояния для удаления
         private static readonly Dictionary<long, int> messageIdsForDelete = new();

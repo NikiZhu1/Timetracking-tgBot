@@ -8,7 +8,7 @@
 
         public bool IsTracking { get; set; }
 
-        public bool IsEnded
+        public bool InArchive
         {
             get
             {
@@ -17,7 +17,6 @@
                 else
                     return false;
             }
-            set { }
         }
 
         public DateTime? DateStart { get; set; }
@@ -95,7 +94,7 @@
                 //Если совпадает с другими активностями
                 if (activity.Name == activityName)
                 {
-                    if (activity.IsEnded) //активность в архиве
+                    if (activity.InArchive) //активность в архиве
                         result = -1;
 
                     else //активность действующая
@@ -120,7 +119,7 @@
             foreach (Activity activity in allActivities)
             {
                 //Если совпадает с другими активностями
-                if (activity.Name == activityName && activity.IsEnded)
+                if (activity.Name == activityName && activity.InArchive)
                 {
                     return activity.Number;
                 }

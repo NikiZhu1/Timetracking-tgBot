@@ -1,25 +1,13 @@
-﻿using Newtonsoft.Json;
+﻿using System.Configuration;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
-using File = System.IO.File;
 
 namespace Timetracking_HSE_Bot
 {
-    public class Config
-    {
-        public string BotToken { get; set; }
-
-        public static Config Load(string filePath)
-        {
-            var json = File.ReadAllText(filePath);
-            return JsonConvert.DeserializeObject<Config>(json);
-        }
-    }
-
     internal class Program
     {
         public static int totalActivitiesCount = 10;
@@ -28,14 +16,8 @@ namespace Timetracking_HSE_Bot
 
         static async Task Main(string[] args)
         {
-            var config = Config.Load("token.json");
-
-            //Получаем токен из файла token.json
-            if (string.IsNullOrEmpty(config.BotToken))
-            {
-                throw new Exception("Bot token is not provided in the configuration file.");
-            }
-            botClient = new(config.BotToken);
+            string token = ConfigurationManager.AppSettings["Token"];
+            botClient = new TelegramBotClient(token);
             var me = await botClient.GetMeAsync(); //Получаем информацию о боте
             botClient.StartReceiving(Update, Error);
             Console.WriteLine($"Бот {me.FirstName} запущен! id: {me.Id}");
@@ -288,7 +270,7 @@ namespace Timetracking_HSE_Bot
                             int recoveringNumber = Activity.GetRecoveringActNumber(message.Text, chatId); //номер активности, которая была удалена и которую мы собираемя восстановить
                             DB.UpdateDateEndStatus(chatId, recoveringNumber); //обновляется дата окончания активности на null
                         }
-                        else DB.AddActivity(chatId, message.Text);
+                        else await DB.AddActivity(chatId, message.Text);
                     }
                     catch (Exception ex)
                     {

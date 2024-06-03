@@ -1,10 +1,10 @@
 ﻿using System.Globalization;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
-using System.Configuration;
 
 namespace Timetracking_HSE_Bot
 {
@@ -13,11 +13,18 @@ namespace Timetracking_HSE_Bot
         public static int totalActivitiesCount = 10;
 
         static public TelegramBotClient botClient = new("");
-        //Старт бота
+
         static async Task Main(string[] args)
         {
-            string token = ConfigurationManager.AppSettings["Token"];
-            botClient = new TelegramBotClient(token);
+            //Получаем токен из файла token.json
+            string token = XDocument.Load("token.json").Root.Element("BotToken").Value;
+            if (token is null)
+            {
+                Console.WriteLine("Не указан токен бота!");
+                Environment.Exit(0);
+            }
+
+            botClient = new(token);
             var me = await botClient.GetMeAsync(); //Получаем информацию о боте
             botClient.StartReceiving(Update, Error);
             Console.WriteLine($"Бот {me.FirstName} запущен! id: {me.Id}");
@@ -270,7 +277,7 @@ namespace Timetracking_HSE_Bot
                             int recoveringNumber = Activity.GetRecoveringActNumber(message.Text, chatId); //номер активности, которая была удалена и которую мы собираемя восстановить
                             DB.UpdateDateEndStatus(chatId, recoveringNumber); //обновляется дата окончания активности на null
                         }
-                        else await DB.AddActivity(chatId, message.Text);
+                        else DB.AddActivity(chatId, message.Text);
                     }
                     catch (Exception ex)
                     {
@@ -680,7 +687,7 @@ namespace Timetracking_HSE_Bot
                             InlineKeyboard.SetMessageIdForDelete(chatId, newMessage.MessageId);
                             await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "📤 Активность восстановленна");
                         }
-                        catch(Exception ex)
+                        catch (Exception ex)
                         {
                             await botClient.SendTextMessageAsync(chatId, $"‼ Возникла ошибка: {ex.Message}.\n"
                             + $"Пожалуйста, свяжитесь с нами через техническую поддержку для устранения ошибки");

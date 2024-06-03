@@ -1,4 +1,5 @@
 ﻿using System.Data.SQLite;
+using System.Text.RegularExpressions;
 
 namespace Timetracking_HSE_Bot
 {
@@ -51,7 +52,7 @@ namespace Timetracking_HSE_Bot
             catch (Exception ex)
             {
                 Console.WriteLine("Ошибка: " + ex);
-                throw;
+                throw; 
             }
             finally
             {
@@ -143,8 +144,8 @@ namespace Timetracking_HSE_Bot
             }
 
             DateTime dateStart = DateTime.Now;
-            try
-            {
+            try 
+            { 
                 DBConection.Open();
 
                 using SQLiteCommand cmd = DBConection.CreateCommand();
@@ -228,7 +229,6 @@ namespace Timetracking_HSE_Bot
                 deleterecord.Parameters.AddWithValue("@chatId", chatId);
                 deleterecord.Parameters.AddWithValue("@act", actNumber);
                 deleterecord.ExecuteNonQuery();
-
                 //Удаление из StartStopAct
                 deleterecord.CommandText = $"DELETE FROM StartStopAct WHERE ChatId = @chatId AND Number = @act";
                 deleterecord.ExecuteNonQuery();
@@ -251,8 +251,9 @@ namespace Timetracking_HSE_Bot
         /// <summary>
         /// Получить лист активностей
         /// </summary>
-        /// <param name="getFullList">Получить список всех активностей?</param>
-        /// <param name="getOnlyArchived">Получить список только архивированных активностей?</param>
+        /// <param name="chatId"></param>
+        /// <param name="getFullList"></param>
+        /// <param name="getOnlyArchived"></param>
         /// <returns></returns>
         public static List<Activity> GetActivityList(long chatId, bool getFullList = false, bool getOnlyArchived = false)
         {
@@ -273,6 +274,7 @@ namespace Timetracking_HSE_Bot
                     // Запрос для получения активностей
                     cmd.CommandText = command;
                     cmd.Parameters.AddWithValue("@chatId", chatId);
+
 
                     using var reader = cmd.ExecuteReader();
                     {

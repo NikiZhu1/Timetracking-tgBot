@@ -1,13 +1,25 @@
-﻿using System.Globalization;
+﻿using Newtonsoft.Json;
+using System.Globalization;
 using System.Text.RegularExpressions;
-using System.Xml.Linq;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
+using File = System.IO.File;
 
 namespace Timetracking_HSE_Bot
 {
+    public class Config
+    {
+        public string BotToken { get; set; }
+
+        public static Config Load(string filePath)
+        {
+            var json = File.ReadAllText(filePath);
+            return JsonConvert.DeserializeObject<Config>(json);
+        }
+    }
+
     internal class Program
     {
         public static int totalActivitiesCount = 10;
@@ -16,15 +28,14 @@ namespace Timetracking_HSE_Bot
 
         static async Task Main(string[] args)
         {
-            //Получаем токен из файла token.json
-            string token = XDocument.Load("token.json").Root.Element("BotToken").Value;
-            if (token is null)
-            {
-                Console.WriteLine("Не указан токен бота!");
-                Environment.Exit(0);
-            }
+            var config = Config.Load("token.json");
 
-            botClient = new(token);
+            //Получаем токен из файла token.json
+            if (string.IsNullOrEmpty(config.BotToken))
+            {
+                throw new Exception("Bot token is not provided in the configuration file.");
+            }
+            botClient = new(config.BotToken);
             var me = await botClient.GetMeAsync(); //Получаем информацию о боте
             botClient.StartReceiving(Update, Error);
             Console.WriteLine($"Бот {me.FirstName} запущен! id: {me.Id}");

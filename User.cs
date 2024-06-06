@@ -12,10 +12,10 @@
 
         public static List<string> ActivityList { get; set; }
 
-        public User(long chatId)
-        {
+        //public User(long chatId)
+        //{
 
-        }
+        //}
 
         //Словаь в котором хранятся состояния пользователей
         private static readonly Dictionary<long, (State state, int? actNumber)> userStates = new();

@@ -99,41 +99,7 @@ namespace Timetracking_HSE_Bot
         /// </summary>
         /// <param name="chatId"></param>
         /// <param name="newValue"></param>
-        //public static void AddActivity(long chatId, string newValue)
-        //{
-        //    List<Activity> allActivities = GetActivityList(chatId, true);
-
-        //    int actCount = 1;
-        //    if (allActivities.Count != 0)
-        //    {
-        //        actCount = allActivities.Last().Number + 1;
-        //    }
-
-        //    DateTime dateStart = DateTime.Now;
-
-        //    DBConection.Open();
-        //    SQLiteCommand cmd = DBConection.CreateCommand();
-        //    try
-        //    {
-        //        cmd.CommandText = "INSERT INTO Activities (ChatId, Number, Name, IsTracking, DateStart) VALUES (@chatId, @number, @name, @isTracking, @dateStart)";
-        //        cmd.Parameters.AddWithValue("@name", newValue);
-        //        cmd.Parameters.AddWithValue("@chatId", chatId);
-        //        cmd.Parameters.AddWithValue("@number", actCount);
-        //        cmd.Parameters.AddWithValue("@isTracking", 0);
-        //        cmd.Parameters.AddWithValue("@dateStart", dateStart.ToString("yyyy-MM-dd"));
-        //        cmd.ExecuteNonQuery();
-
-        //        Console.WriteLine($"{chatId}: Активность #{actCount} - {newValue} добавлена");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine("Ошибка: " + ex);
-        //        throw;
-        //    }
-        //    finally { DBConection?.Close(); }
-        //}
-
-        public static async Task AddActivity(long chatId, string newValue)
+        public static void AddActivity(long chatId, string newValue)
         {
             List<Activity> allActivities = GetActivityList(chatId, true);
 
@@ -144,29 +110,28 @@ namespace Timetracking_HSE_Bot
             }
 
             DateTime dateStart = DateTime.Now;
-            try 
-            { 
-                DBConection.Open();
 
-                using SQLiteCommand cmd = DBConection.CreateCommand();
-                {
-                    cmd.CommandText = "INSERT INTO Activities (ChatId, Number, Name, IsTracking, DateStart) VALUES (@chatId, @number, @name, @isTracking, @dateStart)";
-                    cmd.Parameters.AddWithValue("@name", newValue);
-                    cmd.Parameters.AddWithValue("@chatId", chatId);
-                    cmd.Parameters.AddWithValue("@number", actCount);
-                    cmd.Parameters.AddWithValue("@isTracking", 0);
-                    cmd.Parameters.AddWithValue("@dateStart", dateStart.ToString("yyyy-MM-dd"));
+            DBConection.Open();
+            SQLiteCommand cmd = DBConection.CreateCommand();
+            try
+            {
+                cmd.CommandText = "INSERT INTO Activities (ChatId, Number, Name, IsTracking, DateStart) VALUES (@chatId, @number, @name, @isTracking, @dateStart)";
+                cmd.Parameters.AddWithValue("@name", newValue);
+                cmd.Parameters.AddWithValue("@chatId", chatId);
+                cmd.Parameters.AddWithValue("@number", actCount);
+                cmd.Parameters.AddWithValue("@isTracking", 0);
+                cmd.Parameters.AddWithValue("@dateStart", dateStart.ToString("yyyy-MM-dd"));
 
-                    DateTime queryStartTime = DateTime.Now;
+                DateTime queryStartTime = DateTime.Now;
 
-                    await cmd.ExecuteNonQueryAsync();
+                cmd.ExecuteNonQuery();
 
-                    DateTime queryEndTime = DateTime.Now;
-                    TimeSpan queryExecutionTime = queryEndTime - queryStartTime;
-                    Console.WriteLine($"Время выполнения запроса: {queryExecutionTime.TotalSeconds}");
+                DateTime queryEndTime = DateTime.Now;
+                TimeSpan queryExecutionTime = queryEndTime - queryStartTime;
+                Console.WriteLine($"Время выполнения запроса (добавление): {queryExecutionTime.TotalSeconds}");
 
-                    Console.WriteLine($"{chatId}: Активность #{actCount} - {newValue} добавлена");
-                }
+
+                Console.WriteLine($"{chatId}: Активность #{actCount} - {newValue} добавлена");
             }
             catch (Exception ex)
             {

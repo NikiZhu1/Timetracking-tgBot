@@ -85,8 +85,11 @@ namespace Timetracking_HSE_Bot
                     //Удаление прошлой клавиатуры c активностями
                     int tempMessageId = InlineKeyboard.GetMessageIdForDelete(chatId);
                     InlineKeyboard.RemoveMessageId(chatId);
-                    await botClient.DeleteMessageAsync(chatId, tempMessageId);
-
+                    if (tempMessageId != 0)
+                    {
+                        await botClient.DeleteMessageAsync(chatId, tempMessageId);
+                    }
+                        
                     InlineKeyboard.SetMessageIdForDelete(chatId, messageAct.MessageId);
                 }
                 catch (Exception ex)

@@ -193,6 +193,7 @@ namespace Timetracking_HSE_Bot
             return 0;
         }
 
+        //Удалить message.id после удаленния
         public static void RemoveMessageId(long userId)
         {
             messageIdsForDelete.Remove(userId);

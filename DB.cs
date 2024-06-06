@@ -1,32 +1,56 @@
 ﻿using System.Data.SQLite;
-using System.Text.RegularExpressions;
 
 namespace Timetracking_HSE_Bot
 {
-    //// Класс для пользовательской функции REGEXP
-    //public class RegexpSQLiteFunction : SQLiteFunction
-    //{
-    //    public override object Invoke(object[] args)
-    //    {
-    //        string pattern = args[0].ToString();
-    //        string input = args[1].ToString();
-    //        return Regex.IsMatch(input, pattern);
-    //    }
-    //}
-
     public class DB
     {
         private static readonly string fileName = "DB.db";
         private static SQLiteConnection DBConection = new($"Data Source={fileName}; Trusted_Connection=True;");
 
-        public static string fullPath = Path.GetFullPath($"{fileName}");
+        public static readonly string fullPath = Path.GetFullPath($"{fileName}");
 
         /// <summary>
         /// Занесение id и username пользователя в бд
         /// </summary>
         /// <param name="chatId">id пользователя</param>
         /// <param name="username">Юзернэйм пользователя</param>
-        public static void Registration(long chatId, string username)
+        public async static void Registration(long chatId, string username)
+        {
+            //Если юзер уже есть в базе данных - скипаем
+            if (HaveUser(chatId))
+                return;
+
+            try
+            {
+                DBConection.Open();
+
+                using SQLiteCommand regcmd = DBConection.CreateCommand();
+                {
+                    // Добавляем пользователя в таблицу RegUsers
+                    regcmd.CommandText = "INSERT INTO RegUsers (ChatId, Username) VALUES (@chatId, @Username)";
+                    regcmd.Parameters.AddWithValue("@chatId", chatId);
+                    regcmd.Parameters.AddWithValue("@Username", username);
+                    await regcmd.ExecuteNonQueryAsync();
+
+                    Console.WriteLine($"{chatId}: @{username} зарегестрирован");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Ошибка: " + ex);
+                throw;
+            }
+            finally
+            {
+                DBConection?.Close();
+            }
+        }
+
+        /// <summary>
+        /// Проверка есть ли пользователь в БД
+        /// </summary>
+        /// <param name="chatId">id пользователя</param>
+        public static bool HaveUser(long chatId)
         {
             try
             {
@@ -37,22 +61,13 @@ namespace Timetracking_HSE_Bot
                     regcmd.CommandText = $"SELECT EXISTS(SELECT 1 FROM RegUsers WHERE ChatId = @chatId)";
                     regcmd.Parameters.AddWithValue("@chatId", chatId);
 
-                    //Если юзер уже есть в базе данных - скипаем
-                    if (Convert.ToBoolean(regcmd.ExecuteScalar()) == false)
-                    {
-                        // Добавляем пользователя в таблицу RegUsers
-                        regcmd.CommandText = "INSERT INTO RegUsers (ChatId, Username) VALUES (@chatId, @Username)";
-                        regcmd.Parameters.AddWithValue("@Username", username);
-                        regcmd.ExecuteNonQuery();
-
-                        Console.WriteLine($"{chatId}: @{username} зарегестрирован");
-                    }
+                    return Convert.ToBoolean(regcmd.ExecuteScalar());
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Ошибка: " + ex);
-                throw; 
+                throw;
             }
             finally
             {
@@ -144,8 +159,8 @@ namespace Timetracking_HSE_Bot
             }
 
             DateTime dateStart = DateTime.Now;
-            try 
-            { 
+            try
+            {
                 DBConection.Open();
 
                 using SQLiteCommand cmd = DBConection.CreateCommand();
@@ -229,6 +244,7 @@ namespace Timetracking_HSE_Bot
                 deleterecord.Parameters.AddWithValue("@chatId", chatId);
                 deleterecord.Parameters.AddWithValue("@act", actNumber);
                 deleterecord.ExecuteNonQuery();
+
                 //Удаление из StartStopAct
                 deleterecord.CommandText = $"DELETE FROM StartStopAct WHERE ChatId = @chatId AND Number = @act";
                 deleterecord.ExecuteNonQuery();

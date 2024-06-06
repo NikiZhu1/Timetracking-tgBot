@@ -10,6 +10,8 @@
             WaitMessageForAddAct, // Ожидает сообщения для изменения названия активности
         }
 
+
+
         public static List<string> ActivityList { get; set; }
 
         public User(long chatId)

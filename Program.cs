@@ -89,7 +89,7 @@ namespace Timetracking_HSE_Bot
                     {
                         await botClient.DeleteMessageAsync(chatId, tempMessageId);
                     }
-                        
+
                     InlineKeyboard.SetMessageIdForDelete(chatId, messageAct.MessageId);
                 }
                 catch (Exception ex)
@@ -102,6 +102,12 @@ namespace Timetracking_HSE_Bot
 
             else if (message.Text != null && message.Text == "/archive")
             {
+                if (!DB.HaveUser(chatId))
+                {
+                    await botClient.SendTextMessageAsync(chatId,
+                        "🤔 Вы не зарегестрированы. Нажмите на команду /start");
+                    return;
+                }
                 List<Activity> archive = DB.GetActivityList(chatId, getOnlyArchived: true);
 
                 if (archive.Count == 0)
@@ -136,13 +142,21 @@ namespace Timetracking_HSE_Bot
             else if (message.Text != null && message.Text == "/help")
             {
                 await botClient.SendTextMessageAsync(chatId,
-                text: "Не знаете, что делать? В нашей <a href=\"https://telegra.ph/Lovec-vremeni--Spravka-05-26\">справке</a> есть вся информация о функциях бота!",
+                text: "Чтобы запустить бота нажмите на команду /start\n" +
+                "Хотите узнать больше? В нашей <a href=\"https://telegra.ph/Lovec-vremeni--Spravka-05-26\">справке</a> есть вся информация о функциях бота!",
                 parseMode: ParseMode.Html,
                 replyMarkup: InlineKeyboard.Help());
             }
 
             else if (message.Text != null && message.Text == "/menu")
             {
+                if (!DB.HaveUser(chatId))
+                {
+                    await botClient.SendTextMessageAsync(chatId,
+                        "🤔 Вы не зарегестрированы. Нажмите на команду /start");
+                    return;
+                }
+
                 try
                 {
                     //Инициализация инлайн клавиатуры

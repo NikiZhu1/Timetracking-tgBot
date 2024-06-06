@@ -105,16 +105,16 @@ namespace Timetracking_HSE_Bot
         //Клавиатура в AboutAct
         public static InlineKeyboardMarkup ChangeActivity(int actNumber)
         {
-            var changeActKeyboard = new InlineKeyboardMarkup(
+            InlineKeyboardMarkup changeActKeyboard = new(
             new List<InlineKeyboardButton[]>()
             {
                 new InlineKeyboardButton[]
                 {
-                        InlineKeyboardButton.WithCallbackData("✏️ Изменить", $"rename{actNumber}"), InlineKeyboardButton.WithCallbackData("🗑 Удалить", $"delete{actNumber}"),
+                    InlineKeyboardButton.WithCallbackData("✏️ Изменить", $"rename{actNumber}"), InlineKeyboardButton.WithCallbackData("🗑 Удалить", $"delete{actNumber}"),
                 },
                 new InlineKeyboardButton[]
                 {
-                        InlineKeyboardButton.WithCallbackData("🗂 Отправить в архив", $"archive{actNumber}"),
+                    InlineKeyboardButton.WithCallbackData("🗂 Отправить в архив", $"archive{actNumber}"),
                 },
             });
 
@@ -125,9 +125,16 @@ namespace Timetracking_HSE_Bot
         public static InlineKeyboardMarkup Help()
         {
             InlineKeyboardMarkup technicalSupportKeyboard = new(
-            new InlineKeyboardButton[]
+            new List<InlineKeyboardButton[]>()
             {
-                InlineKeyboardButton.WithUrl("Техническая поддержка", "https://forms.gle/p87wy2ETYGC7WDMdA"), InlineKeyboardButton.WithUrl("Сотрудничество", "https://forms.gle/9W8C3epktot9inR66"),
+                new InlineKeyboardButton[]
+                {
+                    InlineKeyboardButton.WithUrl("Техническая поддержка", "https://forms.gle/p87wy2ETYGC7WDMdA"),
+                },
+                new InlineKeyboardButton[]
+                {
+                    InlineKeyboardButton.WithUrl("Сотрудничество", "https://forms.gle/9W8C3epktot9inR66"),
+                }
             }
             );
 

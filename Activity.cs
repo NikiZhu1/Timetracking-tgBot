@@ -40,7 +40,7 @@
             TotalTime = totalTime;
         }
 
-        public string totalTimeToString()
+        public string TotalTimeToString()
         {
             if (TotalTime > 0)
             {
@@ -65,7 +65,7 @@
 
         public override string ToString()
         {
-            return $"{Name}: {totalTimeToString()}";
+            return $"{Name}: {TotalTimeToString()}";
         }
 
         /// <summary>

@@ -890,7 +890,7 @@ namespace Timetracking_HSE_Bot
                         replyMarkup: InlineKeyboard.Main(DB.GetActivityList(chatId)));
 
                         await botClient.SendTextMessageAsync(chatId,
-                            $"🏁 {activity.Name}: затрачено {activity.totalTimeToString()}");
+                            $"🏁 {activity.Name}: затрачено {activity.TotalTimeToString()}");
 
                         //Удаление прошлого списка активностей
                         await botClient.DeleteMessageAsync(chatId, messageId);

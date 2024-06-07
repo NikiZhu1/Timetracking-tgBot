@@ -137,7 +137,6 @@ namespace Timetracking_HSE_Bot
                     cmd.Parameters.AddWithValue("@number", actCount);
                     cmd.Parameters.AddWithValue("@isTracking", 0);
                     cmd.Parameters.AddWithValue("@dateStart", dateStart.ToString("yyyy-MM-dd"));
-
                     cmd.ExecuteNonQuery();
 
                     Console.WriteLine($"{chatId}: Активность #{actCount} - {newValue} добавлена");
@@ -250,7 +249,6 @@ namespace Timetracking_HSE_Bot
                     // Запрос для получения активностей
                     cmd.CommandText = command;
                     cmd.Parameters.AddWithValue("@chatId", chatId);
-
 
                     using var reader = cmd.ExecuteReader();
                     {
@@ -478,7 +476,6 @@ namespace Timetracking_HSE_Bot
             {
                 DBConection?.Close();
             }
-
             return result;
         }
 
@@ -539,6 +536,5 @@ namespace Timetracking_HSE_Bot
                 DBConection?.Close();
             }
         }
-
     }
 }

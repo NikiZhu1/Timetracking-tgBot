@@ -95,6 +95,7 @@ namespace Timetracking_HSE_Bot
                 }
                 catch (Exception ex)
                 {
+                    Console.WriteLine("Ошибка: " + chatId + " " + ex.Message);
                     Console.WriteLine(ex.Message);
                 }
             }
@@ -128,12 +129,6 @@ namespace Timetracking_HSE_Bot
                         "ℹ️ Эти активности в данный момент скрыты из главного меню, и их отслеживание недоступно. " +
                         "Вы можете восстановить их или удалить, нажав на нужную активность.",
                         replyMarkup: archivedActivityKeyboard);
-
-                    ////Удаление прошлой клавиатуры
-                    //int messageId = InlineKeyboard.GetMessageIdForDelete(chatId);
-                    //InlineKeyboard.RemoveMessageId(chatId);
-                    //if (messageId != 0)
-                    //    await botClient.DeleteMessageAsync(chatId, messageId);
                 }
             }
 
@@ -154,7 +149,6 @@ namespace Timetracking_HSE_Bot
                         "🤔 Вы не зарегестрированы. Нажмите на команду /start");
                     return;
                 }
-
                 try
                 {
                     //Инициализация инлайн клавиатуры
@@ -171,11 +165,11 @@ namespace Timetracking_HSE_Bot
                     InlineKeyboard.RemoveMessageId(chatId);
                     if (tempMessageId != 0)
                         await botClient.DeleteMessageAsync(chatId, tempMessageId);
-
                     InlineKeyboard.SetMessageIdForDelete(chatId, messageAct.MessageId);
                 }
                 catch (Exception ex)
                 {
+                    Console.WriteLine("Ошибка: " + chatId + " " + ex.Message);
                     Console.WriteLine(ex.Message);
                 }
             }
@@ -228,6 +222,7 @@ namespace Timetracking_HSE_Bot
                     }
                     catch (Exception ex)
                     {
+                        Console.WriteLine("Ошибка: " + chatId + " " + ex.Message);
                         await botClient.SendTextMessageAsync(chatId, $"‼ Возникла ошибка с подключением данных: {ex.Message}.\n" +
                         $"Пожалуйста, свяжитесь с нами через техническую поддержку для устранения ошибки");
                     }
@@ -267,6 +262,7 @@ namespace Timetracking_HSE_Bot
                     }
                     catch (Exception ex)
                     {
+                        Console.WriteLine("Ошибка: " + chatId + " " + ex.Message);
                         await botClient.SendTextMessageAsync(chatId, $"‼ Возникла ошибка с подключением данных: {ex.Message}.\n" +
                         $"Пожалуйста, свяжитесь с нами через техническую поддержку для устранения ошибки");
                     }
@@ -392,7 +388,7 @@ namespace Timetracking_HSE_Bot
                         }
                         catch (Exception ex) 
                         {
-                            Console.WriteLine(ex.Message);
+                            Console.WriteLine("Ошибка: " + chatId + " " + ex.Message);
                         }
 
                         await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
@@ -534,14 +530,12 @@ namespace Timetracking_HSE_Bot
                             await botClient.DeleteMessageAsync(chatId, messageId);
                             break;
                         }
-
                         if (activity.IsTracking)
                         {
                             await botClient.AnswerCallbackQueryAsync(callbackQuery.Id,
                             "⚙️ Вы отправили в архив отслеживаемую активность. Её таймер остановлен.",
                             showAlert: true);
                         }
-
                         try
                         {
                             if (activity.IsTracking)   //Остановка таймера активности
@@ -574,7 +568,7 @@ namespace Timetracking_HSE_Bot
                         }
                         catch (Exception ex)
                         {
-                            Console.WriteLine(ex.Message);   
+                            Console.WriteLine("Ошибка: " + chatId + " " + ex.Message);
                             await botClient.SendTextMessageAsync(chatId, $"‼ Возникла ошибка с подключением данных: {ex.Message}.\n"
                             + $"Пожалуйста, свяжитесь с нами через техническую поддержку для устранения ошибки");
                         }
@@ -658,7 +652,6 @@ namespace Timetracking_HSE_Bot
                             await botClient.DeleteMessageAsync(chatId, messageId);
                             break;
                         }
-
                         try
                         {
                             //Обновляется дата окончания активности на null
@@ -685,18 +678,13 @@ namespace Timetracking_HSE_Bot
                                 "ℹ️ Когда вы захотите временно скрыть некоторые активности из главного меню и не отслеживать их, " +
                                 "вы можете добавить их в архив, и они будут храниться здесь.");
                             }
-
                             //Удаление AboutArchiveAct
                             await botClient.DeleteMessageAsync(chatId, messageId);
-
-                            //Запомнить id сообщения для удаления
-                            //InlineKeyboard.SetMessageIdForDelete(chatId, newMessage.MessageId);
                             await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "📤 Активность восстановленна");
                         }
                         catch (Exception ex)
                         {
-
-                            Console.WriteLine(ex.Message);
+                            Console.WriteLine("Ошибка: " + chatId + " " + ex.Message);
                             await botClient.SendTextMessageAsync(chatId, $"‼ Возникла ошибка: {ex.Message}.\n"
                             + $"Пожалуйста, свяжитесь с нами через техническую поддержку для устранения ошибки");
                         }
@@ -721,10 +709,8 @@ namespace Timetracking_HSE_Bot
 
                         await botClient.SendTextMessageAsync(chatId,
                         text: $"✏️ Введите новое название для активности \"{activity.Name}\"");
-
                         //Удаление клавиатуры aboutact
                         await botClient.DeleteMessageAsync(chatId, messageId);
-
                         await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);
                         break;
                     }
@@ -742,14 +728,12 @@ namespace Timetracking_HSE_Bot
                             await botClient.DeleteMessageAsync(chatId, messageId);
                             break;
                         }
-
                         if (activity.IsTracking)
                         {
                             await botClient.AnswerCallbackQueryAsync(callbackQuery.Id,
                             "⚙️ Вы удалили отслеживаемую активность.",
                             showAlert: true);
                         }
-
                         try
                         {
                             //Удаление активности
@@ -779,7 +763,7 @@ namespace Timetracking_HSE_Bot
                         }
                         catch (Exception ex)
                         {
-                            Console.WriteLine(ex.Message);
+                            Console.WriteLine("Ошибка: " + chatId + " " + ex.Message);
                             await botClient.SendTextMessageAsync(chatId, $"‼ Возникла ошибка с подключением данных: {ex.Message}.\n"
                             + $"Пожалуйста, свяжитесь с нами через техническую поддержку для устранения ошибки");
                         }
@@ -801,7 +785,6 @@ namespace Timetracking_HSE_Bot
                             await botClient.DeleteMessageAsync(chatId, messageId);
                             break;
                         }
-
                         try
                         {
                             //Удаление активности
@@ -836,7 +819,7 @@ namespace Timetracking_HSE_Bot
                         }
                         catch (Exception ex)
                         {
-                            Console.WriteLine(ex.Message);
+                            Console.WriteLine("Ошибка: " + chatId + " " + ex.Message);
                             await botClient.SendTextMessageAsync(chatId, $"‼ Возникла ошибка с подключением данных: {ex.Message}.\n"
                             + $"Пожалуйста, свяжитесь с нами через техническую поддержку для устранения ошибки");
                         }
@@ -847,7 +830,6 @@ namespace Timetracking_HSE_Bot
                     {
                         int actNumber = int.Parse(Regex.Replace(callbackQuery.Data, @"\D", ""));
                         Activity? activity = activityList.FirstOrDefault(a => a.Number == actNumber);
-
                         if (activity == null)
                         {
                             await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "Действие невозможно");
@@ -856,13 +838,11 @@ namespace Timetracking_HSE_Bot
                             await botClient.DeleteMessageAsync(chatId, messageId);
                             break;
                         }
-
                         if (activity.IsTracking)
                         {
                             await Console.Out.WriteLineAsync($"{chatId}: Активность уже начата");
                             break;
                         }
-
                         //Начать таймер активности
                         Activity.Start(chatId, actNumber);
 
@@ -925,7 +905,6 @@ namespace Timetracking_HSE_Bot
                         {
                             Console.WriteLine("Ошибка: "+ chatId + " " + e.Message);
                         }
-                        
 
                         await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "Тайм-трекер остановлен");
                         break;
@@ -936,7 +915,7 @@ namespace Timetracking_HSE_Bot
         //Метод если появляется ошибка
         async static Task Error(ITelegramBotClient botClient, Exception exception, CancellationToken token)
         {
-            Console.WriteLine("ну все пизда тебе: "+ exception.Message);
+            Console.WriteLine("Произошла ошибка: "+ exception.Message);
         }
     }
 }

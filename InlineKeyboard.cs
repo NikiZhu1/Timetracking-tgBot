@@ -199,7 +199,5 @@ namespace Timetracking_HSE_Bot
             messageIdsForDelete.Remove(userId);
         }
     }
-
-
 }
 

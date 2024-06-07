@@ -138,14 +138,7 @@ namespace Timetracking_HSE_Bot
                     cmd.Parameters.AddWithValue("@isTracking", 0);
                     cmd.Parameters.AddWithValue("@dateStart", dateStart.ToString("yyyy-MM-dd"));
 
-                    DateTime queryStartTime = DateTime.Now;
-
                     cmd.ExecuteNonQuery();
-
-                    DateTime queryEndTime = DateTime.Now;
-                    TimeSpan queryExecutionTime = queryEndTime - queryStartTime;
-                    Console.WriteLine($"Время выполнения запроса (добавление): {queryExecutionTime.TotalSeconds}");
-
 
                     Console.WriteLine($"{chatId}: Активность #{actCount} - {newValue} добавлена");
                 }
@@ -289,11 +282,6 @@ namespace Timetracking_HSE_Bot
                         }
                         reader.Close();
                     }
-
-                    DateTime queryEndTime = DateTime.Now;
-                    TimeSpan queryExecutionTime = queryEndTime - queryStartTime;
-
-                    Console.WriteLine($"Запрос (список акт-ей) к базе данных выполнен за: {queryExecutionTime.TotalSeconds} секунд");
                 }
             }
             catch (Exception ex)

@@ -736,8 +736,6 @@ namespace Timetracking_HSE_Bot
 
                             //Отправка списка активностей
                             InlineKeyboardMarkup activityKeyboard = InlineKeyboard.Main(DB.GetActivityList(chatId));
-                            await botClient.SendTextMessageAsync(chatId,
-                            text: "⏱ Вот все Ваши активности. Нажмите на ту, которую хотите изменить или узнать подробности.",
 
                             Message messageAct = await botClient.SendTextMessageAsync(chatId,
                             text: "⏱ Вот все твои активности. Нажми на ту, которую хочешь изменить или узнать подробности.",
@@ -807,12 +805,6 @@ namespace Timetracking_HSE_Bot
                                 "🗂 Архив пуст\n\n" +
                                 "ℹ️ Когда вы захотите временно скрыть некоторые активности из главного меню и не отслеживать их, " +
                                 "вы можете добавить их в архив, и они будут храниться здесь.");
-
-                                //Отправка списка активностей
-                                InlineKeyboardMarkup activityKeyboard = InlineKeyboard.Main(DB.GetActivityList(chatId));
-                                await botClient.SendTextMessageAsync(chatId,
-                                text: "⏱ Вот все твои активности. Нажми на ту, которую хочешь изменить или узнать подробности.",
-                                replyMarkup: activityKeyboard);
                             }
 
                             await botClient.AnswerCallbackQueryAsync(callbackQuery.Id);

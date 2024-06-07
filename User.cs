@@ -10,13 +10,6 @@
             WaitMessageForAddAct, // Ожидает сообщения для изменения названия активности
         }
 
-        public static List<string> ActivityList { get; set; }
-
-        //public User(long chatId)
-        //{
-
-        //}
-
         //Словаь в котором хранятся состояния пользователей
         private static readonly Dictionary<long, (State state, int? actNumber)> userStates = new();
 

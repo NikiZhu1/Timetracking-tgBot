@@ -739,7 +739,7 @@ namespace Timetracking_HSE_Bot
 
                             Message messageAct = await botClient.SendTextMessageAsync(chatId,
                             text: "⏱ Вот все твои активности. Нажми на ту, которую хочешь изменить или узнать подробности.",
-                            replyMarkup: activityKeyboard));
+                            replyMarkup: activityKeyboard);
 
                             //Удаление прошлой клавиатуры c активностями
                             int tempMessageId = InlineKeyboard.GetMessageIdForDelete(chatId);

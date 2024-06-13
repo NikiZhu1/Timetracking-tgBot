@@ -3,8 +3,12 @@
     "Timetracking HSE Bot": {
       "commandName": "Project"
     },
-    "Container (Dockerfile)": {
-      "commandName": "Docker"
-    }
+
+      "Container (Dockerfile)": {
+        "commandName": "Docker"
+      }
+    },
+  "Container (Dockerfile)": {
+    "commandName": "Docker"
   }
 }

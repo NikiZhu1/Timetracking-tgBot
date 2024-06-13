@@ -17,12 +17,18 @@ namespace Timetracking_HSE_Bot
 
         static async Task Main(string[] args)
         {
-            string token = ConfigurationManager.AppSettings["Token"];
-            botClient = new TelegramBotClient(token);
-            var me = await botClient.GetMeAsync(); //Получаем информацию о боте
-            botClient.StartReceiving(Update, Error);
-            Console.WriteLine($"Бот {me.FirstName} запущен! id: {me.Id}");
-            Console.ReadLine();
+            string token = Environment.GetEnvironmentVariable("TELEGRAM_BOT_TOKEN");
+
+            if (string.IsNullOrEmpty(token)) Console.WriteLine("Токен Telegram бота не найден в переменных окружения.");
+
+            else
+            {
+                botClient = new TelegramBotClient(token);
+                var me = await botClient.GetMeAsync(); //Получаем информацию о боте
+                botClient.StartReceiving(Update, Error);
+                Console.WriteLine($"Бот {me.FirstName} запущен! id: {me.Id}");
+                Console.ReadLine();
+            }
         }
 
         //Асинхронная задача которая реагирует на взаимодействия с ботом

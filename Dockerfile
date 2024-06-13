@@ -18,6 +18,11 @@ RUN dotnet build "./Timetracking HSE Bot.csproj" -c %BUILD_CONFIGURATION% -o /ap
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish "./Timetracking HSE Bot.csproj" -c %BUILD_CONFIGURATION% -o /app/publish /p:UseAppHost=false
+#
+## Копируем файл конфигурации
+#COPY app.config.
+#
+#ENV TELEGRAM_BOT_TOKEN = "YOUR_BOT_TOKEN"
 
 FROM base AS final
 WORKDIR /app
